@@ -5,26 +5,41 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="csrf-token" content="{{ csrf_token() }}">
 
-        <title>{{ config('app.name', 'Laravel') }}</title>
+        <title>{{ config('app.name', 'RAPI BPS Kota Ambon') }}</title>
 
-        <!-- Fonts -->
+        <link rel="icon" href="{{ asset('favicon.ico') }}">
         <link rel="preconnect" href="https://fonts.bunny.net">
         <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
 
-        <!-- Scripts -->
         @vite(['resources/css/app.css', 'resources/js/app.js'])
     </head>
     <body class="font-sans text-gray-900 antialiased">
-        <div class="min-h-screen flex flex-col sm:justify-center items-center pt-6 sm:pt-0 bg-gray-100">
-            
+        <div class="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#1F3864] via-[#2a4a7a] to-[#1a2d52] px-4">
 
-            <div class="w-full sm:max-w-md mt-6 px-6 py-4 bg-white shadow-md overflow-hidden sm:rounded-lg">
-              <div>
-                <a href="/">
-                    <x-application-logo class="w-20 h-20 fill-current text-gray-500" />
-                </a>
+            {{-- Decorative background circles --}}
+            <div class="fixed inset-0 overflow-hidden pointer-events-none">
+                <div class="absolute -top-40 -right-40 w-80 h-80 bg-white/5 rounded-full"></div>
+                <div class="absolute -bottom-40 -left-40 w-96 h-96 bg-white/5 rounded-full"></div>
             </div>
-                {{ $slot }}
+
+            <div class="w-full max-w-md relative">
+                {{-- Card --}}
+                <div class="bg-white rounded-2xl shadow-2xl overflow-hidden">
+                    {{-- Header --}}
+                    <div class="bg-[#1F3864] px-8 py-8 text-center">
+                        <img src="{{ asset('images/bps.svg') }}" alt="Logo BPS" class="w-20 h-20 mx-auto mb-4 brightness-0 invert">
+                        <h1 class="text-white font-semibold text-lg">RAPI - BPS Kota Ambon</h1>
+                        <p class="text-white/60 text-sm mt-1">Daily Activity Reporting System</p>
+                    </div>
+
+                    {{-- Form area --}}
+                    <div class="px-8 py-6">
+                        {{ $slot }}
+                    </div>
+                </div>
+
+                {{-- Footer --}}
+                <p class="text-center text-white/40 text-xs mt-6">Badan Pusat Statistik Kota Ambon &copy; {{ date('Y') }}</p>
             </div>
         </div>
     </body>

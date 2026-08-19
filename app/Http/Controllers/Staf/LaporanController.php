@@ -45,14 +45,10 @@ class LaporanController extends Controller
             'output' => ['nullable', 'string'],
             'lokasi' => ['required', 'in:kantor,lapangan,dinas_luar'],
             'tugas_id' => ['nullable', 'exists:tugas,id'],
-            'file_lampiran' => ['nullable', 'file', 'max:5120'],
+            'file_lampiran' => ['nullable', 'url'],
             // tombol submit menentukan status: draft atau langsung diajukan
             'aksi' => ['required', 'in:draft,ajukan'],
         ]);
-
-        if ($request->hasFile('file_lampiran')) {
-            $data['file_lampiran'] = $request->file('file_lampiran')->store('lampiran-laporan', 'public');
-        }
 
         $data['user_id'] = $request->user()->id;
         $data['status'] = $data['aksi'] === 'ajukan' ? 'menunggu' : 'draft';
@@ -86,6 +82,7 @@ class LaporanController extends Controller
             'output' => ['nullable', 'string'],
             'lokasi' => ['required', 'in:kantor,lapangan,dinas_luar'],
             'tugas_id' => ['nullable', 'exists:tugas,id'],
+            'file_lampiran' => ['nullable', 'url'],
             'aksi' => ['required', 'in:draft,ajukan'],
         ]);
 

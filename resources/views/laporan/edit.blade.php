@@ -1,22 +1,23 @@
-{{-- resources/views/laporan/create.blade.php --}}
+{{-- resources/views/laporan/edit.blade.php --}}
 <x-app-layout>
     <div class="max-w-2xl mx-auto py-8 px-4">
 
         {{-- Header --}}
         <div class="mb-6">
-            <h1 class="text-xl font-semibold text-gray-900">Laporan Aktivitas Harian</h1>
-            <p class="text-sm text-gray-500 mt-0.5">{{ auth()->user()->name }} &middot; {{ auth()->user()->bagian->nama_bagian }}</p>
+            <h1 class="text-xl font-semibold text-gray-900">Edit Laporan</h1>
+            <p class="text-sm text-gray-500 mt-0.5">Perbarui laporan aktivitas harian Anda.</p>
         </div>
 
         {{-- Form card --}}
         <div class="bg-white rounded-xl border border-gray-200 overflow-hidden">
-            <form method="POST" action="{{ route('laporan.store') }}" enctype="multipart/form-data" class="p-6">
+            <form method="POST" action="{{ route('laporan.update', $laporan) }}" class="p-6">
                 @csrf
+                @method('PUT')
 
                 <div class="grid grid-cols-2 gap-4 mb-5">
                     <div>
                         <label class="text-sm font-medium text-gray-700 block mb-1.5">Tanggal</label>
-                        <input type="date" name="tanggal" value="{{ old('tanggal', now()->toDateString()) }}"
+                        <input type="date" name="tanggal" value="{{ old('tanggal', $laporan->tanggal->toDateString()) }}"
                                class="w-full rounded-lg border-gray-300 text-sm focus:ring-[#1F3864]/20 focus:border-[#1F3864]" required>
                     </div>
                     <div>
@@ -24,7 +25,7 @@
                         <select name="tugas_id" class="w-full rounded-lg border-gray-300 text-sm focus:ring-[#1F3864]/20 focus:border-[#1F3864]">
                             <option value="">Tidak terkait tugas</option>
                             @foreach ($tugasAktif as $tugas)
-                                <option value="{{ $tugas->id }}" @selected(old('tugas_id') == $tugas->id)>{{ $tugas->judul }}</option>
+                                <option value="{{ $tugas->id }}" @selected(old('tugas_id', $laporan->tugas_id) == $tugas->id)>{{ $tugas->judul }}</option>
                             @endforeach
                         </select>
                     </div>
@@ -33,12 +34,12 @@
                 <div class="grid grid-cols-2 gap-4 mb-5">
                     <div>
                         <label class="text-sm font-medium text-gray-700 block mb-1.5">Jam Mulai</label>
-                        <input type="time" name="jam_mulai" value="{{ old('jam_mulai') }}"
+                        <input type="time" name="jam_mulai" value="{{ old('jam_mulai', $laporan->jam_mulai) }}"
                                class="w-full rounded-lg border-gray-300 text-sm focus:ring-[#1F3864]/20 focus:border-[#1F3864]">
                     </div>
                     <div>
                         <label class="text-sm font-medium text-gray-700 block mb-1.5">Jam Selesai</label>
-                        <input type="time" name="jam_selesai" value="{{ old('jam_selesai') }}"
+                        <input type="time" name="jam_selesai" value="{{ old('jam_selesai', $laporan->jam_selesai) }}"
                                class="w-full rounded-lg border-gray-300 text-sm focus:ring-[#1F3864]/20 focus:border-[#1F3864]">
                     </div>
                 </div>
@@ -55,28 +56,27 @@
                 <div class="mb-5">
                     <label class="text-sm font-medium text-gray-700 block mb-1.5">Uraian Kegiatan <span class="text-red-500">*</span></label>
                     <textarea name="uraian" rows="4" class="w-full rounded-lg border-gray-300 text-sm focus:ring-[#1F3864]/20 focus:border-[#1F3864]"
-                              placeholder="Jelaskan kegiatan yang dilakukan hari ini..." required>{{ old('uraian') }}</textarea>
+                              required>{{ old('uraian', $laporan->uraian) }}</textarea>
                 </div>
 
                 <div class="mb-5">
                     <label class="text-sm font-medium text-gray-700 block mb-1.5">Output / Hasil</label>
-                    <input type="text" name="output" value="{{ old('output') }}"
-                           class="w-full rounded-lg border-gray-300 text-sm focus:ring-[#1F3864]/20 focus:border-[#1F3864]"
-                           placeholder="Contoh: Laporan statistik bulanan">
+                    <input type="text" name="output" value="{{ old('output', $laporan->output) }}"
+                           class="w-full rounded-lg border-gray-300 text-sm focus:ring-[#1F3864]/20 focus:border-[#1F3864]">
                 </div>
 
                 <div class="grid grid-cols-2 gap-4 mb-6">
                     <div>
                         <label class="text-sm font-medium text-gray-700 block mb-1.5">Lokasi <span class="text-red-500">*</span></label>
                         <select name="lokasi" class="w-full rounded-lg border-gray-300 text-sm focus:ring-[#1F3864]/20 focus:border-[#1F3864]" required>
-                            <option value="kantor" @selected(old('lokasi') === 'kantor')>Kantor</option>
-                            <option value="lapangan" @selected(old('lokasi') === 'lapangan')>Lapangan</option>
-                            <option value="dinas_luar" @selected(old('lokasi') === 'dinas_luar')>Dinas Luar</option>
+                            <option value="kantor" @selected(old('lokasi', $laporan->lokasi) === 'kantor')>Kantor</option>
+                            <option value="lapangan" @selected(old('lokasi', $laporan->lokasi) === 'lapangan')>Lapangan</option>
+                            <option value="dinas_luar" @selected(old('lokasi', $laporan->lokasi) === 'dinas_luar')>Dinas Luar</option>
                         </select>
                     </div>
                     <div>
                         <label class="text-sm font-medium text-gray-700 block mb-1.5">Link Lampiran Bukti</label>
-                        <input type="url" name="file_lampiran" value="{{ old('file_lampiran') }}"
+                        <input type="url" name="file_lampiran" value="{{ old('file_lampiran', $laporan->file_lampiran) }}"
                                class="w-full rounded-lg border-gray-300 text-sm focus:ring-[#1F3864]/20 focus:border-[#1F3864]"
                                placeholder="https://drive.google.com/file/d/...">
                         <p class="text-xs text-gray-400 mt-1">Paste link Google Drive bukti kegiatan</p>
@@ -85,6 +85,10 @@
 
                 {{-- Action buttons --}}
                 <div class="flex justify-end gap-2 pt-5 border-t border-gray-100">
+                    <a href="{{ route('laporan.index') }}"
+                       class="px-5 py-2.5 text-sm font-medium rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50 transition-colors">
+                        Batal
+                    </a>
                     <button type="submit" name="aksi" value="draft"
                             class="px-5 py-2.5 text-sm font-medium rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50 transition-colors">
                         Simpan Draft

@@ -2,43 +2,92 @@
 <x-app-layout>
     <div class="max-w-5xl mx-auto py-8 px-4">
 
-        <div class="bg-white rounded-xl border p-5 mb-6 flex justify-between items-center">
+        {{-- Greeting card --}}
+        <div class="bg-[#1F3864] rounded-2xl p-6 mb-6 flex justify-between items-center text-white">
             <div>
-                <p class="font-medium text-lg">Halo, {{ auth()->user()->name }}</p>
-                <p class="text-sm text-gray-500">{{ auth()->user()->bagian->nama_bagian }}</p>
+                <h1 class="text-xl font-semibold">Halo, {{ auth()->user()->name }}</h1>
+                <p class="text-white/70 text-sm mt-0.5">{{ auth()->user()->bagian->nama_bagian }}</p>
             </div>
             <a href="{{ route('laporan.create') }}"
-               class="bg-gray-900 text-white text-sm px-4 py-2 rounded-lg">
-                + Laporan baru
+               class="inline-flex items-center gap-1.5 bg-white/15 hover:bg-white/25 text-white text-sm font-medium px-4 py-2.5 rounded-lg transition-colors backdrop-blur-sm">
+                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                </svg>
+                Laporan Baru
             </a>
         </div>
 
+        {{-- Stats --}}
         <div class="grid grid-cols-2 gap-4 mb-6">
-            <div class="bg-gray-50 rounded-lg p-4">
-                <p class="text-sm text-gray-500">Tugas aktif</p>
-                <p class="text-2xl font-medium">{{ $tugasAktif }}</p>
+            <div class="bg-white border border-gray-200 rounded-xl p-5">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-lg bg-blue-50 flex items-center justify-center">
+                        <svg class="w-5 h-5 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 0 0 2.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 0 0-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 0 0 .75-.75 2.25 2.25 0 0 0-.1-.664m-5.8 0A2.251 2.251 0 0 1 13.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m0 0H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V9.375c0-.621-.504-1.125-1.125-1.125H8.25ZM6.75 12h.008v.008H6.75V12Zm0 3h.008v.008H6.75V15Zm0 3h.008v.008H6.75V18Z" />
+                        </svg>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-500">Tugas Aktif</p>
+                        <p class="text-2xl font-semibold text-gray-900">{{ $tugasAktif }}</p>
+                    </div>
+                </div>
             </div>
-            <div class="bg-gray-50 rounded-lg p-4">
-                <p class="text-sm text-gray-500">Menunggu approval</p>
-                <p class="text-2xl font-medium">{{ $menungguApproval }}</p>
+            <div class="bg-white border border-gray-200 rounded-xl p-5">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-lg bg-amber-50 flex items-center justify-center">
+                        <svg class="w-5 h-5 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                        </svg>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-500">Menunggu Approval</p>
+                        <p class="text-2xl font-semibold text-gray-900">{{ $menungguApproval }}</p>
+                    </div>
+                </div>
             </div>
         </div>
 
-        <div class="bg-white rounded-xl border p-5">
-            <p class="font-medium mb-3">Riwayat laporan terbaru</p>
-            <table class="w-full text-sm">
-                @forelse ($laporanTerbaru as $laporan)
-                    <tr class="border-t">
-                        <td class="py-2 text-gray-500">{{ $laporan->tanggal->format('d M') }}</td>
-                        <td class="py-2">{{ Str::limit($laporan->uraian, 40) }}</td>
-                        <td class="py-2 text-right">
-                            <x-status-badge :status="$laporan->status" />
-                        </td>
-                    </tr>
-                @empty
-                    <tr><td class="py-4 text-gray-400" colspan="3">Belum ada laporan.</td></tr>
-                @endforelse
-            </table>
+        {{-- Recent reports --}}
+        <div class="bg-white rounded-xl border border-gray-200 overflow-hidden">
+            <div class="px-5 py-4 border-b border-gray-100 flex justify-between items-center">
+                <h2 class="font-semibold text-gray-900">Riwayat Laporan Terbaru</h2>
+                <a href="{{ route('laporan.index') }}" class="text-sm text-[#1F3864] hover:underline font-medium">Lihat Semua</a>
+            </div>
+
+            @if ($laporanTerbaru->isEmpty())
+                <div class="text-center py-12">
+                    <svg class="w-10 h-10 mx-auto text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z" />
+                    </svg>
+                    <p class="text-sm font-medium text-gray-900 mt-3">Belum ada laporan</p>
+                    <p class="text-sm text-gray-500 mt-1">Mulai buat laporan aktivitas harian pertama Anda.</p>
+                    <a href="{{ route('laporan.create') }}"
+                       class="inline-flex items-center gap-1.5 mt-4 bg-[#1F3864] hover:bg-[#16294a] text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors">
+                        + Buat Laporan
+                    </a>
+                </div>
+            @else
+                <table class="w-full text-sm">
+                    <thead>
+                        <tr class="text-left text-xs text-gray-500 uppercase tracking-wide bg-gray-50 border-b border-gray-100">
+                            <th class="py-2.5 px-5 font-medium">Tanggal</th>
+                            <th class="py-2.5 px-5 font-medium">Uraian</th>
+                            <th class="py-2.5 px-5 font-medium text-right">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-100">
+                        @foreach ($laporanTerbaru as $laporan)
+                            <tr class="hover:bg-gray-50/70 transition-colors">
+                                <td class="py-3 px-5 text-gray-500">{{ $laporan->tanggal->format('d M Y') }}</td>
+                                <td class="py-3 px-5 text-gray-900">{{ Str::limit($laporan->uraian, 50) }}</td>
+                                <td class="py-3 px-5 text-right">
+                                    <x-status-badge :status="$laporan->status" />
+                                </td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            @endif
         </div>
 
     </div>
