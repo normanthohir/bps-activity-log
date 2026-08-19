@@ -8,9 +8,15 @@
             <p class="text-sm text-gray-500 mt-0.5">{{ auth()->user()->name }} &middot; {{ auth()->user()->bagian->nama_bagian }}</p>
         </div>
 
+        @if ($tugasTerpilih ?? false)
+            <div class="bg-blue-50 border border-blue-200 text-blue-700 text-sm px-4 py-3 rounded-lg mb-5">
+                Laporan ini akan dikaitkan dengan tugas yang dipilih di bawah.
+            </div>
+        @endif
+
         {{-- Form card --}}
         <div class="bg-white rounded-xl border border-gray-200 overflow-hidden">
-            <form method="POST" action="{{ route('laporan.store') }}" enctype="multipart/form-data" class="p-6">
+            <form method="POST" action="{{ route('laporan.store') }}" class="p-6">
                 @csrf
 
                 <div class="grid grid-cols-2 gap-4 mb-5">
@@ -24,7 +30,7 @@
                         <select name="tugas_id" class="w-full rounded-lg border-gray-300 text-sm focus:ring-[#1F3864]/20 focus:border-[#1F3864]">
                             <option value="">Tidak terkait tugas</option>
                             @foreach ($tugasAktif as $tugas)
-                                <option value="{{ $tugas->id }}" @selected(old('tugas_id') == $tugas->id)>{{ $tugas->judul }}</option>
+                                <option value="{{ $tugas->id }}" @selected(old('tugas_id', $tugasTerpilih ?? null) == $tugas->id)>{{ $tugas->judul }}</option>
                             @endforeach
                         </select>
                     </div>

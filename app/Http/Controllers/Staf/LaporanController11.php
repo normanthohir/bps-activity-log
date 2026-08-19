@@ -11,6 +11,7 @@ use Illuminate\View\View;
 
 class LaporanController extends Controller
 {
+    
     // Riwayat laporan milik user yang login
     public function index(Request $request): View
     {
@@ -31,11 +32,7 @@ class LaporanController extends Controller
             ->where('status', '!=', 'selesai')
             ->get();
 
-        // Kalau halaman ini dibuka dari tombol "Buat laporan" di detail
-        // tugas (?tugas=5), dropdown tugas otomatis ter-pilih duluan
-        $tugasTerpilih = $request->integer('tugas');
-
-        return view('laporan.create', compact('tugasAktif', 'tugasTerpilih'));
+        return view('laporan.create', compact('tugasAktif'));
     }
 
     public function store(Request $request): RedirectResponse
@@ -48,25 +45,20 @@ class LaporanController extends Controller
             'output' => ['nullable', 'string'],
             'lokasi' => ['required', 'in:kantor,lapangan,dinas_luar'],
             'tugas_id' => ['nullable', 'exists:tugas,id'],
-            'file_lampiran' => ['nullable', 'url'],
+            'file_lampiran' => ['nullable', 'file', 'max:5120'],
             // tombol submit menentukan status: draft atau langsung diajukan
             'aksi' => ['required', 'in:draft,ajukan'],
         ]);
+
+        if ($request->hasFile('file_lampiran')) {
+            $data['file_lampiran'] = $request->file('file_lampiran')->store('lampiran-laporan', 'public');
+        }
 
         $data['user_id'] = $request->user()->id;
         $data['status'] = $data['aksi'] === 'ajukan' ? 'menunggu' : 'draft';
         unset($data['aksi']);
 
-        $laporan = LaporanHarian::create($data);
-
-        // Kalau laporan ini terkait sebuah tugas, dan tugasnya masih
-        // berstatus "belum_dikerjakan", otomatis update jadi "dikerjakan"
-        // supaya kepala bagian/kepala BPS tahu progresnya sudah mulai jalan.
-        if ($laporan->tugas_id) {
-            Tugas::where('id', $laporan->tugas_id)
-                ->where('status', 'belum_dikerjakan')
-                ->update(['status' => 'dikerjakan']);
-        }
+        LaporanHarian::create($data);
 
         return redirect()->route('laporan.index')
             ->with('success', 'Laporan berhasil disimpan.');
@@ -81,6 +73,7 @@ class LaporanController extends Controller
         return view('laporan.edit', compact('laporan', 'tugasAktif'));
     }
 
+
     public function update(Request $request, LaporanHarian $laporan): RedirectResponse
     {
         $this->authorize('update', $laporan);
@@ -93,7 +86,6 @@ class LaporanController extends Controller
             'output' => ['nullable', 'string'],
             'lokasi' => ['required', 'in:kantor,lapangan,dinas_luar'],
             'tugas_id' => ['nullable', 'exists:tugas,id'],
-            'file_lampiran' => ['nullable', 'url'],
             'aksi' => ['required', 'in:draft,ajukan'],
         ]);
 

@@ -4,8 +4,16 @@
 
         {{-- Greeting card --}}
         <div class="bg-[#1F3864] rounded-2xl p-6 mb-6 text-white">
-            <h1 class="text-xl font-semibold">Kepala BPS Kota Ambon</h1>
-            <p class="text-white/70 text-sm mt-0.5">Akses seluruh bagian &middot; Rekap dan persetujuan lintas seksi</p>
+            <div class="flex justify-between items-center">
+                <div>
+                    <h1 class="text-xl font-semibold">Kepala BPS Kota Ambon</h1>
+                    <p class="text-white/70 text-sm mt-0.5">Akses seluruh bagian &middot; Rekap dan persetujuan lintas seksi</p>
+                </div>
+                <a href="{{ route('kepala-bps.tugas.create') }}"
+                   class="bg-white/15 hover:bg-white/25 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors">
+                    + Beri Tugas
+                </a>
+            </div>
         </div>
 
         {{-- Stats --}}

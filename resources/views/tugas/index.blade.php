@@ -2,7 +2,6 @@
 @php
     $isKepalaBps = auth()->user()->isKepalaBps();
     $createRoute = $isKepalaBps ? 'kepala-bps.tugas.create' : 'kabag.tugas.create';
-    $createRouteFallback = $isKepalaBps ? 'kepala-bps.tugas.index' : 'kabag.tugas.index';
 @endphp
 
 <x-app-layout>

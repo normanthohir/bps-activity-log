@@ -12,15 +12,29 @@ class TugasController extends Controller
 {
     public function index(Request $request): View
     {
-        $query = $request->user()->tugasDiterima()->with('pemberiTugas', 'bagian');
+        $tugasAktif = $request->user()
+            ->tugasDiterima()
+            ->with(['pemberiTugas', 'laporanHarian' => fn ($q) => $q->latest()])
+            ->where('status', '!=', 'selesai')
+            ->latest()
+            ->get();
 
-        if ($request->filled('status')) {
-            $query->where('status', $request->status);
-        }
+        $tugasSelesai = $request->user()
+            ->tugasDiterima()
+            ->where('status', 'selesai')
+            ->latest()
+            ->paginate(10, ['*'], 'selesai_page');
 
-        $tugas = $query->latest('tenggat')->paginate(15)->withQueryString();
+        return view('tugas.index-staf', compact('tugasAktif', 'tugasSelesai'));
+    }
 
-        return view('staf.tugas.index', compact('tugas'));
+    public function show(Tugas $tugas): View
+    {
+        abort_unless($tugas->ditugaskan_ke === auth()->id(), 403);
+
+        $tugas->load(['pemberiTugas', 'bagian', 'laporanHarian' => fn ($q) => $q->latest()]);
+
+        return view('tugas.show-staf', compact('tugas'));
     }
 
     public function update(Request $request, Tugas $tugas): RedirectResponse

@@ -97,6 +97,14 @@
                                     </div>
                                 </td>
                             </tr>
+
+                            @if ($item->status === 'dikembalikan' && $item->logApproval->last())
+                                <tr class="bg-red-50">
+                                    <td colspan="5" class="px-5 py-2 text-xs text-red-700">
+                                        Catatan penolakan: {{ $item->logApproval->last()->catatan ?? '-' }}
+                                    </td>
+                                </tr>
+                            @endif
                         @endforeach
                     </tbody>
                 </table>

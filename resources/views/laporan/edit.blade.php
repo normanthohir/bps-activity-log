@@ -8,6 +8,12 @@
             <p class="text-sm text-gray-500 mt-0.5">Perbarui laporan aktivitas harian Anda.</p>
         </div>
 
+        @if ($laporan->status === 'dikembalikan' && $laporan->logApproval->last())
+            <div class="bg-red-50 text-red-700 text-sm p-3 rounded-lg mb-5">
+                Catatan dari atasan: {{ $laporan->logApproval->last()->catatan ?? '-' }}
+            </div>
+        @endif
+
         {{-- Form card --}}
         <div class="bg-white rounded-xl border border-gray-200 overflow-hidden">
             <form method="POST" action="{{ route('laporan.update', $laporan) }}" class="p-6">
