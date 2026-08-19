@@ -1,30 +1,12 @@
 <?php
 
-// use App\Http\Controllers\ProfileController;
-// use Illuminate\Support\Facades\Route;
-
-// Route::get('/', function () {
-//     return view('welcome');
-// });
-
-// Route::get('/dashboard', function () {
-//     return view('dashboard');
-// })->middleware(['auth', 'verified'])->name('dashboard');
-
-// Route::middleware('auth')->group(function () {
-//     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
-//     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
-//     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
-// });
-
-use App\Http\Controllers\Admin\UserController;
-use App\Http\Controllers\Admin\BagianController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\KepalaBagian\ApprovalController as KabagApprovalController;
 use App\Http\Controllers\KepalaBagian\TugasController as KabagTugasController;
 use App\Http\Controllers\KepalaBPS\ApprovalController as KepalaBpsApprovalController;
 use App\Http\Controllers\KepalaBPS\RekapController;
 use App\Http\Controllers\Staf\LaporanController;
+use App\Http\Controllers\Staf\TugasController as StafTugasController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -43,6 +25,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::resource('laporan', LaporanController::class)
         ->only(['index', 'create', 'store', 'edit', 'update']);
 
+    // ── Tugas aktif milik sendiri: bisa diakses SEMUA role yang login ──
+    // (setiap pegawai bisa jadi penerima tugas, termasuk kepala bagian)
+    Route::resource('tugas', StafTugasController::class)
+        ->only(['index', 'show']);
+
     // ── Khusus Kepala Bagian ─────────────────────────────
     Route::middleware(['role:kepala_bagian'])->prefix('kabag')->name('kabag.')->group(function () {
         Route::resource('tugas', KabagTugasController::class)
@@ -57,13 +44,17 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('rekap', [RekapController::class, 'index'])->name('rekap');
 
         Route::get('approval', [KepalaBpsApprovalController::class, 'index'])->name('approval.index');
+        Route::get('approval/{laporan}', [KepalaBpsApprovalController::class, 'show'])->name('approval.show'); // ← baris baru
         Route::post('approval/{laporan}', [KepalaBpsApprovalController::class, 'proses'])->name('approval.proses');
+
+        Route::resource('tugas', \App\Http\Controllers\KepalaBPS\TugasController::class)
+            ->parameters(['tugas' => 'tugas']);
     });
 
     // ── Khusus Admin ─────────────────────────────────────
     Route::middleware(['role:admin'])->prefix('admin')->name('admin.')->group(function () {
-        Route::resource('users', UserController::class);
-        Route::resource('bagian', BagianController::class);
+        Route::resource('users', \App\Http\Controllers\Admin\UserController::class);
+        Route::resource('bagian', \App\Http\Controllers\Admin\BagianController::class);
     });
 });
 

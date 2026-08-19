@@ -2,9 +2,15 @@
 <x-app-layout>
     <div class="max-w-5xl mx-auto py-8 px-4">
 
-        <div class="bg-white rounded-xl border p-5 mb-6">
-            <p class="font-medium text-lg">Kepala BPS Kota Ambon</p>
-            <p class="text-sm text-gray-500">Akses seluruh bagian</p>
+        <div class="bg-white rounded-xl border p-5 mb-6 flex justify-between items-center">
+            <div>
+                <p class="font-medium text-lg">Kepala BPS Kota Ambon</p>
+                <p class="text-sm text-gray-500">Akses seluruh bagian</p>
+            </div>
+            <a href="{{ route('kepala-bps.tugas.create') }}"
+               class="bg-gray-900 text-white text-sm px-4 py-2 rounded-lg">
+                + Beri tugas
+            </a>
         </div>
 
         <div class="grid grid-cols-2 gap-4 mb-6">

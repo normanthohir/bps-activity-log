@@ -6,7 +6,11 @@
             <a href="{{ route('dashboard') }}" class="font-semibold">DAR - BPS Kota Ambon</a>
 
             <a href="{{ route('dashboard') }}" class="text-sm text-gray-600">Dashboard</a>
-            <a href="{{ route('laporan.index') }}" class="text-sm text-gray-600">Laporan Saya</a>
+            @unless (auth()->user()->isKepalaBps())
+    <a href="{{ route('laporan.index') }}" class="text-sm text-gray-600">Laporan Saya</a>
+    <a href="{{ route('tugas.index') }}" class="text-sm text-gray-600">Tugas Aktif</a>
+@endunless
+           
 
             @if (auth()->user()->isKepalaBagian())
                 <a href="{{ route('kabag.tugas.index') }}" class="text-sm text-gray-600">Tugas Tim</a>
@@ -16,11 +20,12 @@
             @endif
 
             @if (auth()->user()->isKepalaBps())
-                <a href="{{ route('kepala-bps.rekap') }}" class="text-sm text-gray-600">Rekap Kantor</a>
-                <a href="{{ route('kepala-bps.approval.index') }}" class="text-sm text-gray-600">
-                    Persetujuan (Semua Bagian)
-                </a>
-            @endif
+    <a href="{{ route('kepala-bps.rekap') }}" class="text-sm text-gray-600">Rekap Kantor</a>
+    <a href="{{ route('kepala-bps.tugas.index') }}" class="text-sm text-gray-600">Tugas</a>
+    <a href="{{ route('kepala-bps.approval.index') }}" class="text-sm text-gray-600">
+        Persetujuan (Semua Bagian)
+    </a>
+@endif
 
             @if (auth()->user()->isAdmin())
                 <a href="{{ route('admin.users.index') }}" class="text-sm text-gray-600">Kelola User</a>

@@ -1,58 +1,117 @@
 <?php
 
-namespace App\Http\Controllers\KepalaBagian;
+namespace App\Http\Controllers\KepalaBPS;
 
 use App\Http\Controllers\Controller;
+use App\Models\Bagian;
 use App\Models\Tugas;
+use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 
 class TugasController extends Controller
 {
-    // Semua tugas yang pernah dibuat oleh kepala bagian ini
+    // Daftar semua tugas yang pernah diberikan oleh kepala BPS ini
     public function index(Request $request): View
     {
-        $tugas = $request->user()->tugasDibuat()->latest()->paginate(15);
+        $tugas = Tugas::where('dibuat_oleh', $request->user()->id)
+            ->with(['penerimaTugas', 'bagian', 'laporanHarian' => function ($q) {
+                $q->latest();
+            }])
+            ->latest()
+            ->paginate(15);
 
-        return view('tugas.index', compact('tugas'));
+        return view('tugas.index-kepala-bps', compact('tugas'));
     }
 
-    public function create(Request $request): View
+    public function create(): View
     {
-        // Hanya staf DI BAGIAN yang sama dengan kepala bagian yang login
-        $stafBagian = $request->user()->bagian->pegawai()->where('role', 'staf')->get();
+        $daftarBagian = Bagian::with(['pegawai' => function ($query) {
+            $query->whereIn('role', ['staf', 'kepala_bagian'])->select('id', 'name', 'role', 'bagian_id');
+        }])->get(['id', 'nama_bagian']);
 
-        return view('tugas.create', compact('stafBagian'));
+        $dataPegawaiPerBagian = [];
+        foreach ($daftarBagian as $bagian) {
+            $dataPegawaiPerBagian[$bagian->id] = $bagian->pegawai->map(function ($p) {
+                return [
+                    'id' => $p->id,
+                    'label' => $p->name . ' (' . ($p->role === 'kepala_bagian' ? 'Kepala Bagian' : 'Staf') . ')',
+                ];
+            })->values();
+        }
+
+        return view('tugas.create-kepala-bps', compact('daftarBagian', 'dataPegawaiPerBagian'));
     }
 
     public function store(Request $request): RedirectResponse
     {
-        $user = $request->user();
-
         $data = $request->validate([
+            'bagian_id' => ['required', 'exists:bagian,id'],
             'ditugaskan_ke' => ['required', 'exists:users,id'],
             'judul' => ['required', 'string', 'max:255'],
             'deskripsi' => ['nullable', 'string'],
             'tenggat' => ['nullable', 'date', 'after_or_equal:today'],
         ]);
 
-        // Validasi keamanan tambahan: pastikan staf tujuan
-        // benar-benar berada di bagian yang sama dengan kepala bagian ini.
-        // Ini penting supaya Kepala Bagian A tidak bisa menugaskan
-        // staf di Bagian B lewat manipulasi form.
-        $stafTujuan = \App\Models\User::findOrFail($data['ditugaskan_ke']);
-        abort_unless($stafTujuan->bagian_id === $user->bagian_id, 403,
-            'Staf tujuan bukan bagian dari seksi Anda.');
+        $penerima = User::findOrFail($data['ditugaskan_ke']);
+        abort_unless($penerima->bagian_id === (int) $data['bagian_id'], 403,
+            'Pegawai yang dipilih bukan bagian dari bagian tersebut.');
 
         Tugas::create([
-            ...$data,
-            'dibuat_oleh' => $user->id,
-            'bagian_id' => $user->bagian_id,
+            'dibuat_oleh' => $request->user()->id,
+            'ditugaskan_ke' => $penerima->id,
+            'bagian_id' => $data['bagian_id'],
+            'judul' => $data['judul'],
+            'deskripsi' => $data['deskripsi'] ?? null,
+            'tenggat' => $data['tenggat'] ?? null,
             'status' => 'belum_dikerjakan',
         ]);
 
-        return redirect()->route('kabag.tugas.index')
-            ->with('success', 'Tugas berhasil diberikan.');
+        return redirect()->route('kepala-bps.tugas.index')
+            ->with('success', 'Tugas berhasil diberikan kepada ' . $penerima->name . '.');
+    }
+
+    // Detail satu tugas beserta riwayat laporan yang terkait
+    public function show(Request $request, Tugas $tugas): View
+    {
+        abort_unless($request->user()->isKepalaBps(), 403);
+    
+        $tugas->load(['penerimaTugas', 'bagian', 'laporanHarian' => function ($q) {
+            $q->latest();
+        }]);
+    
+        return view('tugas.show-kepala-bps', compact('tugas'));
+    }
+    
+    public function edit(Request $request, Tugas $tugas): View
+    {
+        abort_unless($request->user()->isKepalaBps(), 403);
+    
+        return view('tugas.edit-kepala-bps', compact('tugas'));
+    }
+    
+    public function update(Request $request, Tugas $tugas): RedirectResponse
+    {
+        abort_unless($request->user()->isKepalaBps(), 403);
+    
+        $data = $request->validate([
+            'judul' => ['required', 'string', 'max:255'],
+            'deskripsi' => ['nullable', 'string'],
+            'tenggat' => ['nullable', 'date'],
+        ]);
+    
+        $tugas->update($data);
+    
+        return redirect()->route('kepala-bps.tugas.index')->with('success', 'Tugas berhasil diperbarui.');
+    }
+    
+    public function destroy(Request $request, Tugas $tugas): RedirectResponse
+    {
+        abort_unless($request->user()->isKepalaBps(), 403);
+    
+        $tugas->delete();
+    
+        return redirect()->route('kepala-bps.tugas.index')->with('success', 'Tugas berhasil dihapus.');
     }
 }
