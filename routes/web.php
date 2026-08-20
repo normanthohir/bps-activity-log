@@ -22,7 +22,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
     Route::resource('laporan', LaporanController::class)
-        ->only(['index', 'create', 'store', 'edit', 'update']);
+        ->only(['index', 'create', 'store', 'show', 'edit', 'update', 'destroy']);
 
     Route::get('tugas-saya', [StafTugasController::class, 'index'])->name('staf.tugas.index');
     Route::get('tugas-saya/{tugas}', [StafTugasController::class, 'show'])->name('staf.tugas.show');

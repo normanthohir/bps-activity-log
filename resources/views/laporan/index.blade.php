@@ -87,12 +87,44 @@
                                     <x-status-badge :status="$item->status" />
                                 </td>
                                 <td class="py-3.5 px-5">
-                                    <div class="flex items-center justify-end gap-3">
+                                    <div class="flex items-center justify-end gap-2">
+                                        <a href="{{ route('laporan.show', $item) }}"
+                                           class="text-[#1F3864] hover:underline text-sm font-medium transition-colors">
+                                            Lihat
+                                        </a>
                                         @if ($item->status === 'draft' || $item->status === 'dikembalikan')
                                             <a href="{{ route('laporan.edit', $item) }}"
                                                class="text-gray-600 hover:text-[#1F3864] text-sm font-medium transition-colors">
                                                 Edit
                                             </a>
+                                        @endif
+                                        @if ($item->status === 'draft')
+                                            <form method="POST" action="{{ route('laporan.update', $item) }}" class="inline">
+                                                @csrf
+                                                @method('PUT')
+                                                <input type="hidden" name="tanggal" value="{{ $item->tanggal->toDateString() }}">
+                                                <input type="hidden" name="uraian" value="{{ $item->uraian }}">
+                                                <input type="hidden" name="lokasi" value="{{ $item->lokasi }}">
+                                                <input type="hidden" name="tugas_id" value="{{ $item->tugas_id }}">
+                                                <input type="hidden" name="jam_mulai" value="{{ $item->jam_mulai }}">
+                                                <input type="hidden" name="jam_selesai" value="{{ $item->jam_selesai }}">
+                                                <input type="hidden" name="output" value="{{ $item->output }}">
+                                                <input type="hidden" name="file_lampiran" value="{{ $item->file_lampiran }}">
+                                                <input type="hidden" name="aksi" value="ajukan">
+                                                <button type="submit"
+                                                        class="text-green-600 hover:text-green-700 text-sm font-medium transition-colors">
+                                                    Kirim
+                                                </button>
+                                            </form>
+                                            <form method="POST" action="{{ route('laporan.destroy', $item) }}" class="inline"
+                                                  onsubmit="return confirm('Yakin ingin menghapus laporan ini?')">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit"
+                                                        class="text-red-500 hover:text-red-700 text-sm font-medium transition-colors">
+                                                    Hapus
+                                                </button>
+                                            </form>
                                         @endif
                                     </div>
                                 </td>
