@@ -22,6 +22,15 @@ class LaporanController extends Controller
         return view('laporan.index', compact('laporan'));
     }
 
+    public function show(LaporanHarian $laporan): View
+    {
+        $this->authorize('view', $laporan);
+
+        $laporan->load(['tugas', 'logApproval.approver']);
+
+        return view('laporan.show', compact('laporan'));
+    }
+
     public function create(Request $request): View
     {
         // Hanya tampilkan tugas milik sendiri yang belum selesai,
@@ -48,6 +57,7 @@ class LaporanController extends Controller
             'output' => ['nullable', 'string'],
             'lokasi' => ['required', 'in:kantor,lapangan,dinas_luar'],
             'tugas_id' => ['nullable', 'exists:tugas,id'],
+            'file_lampiran' => ['nullable', 'url'],
             'file_lampiran' => ['nullable', 'url', 'max:5120'],
             // tombol submit menentukan status: draft atau langsung diajukan
             'aksi' => ['required', 'in:draft,ajukan'],
@@ -93,6 +103,7 @@ class LaporanController extends Controller
             'output' => ['nullable', 'string'],
             'lokasi' => ['required', 'in:kantor,lapangan,dinas_luar'],
             'tugas_id' => ['nullable', 'exists:tugas,id'],
+            'file_lampiran' => ['nullable', 'url'],
             'aksi' => ['required', 'in:draft,ajukan'],
         ]);
 
@@ -103,5 +114,15 @@ class LaporanController extends Controller
 
         return redirect()->route('laporan.index')
             ->with('success', 'Laporan berhasil diperbarui.');
+    }
+
+    public function destroy(LaporanHarian $laporan): RedirectResponse
+    {
+        $this->authorize('delete', $laporan);
+
+        $laporan->delete();
+
+        return redirect()->route('laporan.index')
+            ->with('success', 'Laporan berhasil dihapus.');
     }
 }

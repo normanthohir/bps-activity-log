@@ -51,4 +51,12 @@ class LaporanHarianPolicy
 
         return false;
     }
+
+    // Hanya pemilik laporan yang boleh menghapus, dan hanya
+    // selama statusnya masih draft.
+    public function delete(User $user, LaporanHarian $laporan): bool
+    {
+        return $laporan->user_id === $user->id
+            && $laporan->status === 'draft';
+    }
 }

@@ -12,7 +12,6 @@ use Illuminate\View\View;
 
 class TugasController extends Controller
 {
-    // Daftar semua tugas yang pernah diberikan oleh kepala BPS ini
     public function index(Request $request): View
     {
         $tugas = Tugas::where('dibuat_oleh', $request->user()->id)
@@ -72,46 +71,45 @@ class TugasController extends Controller
             ->with('success', 'Tugas berhasil diberikan kepada ' . $penerima->name . '.');
     }
 
-    // Detail satu tugas beserta riwayat laporan yang terkait
     public function show(Request $request, Tugas $tugas): View
     {
         abort_unless($request->user()->isKepalaBps(), 403);
-    
+
         $tugas->load(['penerimaTugas', 'bagian', 'laporanHarian' => function ($q) {
             $q->latest();
         }]);
-    
+
         return view('tugas.show-kepala-bps', compact('tugas'));
     }
-    
+
     public function edit(Request $request, Tugas $tugas): View
     {
         abort_unless($request->user()->isKepalaBps(), 403);
-    
+
         return view('tugas.edit-kepala-bps', compact('tugas'));
     }
-    
+
     public function update(Request $request, Tugas $tugas): RedirectResponse
     {
         abort_unless($request->user()->isKepalaBps(), 403);
-    
+
         $data = $request->validate([
             'judul' => ['required', 'string', 'max:255'],
             'deskripsi' => ['nullable', 'string'],
             'tenggat' => ['nullable', 'date'],
         ]);
-    
+
         $tugas->update($data);
-    
+
         return redirect()->route('kepala-bps.tugas.index')->with('success', 'Tugas berhasil diperbarui.');
     }
-    
+
     public function destroy(Request $request, Tugas $tugas): RedirectResponse
     {
         abort_unless($request->user()->isKepalaBps(), 403);
-    
+
         $tugas->delete();
-    
+
         return redirect()->route('kepala-bps.tugas.index')->with('success', 'Tugas berhasil dihapus.');
     }
 }

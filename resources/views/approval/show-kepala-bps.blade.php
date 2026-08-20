@@ -1,13 +1,13 @@
 {{-- resources/views/approval/show-kepala-bps.blade.php --}}
 <x-app-layout>
-    <div class="max-w-2xl mx-auto py-8 px-4">
+    <div class="max-w-2xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
 
         @if (session('success'))
             <div class="bg-green-50 text-green-700 text-sm p-3 rounded-lg mb-4">{{ session('success') }}</div>
         @endif
 
         <div class="bg-white rounded-xl border p-6 mb-6">
-            <div class="flex justify-between items-start mb-4">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-4">
                 <div>
                     <p class="font-medium text-lg">{{ $laporan->user->name }}</p>
                     <p class="text-sm text-gray-500">{{ $laporan->user->bagian->nama_bagian ?? '-' }}</p>
@@ -31,7 +31,7 @@
                 </div>
             @endif
 
-            <div class="grid grid-cols-2 gap-4 mb-4">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
                 <div>
                     <p class="text-sm text-gray-500 mb-1">Tanggal</p>
                     <p class="text-sm">{{ $laporan->tanggal->format('d M Y') }}</p>
@@ -54,7 +54,7 @@
                 <p class="text-sm">{{ $laporan->output ?? '-' }}</p>
             </div>
 
-            <div class="grid grid-cols-2 gap-4 mb-4">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
                 <div>
                     <p class="text-sm text-gray-500 mb-1">Lokasi</p>
                     <p class="text-sm capitalize">{{ str_replace('_', ' ', $laporan->lokasi) }}</p>
@@ -76,12 +76,12 @@
                     <form method="POST" action="{{ route('kepala-bps.approval.proses', $laporan) }}">
                         @csrf
                         <input type="hidden" name="aksi" value="disetujui">
-                        <button class="text-sm px-4 py-2 rounded-lg border">Setujui</button>
+                        <button class="bg-green-600 hover:bg-green-700 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors">Setujui</button>
                     </form>
                     <form method="POST" action="{{ route('kepala-bps.approval.proses', $laporan) }}">
                         @csrf
                         <input type="hidden" name="aksi" value="ditolak">
-                        <button class="text-sm px-4 py-2 rounded-lg border text-red-600">Tolak</button>
+                        <button class="bg-red-50 hover:bg-red-100 text-red-600 text-sm font-medium px-4 py-2 rounded-lg transition-colors">Tolak</button>
                     </form>
                 </div>
             @endif
@@ -114,7 +114,12 @@
             @endforelse
         </div>
 
-        <a href="{{ route('kepala-bps.approval.index') }}" class="text-sm underline mt-4 inline-block">← Kembali</a>
+        <a href="{{ route('kepala-bps.approval.index') }}" class="inline-flex items-center gap-1.5 bg-[#1F3864]/10 border border-[#1F3864]/30 text-[#1F3864] hover:bg-[#1F3864]/20 text-sm font-medium px-4 py-2 rounded-lg transition-colors">
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18" />
+            </svg>
+            Kembali
+        </a>
 
     </div>
 </x-app-layout>

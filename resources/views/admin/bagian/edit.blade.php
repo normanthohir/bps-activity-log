@@ -1,45 +1,77 @@
 {{-- resources/views/admin/bagian/edit.blade.php --}}
 <x-app-layout>
-    <div class="max-w-xl mx-auto py-8 px-4">
+    <div class="max-w-xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
 
-        <div class="bg-white rounded-xl border p-6">
-            <p class="font-medium text-lg mb-5">Edit Bagian: {{ $bagian->nama_bagian }}</p>
+        {{-- Header --}}
+        <div class="mb-6">
+            <h1 class="text-xl font-semibold text-gray-900">Edit Bagian: {{ $bagian->nama_bagian }}</h1>
+            <p class="text-sm text-gray-500 mt-0.5">Perbarui informasi bagian/seksi.</p>
+        </div>
 
-            <form method="POST" action="{{ route('admin.bagian.update', $bagian) }}">
+        {{-- Form card --}}
+        <div class="bg-white rounded-xl border border-gray-200 overflow-hidden"
+             x-data="{
+                 errors: {},
+                 nama_bagian: '{{ old('nama_bagian', $bagian->nama_bagian) }}',
+                 kode_bagian: '{{ old('kode_bagian', $bagian->kode_bagian) }}',
+                 validate() {
+                     this.errors = {};
+                     if (!this.nama_bagian.trim()) this.errors.nama_bagian = 'Nama bagian wajib diisi.';
+                     if (this.nama_bagian.length > 255) this.errors.nama_bagian = 'Nama bagian maksimal 255 karakter.';
+                     if (!this.kode_bagian.trim()) this.errors.kode_bagian = 'Kode bagian wajib diisi.';
+                     if (this.kode_bagian.length > 50) this.errors.kode_bagian = 'Kode bagian maksimal 50 karakter.';
+                     return Object.keys(this.errors).length === 0;
+                 },
+                 submit() {
+                     if (this.validate()) {
+                         this.$refs.form.submit();
+                     }
+                 }
+             }">
+            <form method="POST" action="{{ route('admin.bagian.update', $bagian) }}" class="p-6" x-ref="form" novalidate>
                 @csrf
                 @method('PUT')
 
                 <div class="mb-4">
-                    <label class="text-sm text-gray-500 block mb-1">Nama bagian</label>
-                    <input type="text" name="nama_bagian" value="{{ old('nama_bagian', $bagian->nama_bagian) }}"
-                           class="w-full rounded-lg border-gray-300" required>
-                    @error('nama_bagian') <p class="text-sm text-red-600">{{ $message }}</p> @enderror
+                    <label class="text-sm font-medium text-gray-700 block mb-1.5">Nama Bagian <span class="text-red-500">*</span></label>
+                    <input type="text" name="nama_bagian" x-model="nama_bagian"
+                           class="w-full rounded-lg text-sm focus:ring-[#1F3864]/20 focus:border-[#1F3864]"
+                           :class="errors.nama_bagian ? 'border-red-500' : 'border-gray-300'">
+                    <template x-if="errors.nama_bagian">
+                        <p class="text-xs text-red-600 mt-1" x-text="errors.nama_bagian"></p>
+                    </template>
                 </div>
 
                 <div class="mb-4">
-                    <label class="text-sm text-gray-500 block mb-1">Kode bagian</label>
-                    <input type="text" name="kode_bagian" value="{{ old('kode_bagian', $bagian->kode_bagian) }}"
-                           class="w-full rounded-lg border-gray-300" required>
-                    @error('kode_bagian') <p class="text-sm text-red-600">{{ $message }}</p> @enderror
+                    <label class="text-sm font-medium text-gray-700 block mb-1.5">Kode Bagian <span class="text-red-500">*</span></label>
+                    <input type="text" name="kode_bagian" x-model="kode_bagian"
+                           class="w-full rounded-lg text-sm focus:ring-[#1F3864]/20 focus:border-[#1F3864]"
+                           :class="errors.kode_bagian ? 'border-red-500' : 'border-gray-300'">
+                    <template x-if="errors.kode_bagian">
+                        <p class="text-xs text-red-600 mt-1" x-text="errors.kode_bagian"></p>
+                    </template>
                 </div>
 
-                <div class="mb-6">
-                    <label class="text-sm text-gray-500 block mb-1">Kepala bagian</label>
-                    <select name="kepala_bagian_id" class="w-full rounded-lg border-gray-300">
+                <div class="mb-5">
+                    <label class="text-sm font-medium text-gray-700 block mb-1.5">Kepala Bagian</label>
+                    <select name="kepala_bagian_id" class="w-full rounded-lg border-gray-300 text-sm focus:ring-[#1F3864]/20 focus:border-[#1F3864]">
                         <option value="">- Belum ditentukan -</option>
                         @foreach ($calonKepala as $pegawai)
-                            <option value="{{ $pegawai->id }}" @selected(old('kepala_bagian_id', $bagian->kepala_bagian_id) == $pegawai->id)>
-                                {{ $pegawai->name }}
-                            </option>
+                            <option value="{{ $pegawai->id }}" @selected(old('kepala_bagian_id', $bagian->kepala_bagian_id) == $pegawai->id)>{{ $pegawai->name }}</option>
                         @endforeach
                     </select>
-                    <p class="text-xs text-gray-400 mt-1">
-                        Hanya menampilkan pegawai yang sudah terdaftar di bagian ini.
-                    </p>
+                    <p class="text-xs text-gray-400 mt-1">Hanya menampilkan pegawai yang sudah terdaftar di bagian ini.</p>
                 </div>
 
-                <div class="flex justify-end gap-2 pt-4 border-t">
-                    <button type="submit" class="px-4 py-2 text-sm rounded-lg bg-gray-900 text-white">Simpan Perubahan</button>
+                <div class="flex justify-end gap-2 pt-5 border-t border-gray-100">
+                    <a href="{{ route('admin.bagian.index') }}"
+                       class="px-5 py-2.5 text-sm font-medium rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50 transition-colors">
+                        Batal
+                    </a>
+                    <button type="button" @click="submit()"
+                            class="px-5 py-2.5 text-sm font-medium rounded-lg bg-[#1F3864] hover:bg-[#16294a] text-white transition-colors">
+                        Simpan Perubahan
+                    </button>
                 </div>
             </form>
         </div>
