@@ -17,6 +17,7 @@
                 Laporan Baru
             </a>
         </div>
+        </div>
 
         {{-- Stats --}}
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
@@ -90,6 +91,7 @@
                     </tbody>
                 </table>
                 </div>
+            @endif
         </div>
 
     </div>
