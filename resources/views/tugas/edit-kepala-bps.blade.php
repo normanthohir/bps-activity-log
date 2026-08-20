@@ -1,6 +1,6 @@
 {{-- resources/views/tugas/edit-kepala-bps.blade.php --}}
 <x-app-layout>
-    <div class="max-w-xl mx-auto py-8 px-4">
+    <div class="max-w-xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
 
         {{-- Header --}}
         <div class="mb-6">

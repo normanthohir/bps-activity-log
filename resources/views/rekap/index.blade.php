@@ -1,6 +1,6 @@
 {{-- resources/views/rekap/index.blade.php --}}
 <x-app-layout>
-    <div class="max-w-5xl mx-auto py-8 px-4">
+    <div class="max-w-5xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
 
         {{-- Header --}}
         <div class="mb-6">
@@ -9,7 +9,7 @@
         </div>
 
         {{-- Summary stat cards --}}
-        <div class="grid grid-cols-3 gap-4 mb-6">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
             <div class="bg-white border border-gray-200 rounded-xl p-5">
                 <div class="flex items-center gap-3">
                     <div class="w-10 h-10 rounded-lg bg-blue-50 flex items-center justify-center">
@@ -57,6 +57,7 @@
                 <h2 class="font-semibold text-gray-900">Rekap Per Bagian</h2>
             </div>
 
+            <div class="overflow-x-auto">
             <table class="w-full text-sm">
                 <thead>
                     <tr class="text-left text-xs text-gray-500 uppercase tracking-wide bg-gray-50 border-b border-gray-200">
@@ -107,7 +108,7 @@
                     @endforelse
                 </tbody>
             </table>
-        </div>
+            </div>
 
     </div>
 </x-app-layout>

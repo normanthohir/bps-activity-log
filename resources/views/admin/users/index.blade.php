@@ -1,9 +1,9 @@
 {{-- resources/views/admin/users/index.blade.php --}}
 <x-app-layout>
-    <div class="max-w-5xl mx-auto py-8 px-4">
+    <div class="max-w-5xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
 
         {{-- Header --}}
-        <div class="flex justify-between items-start mb-6">
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
             <div>
                 <h1 class="text-xl font-semibold text-gray-900">Kelola Akun Pegawai</h1>
                 <p class="text-sm text-gray-500 mt-0.5">Semua pengguna sistem beserta role dan bagiannya.</p>
@@ -19,7 +19,7 @@
 
         {{-- Search & filter --}}
         <form method="GET" class="flex flex-wrap items-center gap-3 mb-5">
-            <div class="relative flex-1 min-w-[200px]">
+            <div class="relative flex-1 min-w-0 sm:min-w-[200px]">
                 <svg class="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                     <path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
                 </svg>
@@ -64,6 +64,7 @@
                     @endif
                 </div>
             @else
+                <div class="overflow-x-auto">
                 <table class="w-full text-sm">
                     <thead>
                         <tr class="text-left text-xs text-gray-500 uppercase tracking-wide bg-gray-50 border-b border-gray-200">
@@ -119,6 +120,7 @@
                         @endforeach
                     </tbody>
                 </table>
+                </div>
 
                 <div class="border-t border-gray-100 px-5 py-3">
                     {{ $users->links() }}

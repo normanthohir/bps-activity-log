@@ -1,9 +1,10 @@
 {{-- resources/views/dashboard/staf.blade.php --}}
 <x-app-layout>
-    <div class="max-w-5xl mx-auto py-8 px-4">
+    <div class="max-w-5xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
 
         {{-- Greeting card --}}
-        <div class="bg-[#1F3864] rounded-2xl p-6 mb-6 flex justify-between items-center text-white">
+        <div class="bg-[#1F3864] rounded-2xl p-6 mb-6 text-white">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
             <div>
                 <h1 class="text-xl font-semibold">Halo, {{ auth()->user()->name }}</h1>
                 <p class="text-white/70 text-sm mt-0.5">{{ auth()->user()->bagian->nama_bagian }}</p>
@@ -18,7 +19,7 @@
         </div>
 
         {{-- Stats --}}
-        <div class="grid grid-cols-2 gap-4 mb-6">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
             <div class="bg-white border border-gray-200 rounded-xl p-5">
                 <div class="flex items-center gap-3">
                     <div class="w-10 h-10 rounded-lg bg-blue-50 flex items-center justify-center">
@@ -49,7 +50,7 @@
 
         {{-- Recent reports --}}
         <div class="bg-white rounded-xl border border-gray-200 overflow-hidden">
-            <div class="px-5 py-4 border-b border-gray-100 flex justify-between items-center">
+            <div class="px-5 py-4 border-b border-gray-100 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
                 <h2 class="font-semibold text-gray-900">Riwayat Laporan Terbaru</h2>
                 <a href="{{ route('laporan.index') }}" class="text-sm text-[#1F3864] hover:underline font-medium">Lihat Semua</a>
             </div>
@@ -67,6 +68,7 @@
                     </a>
                 </div>
             @else
+                <div class="overflow-x-auto">
                 <table class="w-full text-sm">
                     <thead>
                         <tr class="text-left text-xs text-gray-500 uppercase tracking-wide bg-gray-50 border-b border-gray-100">
@@ -87,7 +89,7 @@
                         @endforeach
                     </tbody>
                 </table>
-            @endif
+                </div>
         </div>
 
     </div>

@@ -1,6 +1,6 @@
 {{-- resources/views/tugas/show-staf.blade.php --}}
 <x-app-layout>
-    <div class="max-w-2xl mx-auto py-8 px-4">
+    <div class="max-w-2xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
 
         {{-- Header --}}
         <div class="mb-6">
@@ -15,7 +15,7 @@
         {{-- Detail card --}}
         <div class="bg-white rounded-xl border border-gray-200 overflow-hidden mb-6">
             <div class="p-6">
-                <div class="flex justify-between items-start mb-4">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-4">
                     <div>
                         <p class="text-sm text-gray-500 mb-1">Deskripsi</p>
                         <p class="text-sm text-gray-900">{{ $tugas->deskripsi ?? '-' }}</p>
@@ -29,7 +29,7 @@
                     </a>
                 </div>
 
-                <div class="grid grid-cols-2 gap-4 mt-4 pt-4 border-t border-gray-100">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4 pt-4 border-t border-gray-100">
                     <div>
                         <p class="text-sm text-gray-500 mb-1">Tenggat</p>
                         <p class="text-sm font-medium text-gray-900">{{ $tugas->tenggat?->format('d M Y') ?? '—' }}</p>

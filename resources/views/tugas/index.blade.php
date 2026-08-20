@@ -5,10 +5,10 @@
 @endphp
 
 <x-app-layout>
-    <div class="max-w-5xl mx-auto py-8 px-4">
+    <div class="max-w-5xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
 
         {{-- Header --}}
-        <div class="flex justify-between items-start mb-6">
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
             <div>
                 <h1 class="text-xl font-semibold text-gray-900">Daftar Tugas</h1>
                 <p class="text-sm text-gray-500 mt-0.5">
@@ -43,6 +43,7 @@
                     </a>
                 </div>
             @else
+                <div class="overflow-x-auto">
                 <table class="w-full text-sm">
                     <thead>
                         <tr class="text-left text-xs text-gray-500 uppercase tracking-wide bg-gray-50 border-b border-gray-200">
@@ -99,6 +100,7 @@
                         @endforeach
                     </tbody>
                 </table>
+                </div>
 
                 <div class="border-t border-gray-100 px-5 py-3">
                     {{ $tugas->links() }}

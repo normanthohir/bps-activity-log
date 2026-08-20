@@ -1,9 +1,10 @@
 {{-- resources/views/dashboard/kepala-bagian.blade.php --}}
 <x-app-layout>
-    <div class="max-w-5xl mx-auto py-8 px-4">
+    <div class="max-w-5xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
 
         {{-- Greeting card --}}
-        <div class="bg-[#1F3864] rounded-2xl p-6 mb-6 flex justify-between items-center text-white">
+        <div class="bg-[#1F3864] rounded-2xl p-6 mb-6 text-white">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
             <div>
                 <h1 class="text-xl font-semibold">{{ auth()->user()->name }}</h1>
                 <p class="text-white/70 text-sm mt-0.5">Kepala Seksi &middot; {{ $bagian->nama_bagian }} &middot; {{ $staf->count() }} staf</p>
@@ -18,7 +19,7 @@
         </div>
 
         {{-- Stats --}}
-        <div class="grid grid-cols-3 gap-4 mb-6">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
             <div class="bg-white border border-gray-200 rounded-xl p-5">
                 <div class="flex items-center gap-3">
                     <div class="w-10 h-10 rounded-lg bg-blue-50 flex items-center justify-center">
@@ -61,7 +62,7 @@
         </div>
 
         {{-- Quick links --}}
-        <div class="grid grid-cols-2 gap-4">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <a href="{{ route('kabag.tugas.index') }}"
                class="bg-white border border-gray-200 rounded-xl p-5 hover:border-[#1F3864]/30 hover:shadow-sm transition-all group">
                 <div class="flex items-center gap-3">

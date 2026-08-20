@@ -1,6 +1,6 @@
 {{-- resources/views/laporan/create.blade.php --}}
 <x-app-layout>
-    <div class="max-w-2xl mx-auto py-8 px-4">
+    <div class="max-w-2xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
 
         {{-- Header --}}
         <div class="mb-6">
@@ -19,7 +19,7 @@
             <form method="POST" action="{{ route('laporan.store') }}" class="p-6">
                 @csrf
 
-                <div class="grid grid-cols-2 gap-4 mb-5">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-5">
                     <div>
                         <label class="text-sm font-medium text-gray-700 block mb-1.5">Tanggal</label>
                         <input type="date" name="tanggal" value="{{ old('tanggal', now()->toDateString()) }}"
@@ -36,7 +36,7 @@
                     </div>
                 </div>
 
-                <div class="grid grid-cols-2 gap-4 mb-5">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-5">
                     <div>
                         <label class="text-sm font-medium text-gray-700 block mb-1.5">Jam Mulai</label>
                         <input type="time" name="jam_mulai" value="{{ old('jam_mulai') }}"
@@ -71,7 +71,7 @@
                            placeholder="Contoh: Laporan statistik bulanan">
                 </div>
 
-                <div class="grid grid-cols-2 gap-4 mb-6">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
                     <div>
                         <label class="text-sm font-medium text-gray-700 block mb-1.5">Lokasi <span class="text-red-500">*</span></label>
                         <select name="lokasi" class="w-full rounded-lg border-gray-300 text-sm focus:ring-[#1F3864]/20 focus:border-[#1F3864]" required>
@@ -90,7 +90,7 @@
                 </div>
 
                 {{-- Action buttons --}}
-                <div class="flex justify-end gap-2 pt-5 border-t border-gray-100">
+                <div class="flex flex-col sm:flex-row justify-end gap-3 pt-5 border-t border-gray-100">
                     <button type="submit" name="aksi" value="draft"
                             class="px-5 py-2.5 text-sm font-medium rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50 transition-colors">
                         Simpan Draft

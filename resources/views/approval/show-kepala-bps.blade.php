@@ -1,13 +1,13 @@
 {{-- resources/views/approval/show-kepala-bps.blade.php --}}
 <x-app-layout>
-    <div class="max-w-2xl mx-auto py-8 px-4">
+    <div class="max-w-2xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
 
         @if (session('success'))
             <div class="bg-green-50 text-green-700 text-sm p-3 rounded-lg mb-4">{{ session('success') }}</div>
         @endif
 
         <div class="bg-white rounded-xl border p-6 mb-6">
-            <div class="flex justify-between items-start mb-4">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-4">
                 <div>
                     <p class="font-medium text-lg">{{ $laporan->user->name }}</p>
                     <p class="text-sm text-gray-500">{{ $laporan->user->bagian->nama_bagian ?? '-' }}</p>
@@ -31,7 +31,7 @@
                 </div>
             @endif
 
-            <div class="grid grid-cols-2 gap-4 mb-4">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
                 <div>
                     <p class="text-sm text-gray-500 mb-1">Tanggal</p>
                     <p class="text-sm">{{ $laporan->tanggal->format('d M Y') }}</p>
@@ -54,7 +54,7 @@
                 <p class="text-sm">{{ $laporan->output ?? '-' }}</p>
             </div>
 
-            <div class="grid grid-cols-2 gap-4 mb-4">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
                 <div>
                     <p class="text-sm text-gray-500 mb-1">Lokasi</p>
                     <p class="text-sm capitalize">{{ str_replace('_', ' ', $laporan->lokasi) }}</p>

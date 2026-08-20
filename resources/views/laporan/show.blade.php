@@ -1,6 +1,6 @@
 {{-- resources/views/laporan/show.blade.php --}}
 <x-app-layout>
-    <div class="max-w-2xl mx-auto py-8 px-4">
+    <div class="max-w-2xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
 
         {{-- Header --}}
         <div class="mb-6">
@@ -11,7 +11,7 @@
         {{-- Detail card --}}
         <div class="bg-white rounded-xl border border-gray-200 overflow-hidden mb-6">
             <div class="p-6">
-                <div class="flex items-center justify-between mb-4">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-4">
                     <x-status-badge :status="$laporan->status" />
                     @if ($laporan->status === 'draft')
                         <div class="flex gap-2">
@@ -23,9 +23,9 @@
                     @endif
                 </div>
 
-                <div class="grid grid-cols-2 gap-4 mb-4">
-                    <div>
-                        <p class="text-sm text-gray-500 mb-1">Tanggal</p>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+                <div>
+                    <p class="text-sm text-gray-500 mb-1">Tanggal</p>
                         <p class="text-sm font-medium text-gray-900">{{ $laporan->tanggal->format('d M Y') }}</p>
                     </div>
                     <div>
@@ -44,9 +44,9 @@
                     </div>
                 </div>
 
-                <div class="grid grid-cols-2 gap-4 mb-4">
-                    <div>
-                        <p class="text-sm text-gray-500 mb-1">Jam Mulai</p>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+                <div>
+                    <p class="text-sm text-gray-500 mb-1">Jam Mulai</p>
                         <p class="text-sm font-medium text-gray-900">{{ $laporan->jam_mulai ?? '—' }}</p>
                     </div>
                     <div>

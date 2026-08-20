@@ -1,9 +1,9 @@
 {{-- resources/views/admin/bagian/index.blade.php --}}
 <x-app-layout>
-    <div class="max-w-5xl mx-auto py-8 px-4">
+    <div class="max-w-5xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
 
         {{-- Header --}}
-        <div class="flex justify-between items-start mb-6">
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
             <div>
                 <h1 class="text-xl font-semibold text-gray-900">Kelola Bagian/Seksi</h1>
                 <p class="text-sm text-gray-500 mt-0.5">Struktur unit kerja dan penanggung jawab tiap bagian.</p>
@@ -18,7 +18,7 @@
         </div>
 
         {{-- Summary stats --}}
-        <div class="grid grid-cols-3 gap-4 mb-6">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
             <div class="bg-white border border-gray-200 rounded-xl p-4">
                 <p class="text-xs text-gray-500">Total Bagian</p>
                 <p class="text-2xl font-semibold text-gray-900 mt-1">{{ $bagian->count() }}</p>
@@ -51,6 +51,7 @@
                     </a>
                 </div>
             @else
+                <div class="overflow-x-auto">
                 <table class="w-full text-sm">
                     <thead>
                         <tr class="text-left text-xs text-gray-500 uppercase tracking-wide bg-gray-50 border-b border-gray-200">
@@ -107,7 +108,7 @@
                         @endforeach
                     </tbody>
                 </table>
-            @endif
+                </div>
         </div>
 
     </div>
