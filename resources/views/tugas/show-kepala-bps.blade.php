@@ -6,7 +6,7 @@
         <div class="mb-6">
             <h1 class="text-xl font-semibold text-gray-900">{{ $tugas->judul }}</h1>
             <p class="text-sm text-gray-500 mt-0.5">
-                Ditugaskan ke {{ $tugas->penerimaTugas->name }} &middot; {{ $tugas->bagian->nama_bagian }}
+                Ditugaskan ke {{ $tugas->penerimaTugas?->name ?? '-' }} &middot; {{ $tugas->bagian?->nama_bagian ?? '-' }}
             </p>
         </div>
 

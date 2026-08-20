@@ -73,7 +73,7 @@
                                     <div class="flex items-center justify-end gap-3">
                                         <a href="{{ route('staf.tugas.show', $tugas) }}"
                                            class="text-[#1F3864] hover:underline text-sm font-medium">
-                                            Detail
+                                            Lihat
                                         </a>
                                         <a href="{{ route('laporan.create', ['tugas' => $tugas->id]) }}"
                                            class="text-[#1F3864] hover:underline text-sm font-medium">
@@ -110,7 +110,7 @@
                                 <td class="py-3 px-5 text-right">
                                     <a href="{{ route('staf.tugas.show', $tugas) }}"
                                        class="text-[#1F3864] hover:underline text-sm font-medium">
-                                        Detail
+                                        Lihat
                                     </a>
                                 </td>
                             </tr>

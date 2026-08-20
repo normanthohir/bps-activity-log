@@ -6,9 +6,9 @@
         <div class="mb-6">
             <h1 class="text-xl font-semibold text-gray-900">{{ $tugas->judul }}</h1>
             <p class="text-sm text-gray-500 mt-0.5">
-                Diberikan oleh {{ $tugas->pemberiTugas->name }}
-                ({{ $tugas->pemberiTugas->isKepalaBps() ? 'Kepala BPS' : 'Kepala Bagian' }})
-                &middot; {{ $tugas->bagian->nama_bagian }}
+                Diberikan oleh {{ $tugas->pemberiTugas?->name ?? '-' }}
+                ({{ $tugas->pemberiTugas?->isKepalaBps() ? 'Kepala BPS' : 'Kepala Bagian' }})
+                &middot; {{ $tugas->bagian?->nama_bagian ?? '-' }}
             </p>
         </div>
 

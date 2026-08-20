@@ -99,10 +99,6 @@
                                                 </button>
                                             </form>
                                         @endif
-                                        <a href="{{ route('kepala-bps.tugas.show', $item) }}"
-                                           class="text-[#1F3864] hover:underline text-sm font-medium">
-                                            Detail
-                                        </a>
                                         @if ($laporanTerkini && $laporanTerkini->status === 'menunggu')
                                             <a href="{{ route('kepala-bps.tugas.edit', $item) }}"
                                                class="text-gray-500 hover:text-gray-700 text-sm font-medium">
