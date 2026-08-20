@@ -87,6 +87,57 @@
                 </table>
                 </div>
             @endif
+        <div class="bg-white rounded-xl border p-5 mb-6">
+            <table class="w-full text-sm">
+                <thead>
+                    <tr class="text-left text-gray-500 border-b">
+                        <th class="pb-2">Judul</th>
+                        <th class="pb-2">Diberikan oleh</th>
+                        <th class="pb-2">Tenggat</th>
+                        <th class="pb-2">Status</th>
+                        <th class="pb-2 text-right">Aksi</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @forelse ($tugasAktif as $tugas)
+                        @php
+                            $warna = match ($tugas->status) {
+                                'dikerjakan' => 'bg-amber-100 text-amber-700',
+                                default => 'bg-gray-100 text-gray-600',
+                            };
+                        @endphp
+                        <tr class="border-b">
+                            <td class="py-3">{{ $tugas->judul }}</td>
+                            <td class="py-3">
+                                {{ $tugas->pemberiTugas->name }}
+                                <span class="text-xs text-gray-400">
+                                    ({{ $tugas->pemberiTugas->isKepalaBps() ? 'Kepala BPS' : 'Kepala Bagian' }})
+                                </span>
+                            </td>
+                            <td class="py-3">{{ $tugas->tenggat?->format('d M Y') ?? '-' }}</td>
+                            <td class="py-3">
+                                <span class="{{ $warna }} text-xs px-2 py-0.5 rounded-full">
+                                    {{ ucwords(str_replace('_', ' ', $tugas->status)) }}
+                                </span>
+                            </td>
+                            <td class="py-3 text-right">
+                                <a href="{{ route('tugas.show', $tugas) }}" class="underline">Detail</a>
+                                @if ($tugas->status != 'dikerjakan')
+                                    <a href="{{ route('laporan.create', ['tugas' => $tugas->id]) }}"
+                                        class="underline ml-2">
+                                        Buat laporan
+                                    </a>
+                                @endif
+                            </td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="5" class="py-6 text-center text-gray-400">Tidak ada tugas aktif saat ini.
+                            </td>
+                        </tr>
+                    @endforelse
+                </tbody>
+            </table>
         </div>
 
         {{-- Tugas Selesai --}}

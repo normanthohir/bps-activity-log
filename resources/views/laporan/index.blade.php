@@ -31,6 +31,38 @@
                 <a href="{{ route('laporan.index') }}" class="text-sm text-gray-400 hover:text-gray-600">Reset</a>
             @endif
         </form>
+        <div class="bg-white rounded-xl border p-5">
+            <table class="w-full text-sm">
+                <thead>
+                    <tr class="text-left text-gray-500 border-b">
+                        <th class="pb-2">Tanggal</th>
+                        <th class="pb-2">Uraian</th>
+                        <th class="pb-2">Lokasi</th>
+                        <th class="pb-2">Status</th>
+                        <th class="pb-2 text-right">Aksi</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @forelse ($laporan as $item)
+                        <tr class="border-b">
+                            <td class="py-3">{{ $item->tanggal->format('d M Y') }}</td>
+                            <td class="py-3">{{ Str::limit($item->uraian, 45) }}</td>
+                            <td class="py-3 capitalize">{{ str_replace('_', ' ', $item->lokasi) }}</td>
+                            <td class="py-3"><x-status-badge :status="$item->status" /></td>
+                            <td class="py-3 text-right">
+                                @if (in_array($item->status, ['draft', 'dikembalikan']))
+                                    <a href="{{ route('laporan.edit', $item) }}" class="underline text-sm">
+                                        {{ $item->status === 'dikembalikan' ? 'Revisi' : 'Edit' }}
+                                    </a>
+                                @else
+                                    <span class="text-gray-300 text-sm">
+                                        <a href="" class="">
+                                            Lihat
+                                        </a>
+                                    </span>
+                                @endif
+                            </td>
+                        </tr>
 
         {{-- Table card --}}
         <div class="bg-white rounded-xl border border-gray-200 overflow-hidden">

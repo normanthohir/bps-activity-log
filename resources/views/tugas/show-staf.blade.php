@@ -28,6 +28,13 @@
                         Buat Laporan
                     </a>
                 </div>
+                @if ($tugas->status ==!'dikerjakan')
+                     <a href="{{ route('laporan.create', ['tugas' => $tugas->id]) }}"
+                   class="bg-gray-900 text-white text-sm px-4 py-2 rounded-lg whitespace-nowrap">
+                    + Buat laporan
+                </a>
+                @endif
+            </div>
 
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4 pt-4 border-t border-gray-100">
                     <div>
@@ -79,6 +86,14 @@
                                 <x-status-badge :status="$laporan->status" />
                             </div>
                             <p class="text-sm text-gray-600">{{ $laporan->uraian }}</p>
+            @forelse ($tugas->laporanHarian as $laporan)
+                <div class="border-t py-3">
+                    <div class="flex justify-between items-center mb-1">
+                        <p class="text-sm">{{ $laporan->tanggal->format('d M Y') }}</p>
+                        <x-status-badge :status="$laporan->status" />
+                    </div>
+                    <p class="text-sm text-gray-600">{{ $laporan->jam_mulai }} — {{ $laporan->jam_selesai }}</p> 
+                    <p class="text-sm text-gray-600">{{ $laporan->uraian }}</p>
 
                             @if ($laporan->status === 'dikembalikan')
                                 <div class="mt-2 bg-red-50 text-red-700 text-xs px-3 py-2 rounded-lg">

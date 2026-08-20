@@ -2,6 +2,18 @@
 <nav class="bg-[#1F3864] shadow-lg sticky top-0 z-50">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between h-16 items-center">
+{{-- Menu navigasi berbeda tampil otomatis sesuai role user yang login --}}
+<nav class="bg-white border-b border-gray-100">
+    <div class="max-w-7xl mx-auto px-4 flex justify-between h-16 items-center">
+        <div class="flex items-center gap-6">
+            <a href="{{ route('dashboard') }}" class="font-semibold">DAR - BPS Kota Ambon</a>
+
+            <a href="{{ route('dashboard') }}" class="text-sm text-gray-600">Dashboard</a>
+       
+            @if (auth()->user()->isStaf() || auth()->user()->isKepalaBagian())
+                <a href="{{ route('laporan.index') }}" class="text-sm text-gray-600">Laporan Saya</a>
+                <a href="{{ route('tugas.index') }}" class="text-sm text-gray-600">Tugas Aktif</a>
+            @endif
 
             {{-- Brand --}}
             <div class="flex items-center gap-3">
@@ -73,6 +85,13 @@
                     </a>
                 @endif
             </div>
+            @if (auth()->user()->isKepalaBps())
+                <a href="{{ route('kepala-bps.rekap') }}" class="text-sm text-gray-600">Rekap Kantor</a>
+                <a href="{{ route('kepala-bps.tugas.index') }}" class="text-sm text-gray-600">Tugas</a>
+                <a href="{{ route('kepala-bps.approval.index') }}" class="text-sm text-gray-600">
+                    Persetujuan (Semua Bagian)
+                </a>
+            @endif
 
             {{-- User dropdown --}}
             <div class="hidden md:flex items-center" x-data="{ open: false }">

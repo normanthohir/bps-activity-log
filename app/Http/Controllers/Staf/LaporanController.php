@@ -58,6 +58,7 @@ class LaporanController extends Controller
             'lokasi' => ['required', 'in:kantor,lapangan,dinas_luar'],
             'tugas_id' => ['nullable', 'exists:tugas,id'],
             'file_lampiran' => ['nullable', 'url'],
+            'file_lampiran' => ['nullable', 'url', 'max:5120'],
             // tombol submit menentukan status: draft atau langsung diajukan
             'aksi' => ['required', 'in:draft,ajukan'],
         ]);

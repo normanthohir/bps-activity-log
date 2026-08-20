@@ -101,6 +101,47 @@
                     </tbody>
                 </table>
                 </div>
+        <div class="bg-white rounded-xl border p-5">
+            <table class="w-full text-sm">
+                <thead>
+                    <tr class="text-left text-gray-500 border-b">
+                        <th class="pb-2">Judul tugas</th>
+                        <th class="pb-2">Ditugaskan ke</th>
+                        <th class="pb-2">Tenggat</th>
+                        <th class="pb-2">Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @forelse ($tugas as $item)
+                        <tr class="border-b">
+                            <td class="py-3">{{ $item->judul }}</td>
+                            <td class="py-3">{{ $item->penerimaTugas->name }}</td>
+                            <td class="py-3">{{ $item->tenggat?->format('d M Y') ?? '-' }}</td>
+                            <td class="py-3">
+                                @php
+                                    $warna = match ($item->status) {
+                                        'selesai' => 'bg-green-100 text-green-700',
+                                        'dikerjakan' => 'bg-amber-100 text-amber-700',
+                                        default => 'bg-gray-100 text-gray-600',
+                                    };
+                                @endphp
+                                <span class="{{ $warna }} text-xs px-2 py-0.5 rounded-full">
+                                    {{ ucwords(str_replace('_', ' ', $item->status)) }}
+                                </span>
+                            </td>
+                            <td class="py-3">
+                                <a href="" class="text-sm px-3 py-1.5 rounded-lg border">Lihat</a>
+
+                            </td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="4" class="py-6 text-center text-gray-400">Belum ada tugas yang diberikan.
+                            </td>
+                        </tr>
+                    @endforelse
+                </tbody>
+            </table>
 
                 <div class="border-t border-gray-100 px-5 py-3">
                     {{ $tugas->links() }}
