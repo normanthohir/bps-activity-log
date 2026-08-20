@@ -13,19 +13,42 @@
         @csrf
     </form>
 
-    <form method="post" action="{{ route('profile.update') }}" class="mt-6 space-y-6">
+    <form method="post" action="{{ route('profile.update') }}" class="mt-6 space-y-6"
+          x-data="{
+              errors: {},
+              name: '{{ old('name', $user->name) }}',
+              email: '{{ old('email', $user->email) }}',
+              validate() {
+                  this.errors = {};
+                  if (!this.name.trim()) this.errors.name = 'Nama wajib diisi.';
+                  if (!this.email.trim()) this.errors.email = 'Email wajib diisi.';
+                  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(this.email)) this.errors.email = 'Format email tidak valid.';
+                  return Object.keys(this.errors).length === 0;
+              },
+              submit() {
+                  if (this.validate()) {
+                      this.$refs.form.submit();
+                  }
+              }
+          }" x-ref="form" novalidate>
         @csrf
         @method('patch')
 
         <div>
             <x-input-label for="name" :value="__('Name')" />
-            <x-text-input id="name" name="name" type="text" class="mt-1 block w-full" :value="old('name', $user->name)" required autofocus autocomplete="name" />
+            <x-text-input id="name" name="name" type="text" class="mt-1 block w-full" :class="errors.name ? 'border-red-500' : ''" x-model="name" autofocus autocomplete="name" />
+            <template x-if="errors.name">
+                <p class="text-sm text-red-600 mt-2" x-text="errors.name"></p>
+            </template>
             <x-input-error class="mt-2" :messages="$errors->get('name')" />
         </div>
 
         <div>
             <x-input-label for="email" :value="__('Email')" />
-            <x-text-input id="email" name="email" type="email" class="mt-1 block w-full" :value="old('email', $user->email)" required autocomplete="username" />
+            <x-text-input id="email" name="email" type="email" class="mt-1 block w-full" :class="errors.email ? 'border-red-500' : ''" x-model="email" autocomplete="username" />
+            <template x-if="errors.email">
+                <p class="text-sm text-red-600 mt-2" x-text="errors.email"></p>
+            </template>
             <x-input-error class="mt-2" :messages="$errors->get('email')" />
 
             @if ($user instanceof \Illuminate\Contracts\Auth\MustVerifyEmail && ! $user->hasVerifiedEmail())
@@ -48,7 +71,10 @@
         </div>
 
         <div class="flex items-center gap-4">
-            <x-primary-button>{{ __('Save') }}</x-primary-button>
+            <button type="button" @click="submit()"
+                    class="px-5 py-2.5 text-sm font-medium rounded-lg bg-[#1F3864] hover:bg-[#16294a] text-white transition-colors">
+                {{ __('Save') }}
+            </button>
 
             @if (session('status') === 'profile-updated')
                 <p
