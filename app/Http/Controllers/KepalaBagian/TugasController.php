@@ -13,7 +13,7 @@ class TugasController extends Controller
     // Semua tugas yang pernah dibuat oleh kepala bagian ini
     public function index(Request $request): View
     {
-        $tugas = $request->user()->tugasDibuat()->latest()->paginate(15);
+        $tugas = $request->user()->tugasDibuat()->with('penerimaTugas')->latest()->paginate(15);
 
         return view('tugas.index', compact('tugas'));
     }
