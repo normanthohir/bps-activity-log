@@ -34,7 +34,7 @@
                 <option value="kepala_bps" @selected(request('role') === 'kepala_bps')>Kepala BPS</option>
                 <option value="admin" @selected(request('role') === 'admin')>Admin</option>
             </select>
-            <button type="submit" class="text-sm text-gray-600 hover:text-[#1F3864] font-medium px-2">Terapkan</button>
+            <button type="submit" class="bg-[#1F3864] hover:bg-[#16294a] text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors">Terapkan</button>
             @if (request('search') || request('role'))
                 <a href="{{ route('admin.users.index') }}" class="text-sm text-gray-400 hover:text-gray-600">Reset</a>
             @endif
