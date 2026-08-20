@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Bagian;
+use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -35,7 +37,13 @@ class DashboardController extends Controller
                 'rekapPerBagian' => \App\Models\Bagian::withCount('pegawai')->get(),
             ]),
 
-            'admin' => redirect()->route('admin.users.index'),
+            'admin' => view('admin.dashboard', [
+                'totalUser' => User::count(),
+                'totalBagian' => Bagian::count(),
+                'totalKepalaBagian' => User::where('role', 'kepala_bagian')->count(),
+                'usersTerbaru' => User::with('bagian')->latest()->take(10)->get(),
+                'bagianList' => Bagian::with('kepalaBagian')->withCount('pegawai')->get(),
+            ]),
 
             default => abort(403, 'Role tidak dikenali.'),
         };

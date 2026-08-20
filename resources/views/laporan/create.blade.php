@@ -21,7 +21,7 @@
                     <div>
                         <label class="text-sm text-gray-500 block mb-1">Tanggal</label>
                         <input type="date" name="tanggal" value="{{ old('tanggal', now()->toDateString()) }}"
-                               class="w-full rounded-lg border-gray-300" required>
+                            class="w-full rounded-lg border-gray-300" required>
                     </div>
                     <div>
                         <label class="text-sm text-gray-500 block mb-1">Terkait tugas</label>
@@ -40,28 +40,22 @@
                     <div>
                         <label class="text-sm text-gray-500 block mb-1">Jam mulai</label>
                         <input type="time" name="jam_mulai" value="{{ old('jam_mulai') }}"
-                               class="w-full rounded-lg border-gray-300">
+                            class="w-full rounded-lg border-gray-300">
                     </div>
                     <div>
                         <label class="text-sm text-gray-500 block mb-1">Jam selesai</label>
                         <input type="time" name="jam_selesai" value="{{ old('jam_selesai') }}"
-                               class="w-full rounded-lg border-gray-300">
+                            class="w-full rounded-lg border-gray-300">
                     </div>
                 </div>
 
                 <div class="mb-4">
                     <label class="text-sm text-gray-500 block mb-1">Uraian kegiatan</label>
-                    <textarea name="uraian" rows="3" class="w-full rounded-lg border-gray-300"
-                              required>{{ old('uraian') }}</textarea>
+                    <textarea name="uraian" rows="3" class="w-full rounded-lg border-gray-300" required>{{ old('uraian') }}</textarea>
                 </div>
 
-                <div class="mb-4">
-                    <label class="text-sm text-gray-500 block mb-1">Output/hasil</label>
-                    <input type="text" name="output" value="{{ old('output') }}"
-                           class="w-full rounded-lg border-gray-300">
-                </div>
 
-                <div class="grid grid-cols-2 gap-4 mb-6">
+                <div class="grid grid-cols-2 gap-4 mb-3">
                     <div>
                         <label class="text-sm text-gray-500 block mb-1">Lokasi</label>
                         <select name="lokasi" class="w-full rounded-lg border-gray-300" required>
@@ -70,19 +64,29 @@
                             <option value="dinas_luar">Dinas luar</option>
                         </select>
                     </div>
-                    <div>
-                        <label class="text-sm text-gray-500 block mb-1">Lampiran bukti</label>
-                        <input type="file" name="file_lampiran" class="w-full text-sm">
+                    <div >
+                        <label class="text-sm text-gray-500 block mb-1">Output/hasil</label>
+                        <input type="text" name="output" value="{{ old('output') }}"
+                            class="w-full rounded-lg border-gray-300">
                     </div>
+
+                </div>
+                <div class="mb-4">
+                    <label class="text-sm text-gray-500 block mb-1">Lampiran bukti</label>
+                    <input type="url" name="file_lampiran" class="w-full rounded-lg border-gray-300"
+                        value="{{ old('file_lampiran') }}" placeholder="https://contoh.com">
+                    {{-- <input type="link" name="file_lampiran" class="w-full text-sm"> --}}
                 </div>
 
-                @error('jam_selesai') <p class="text-sm text-red-600 mb-4">{{ $message }}</p> @enderror
+                @error('jam_selesai')
+                    <p class="text-sm text-red-600 mb-4">{{ $message }}</p>
+                @enderror
 
                 <div class="flex justify-end gap-2 pt-4 border-t">
                     <button type="submit" name="aksi" value="draft"
-                            class="px-4 py-2 text-sm rounded-lg border">Simpan draft</button>
+                        class="px-4 py-2 text-sm rounded-lg border">Simpan draft</button>
                     <button type="submit" name="aksi" value="ajukan"
-                            class="px-4 py-2 text-sm rounded-lg bg-gray-900 text-white">
+                        class="px-4 py-2 text-sm rounded-lg bg-gray-900 text-white">
                         Kirim untuk persetujuan
                     </button>
                 </div>

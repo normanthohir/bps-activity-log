@@ -31,7 +31,7 @@
                             <td class="py-3">{{ $item->tenggat?->format('d M Y') ?? '-' }}</td>
                             <td class="py-3">
                                 @php
-                                    $warna = match($item->status) {
+                                    $warna = match ($item->status) {
                                         'selesai' => 'bg-green-100 text-green-700',
                                         'dikerjakan' => 'bg-amber-100 text-amber-700',
                                         default => 'bg-gray-100 text-gray-600',
@@ -41,9 +41,16 @@
                                     {{ ucwords(str_replace('_', ' ', $item->status)) }}
                                 </span>
                             </td>
+                            <td class="py-3">
+                                <a href="" class="text-sm px-3 py-1.5 rounded-lg border">Lihat</a>
+
+                            </td>
                         </tr>
                     @empty
-                        <tr><td colspan="4" class="py-6 text-center text-gray-400">Belum ada tugas yang diberikan.</td></tr>
+                        <tr>
+                            <td colspan="4" class="py-6 text-center text-gray-400">Belum ada tugas yang diberikan.
+                            </td>
+                        </tr>
                     @endforelse
                 </tbody>
             </table>

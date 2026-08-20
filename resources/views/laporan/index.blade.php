@@ -37,7 +37,11 @@
                                         {{ $item->status === 'dikembalikan' ? 'Revisi' : 'Edit' }}
                                     </a>
                                 @else
-                                    <span class="text-gray-300 text-sm">—</span>
+                                    <span class="text-gray-300 text-sm">
+                                        <a href="" class="">
+                                            Lihat
+                                        </a>
+                                    </span>
                                 @endif
                             </td>
                         </tr>

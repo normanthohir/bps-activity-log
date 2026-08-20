@@ -14,11 +14,25 @@ class ApprovalController extends Controller
     // Pembatasan ini otomatis lewat scope punyaBagian() di model.
     public function index(Request $request): View
     {
-        $laporan = LaporanHarian::punyaBagian($request->user()->bagian_id)
-            ->menunggu()
-            ->with('user')
-            ->latest('tanggal')
-            ->paginate(15);
+        $query = LaporanHarian::punyaBagian($request->user()->bagian_id)
+            ->with('user');
+
+        if ($request->filled('tanggal')) {
+            $query->whereDate('tanggal', $request->date('tanggal'));
+        }
+
+        if ($request->filled('bulan')) {
+            $query->whereMonth('tanggal', $request->integer('bulan'));
+        }
+        if ($request->filled('tahun')) {
+            $query->whereYear('tanggal', $request->integer('tahun'));
+        }
+
+        if ($request->filled('status')) {
+            $query->where('status', $request->string('status'));
+        }
+
+        $laporan = $query->latest('tanggal')->paginate(15)->withQueryString();
 
         return view('approval.index', compact('laporan'));
     }
@@ -48,4 +62,17 @@ class ApprovalController extends Controller
 
         return back()->with('success', 'Laporan berhasil diproses.');
     }
+
+    public function show(LaporanHarian $laporan): View
+    {
+        $laporan->load([
+            'user.bagian',
+            'tugas.pemberiTugas',
+            'logApproval.approver',
+        ]);
+
+        return view('approval.show', compact('laporan'));
+    }
+
+
 }

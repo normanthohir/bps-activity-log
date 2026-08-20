@@ -18,7 +18,7 @@
                 <tbody>
                     @forelse ($tugasAktif as $tugas)
                         @php
-                            $warna = match($tugas->status) {
+                            $warna = match ($tugas->status) {
                                 'dikerjakan' => 'bg-amber-100 text-amber-700',
                                 default => 'bg-gray-100 text-gray-600',
                             };
@@ -39,13 +39,19 @@
                             </td>
                             <td class="py-3 text-right">
                                 <a href="{{ route('tugas.show', $tugas) }}" class="underline">Detail</a>
-                                <a href="{{ route('laporan.create', ['tugas' => $tugas->id]) }}" class="underline ml-2">
-                                    Buat laporan
-                                </a>
+                                @if ($tugas->status != 'dikerjakan')
+                                    <a href="{{ route('laporan.create', ['tugas' => $tugas->id]) }}"
+                                        class="underline ml-2">
+                                        Buat laporan
+                                    </a>
+                                @endif
                             </td>
                         </tr>
                     @empty
-                        <tr><td colspan="5" class="py-6 text-center text-gray-400">Tidak ada tugas aktif saat ini.</td></tr>
+                        <tr>
+                            <td colspan="5" class="py-6 text-center text-gray-400">Tidak ada tugas aktif saat ini.
+                            </td>
+                        </tr>
                     @endforelse
                 </tbody>
             </table>

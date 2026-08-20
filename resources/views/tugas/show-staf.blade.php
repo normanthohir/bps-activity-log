@@ -16,10 +16,12 @@
                         · {{ $tugas->bagian->nama_bagian }}
                     </p>
                 </div>
-                <a href="{{ route('laporan.create', ['tugas' => $tugas->id]) }}"
+                @if ($tugas->status ==!'dikerjakan')
+                     <a href="{{ route('laporan.create', ['tugas' => $tugas->id]) }}"
                    class="bg-gray-900 text-white text-sm px-4 py-2 rounded-lg whitespace-nowrap">
                     + Buat laporan
                 </a>
+                @endif
             </div>
 
             <p class="text-sm text-gray-500 mb-1">Deskripsi</p>
@@ -46,6 +48,7 @@
                         <p class="text-sm">{{ $laporan->tanggal->format('d M Y') }}</p>
                         <x-status-badge :status="$laporan->status" />
                     </div>
+                    <p class="text-sm text-gray-600">{{ $laporan->jam_mulai }} — {{ $laporan->jam_selesai }}</p> 
                     <p class="text-sm text-gray-600">{{ $laporan->uraian }}</p>
 
                     @if ($laporan->status === 'dikembalikan')

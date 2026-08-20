@@ -9,7 +9,7 @@ use App\Http\Controllers\Staf\LaporanController;
 use App\Http\Controllers\Staf\TugasController as StafTugasController;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', function () {
+Route::get('/', function () { 
     return redirect()->route('login');
 });
 
@@ -28,7 +28,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // ── Tugas aktif milik sendiri: bisa diakses SEMUA role yang login ──
     // (setiap pegawai bisa jadi penerima tugas, termasuk kepala bagian)
     Route::resource('tugas', StafTugasController::class)
-        ->only(['index', 'show']);
+        ->only(['index', 'show'])->parameters(['tugas' => 'tugas']);;
 
     // ── Khusus Kepala Bagian ─────────────────────────────
     Route::middleware(['role:kepala_bagian'])->prefix('kabag')->name('kabag.')->group(function () {
@@ -36,6 +36,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
             ->only(['index', 'create', 'store']);
 
         Route::get('approval', [KabagApprovalController::class, 'index'])->name('approval.index');
+        Route::get('approval/{laporan}', [KabagApprovalController::class, 'show'])->name('approval.show'); // ← baris baru
         Route::post('approval/{laporan}', [KabagApprovalController::class, 'proses'])->name('approval.proses');
     });
 
