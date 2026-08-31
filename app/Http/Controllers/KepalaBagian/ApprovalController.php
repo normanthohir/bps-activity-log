@@ -10,11 +10,13 @@ use Illuminate\View\View;
 
 class ApprovalController extends Controller
 {
-    // Daftar laporan menunggu persetujuan, DIBATASI hanya bagian sendiri.
-    // Pembatasan ini otomatis lewat scope punyaBagian() di model.
+    // Daftar laporan menunggu persetujuan, DIBATASI hanya bagian sendiri,
+    // dan TIDAK menampilkan laporan milik kepala bagian sendiri
+    // (kepala bagian tidak approve laporannya sendiri).
     public function index(Request $request): View
     {
         $query = LaporanHarian::punyaBagian($request->user()->bagian_id)
+            ->where('user_id', '!=', $request->user()->id)
             ->with('user');
 
         if ($request->filled('tanggal')) {
@@ -24,6 +26,7 @@ class ApprovalController extends Controller
         if ($request->filled('bulan')) {
             $query->whereMonth('tanggal', $request->integer('bulan'));
         }
+
         if ($request->filled('tahun')) {
             $query->whereYear('tanggal', $request->integer('tahun'));
         }
@@ -65,6 +68,12 @@ class ApprovalController extends Controller
 
     public function show(LaporanHarian $laporan): View
     {
+        // Pakai aturan yang sama dengan proses(): bukan laporan sendiri,
+        // dan harus satu bagian dengan kepala bagian yang login. Ini juga
+        // menutup celah kalau kepala bagian coba buka detail laporan
+        // bagian lain atau laporannya sendiri lewat akses URL langsung.
+        $this->authorize('approve', $laporan);
+
         $laporan->load([
             'user.bagian',
             'tugas.pemberiTugas',
@@ -73,6 +82,4 @@ class ApprovalController extends Controller
 
         return view('approval.show', compact('laporan'));
     }
-
-
 }

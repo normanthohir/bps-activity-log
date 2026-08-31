@@ -58,7 +58,6 @@ class LaporanController extends Controller
             'lokasi' => ['required', 'in:kantor,lapangan,dinas_luar'],
             'tugas_id' => ['nullable', 'exists:tugas,id'],
             'file_lampiran' => ['nullable', 'url'],
-            'file_lampiran' => ['nullable', 'url', 'max:5120'],
             // tombol submit menentukan status: draft atau langsung diajukan
             'aksi' => ['required', 'in:draft,ajukan'],
         ]);
@@ -78,7 +77,7 @@ class LaporanController extends Controller
                 ->update(['status' => 'dikerjakan']);
         }
 
-        return redirect()->route('laporan.index')
+        return redirect()->route($this->indexRoute())
             ->with('success', 'Laporan berhasil disimpan.');
     }
 
@@ -112,7 +111,7 @@ class LaporanController extends Controller
 
         $laporan->update($data);
 
-        return redirect()->route('laporan.index')
+        return redirect()->route($this->indexRoute())
             ->with('success', 'Laporan berhasil diperbarui.');
     }
 
@@ -122,7 +121,23 @@ class LaporanController extends Controller
 
         $laporan->delete();
 
-        return redirect()->route('laporan.index')
+        return redirect()->route($this->indexRoute())
             ->with('success', 'Laporan berhasil dihapus.');
+    }
+
+    /**
+     * Controller ini dipakai oleh 2 route group sekaligus:
+     * - staf         → nama route "laporan.index"
+     * - kepala bagian → nama route "kabag.laporan.index" (prefix "kabag.")
+     *
+     * Method ini mendeteksi route group mana yang sedang aktif,
+     * supaya redirect setelah store/update/destroy selalu balik
+     * ke halaman index yang benar, sesuai role yang sedang login.
+     */
+    private function indexRoute(): string
+    {
+        return str_starts_with((string) request()->route()->getName(), 'kabag.')
+            ? 'kabag.laporan.index'
+            : 'laporan.index';
     }
 }

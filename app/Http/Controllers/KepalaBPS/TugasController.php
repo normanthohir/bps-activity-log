@@ -12,16 +12,32 @@ use Illuminate\View\View;
 
 class TugasController extends Controller
 {
-    public function index(Request $request): View
+      public function index(Request $request): View
     {
         $tugas = Tugas::where('dibuat_oleh', $request->user()->id)
             ->with(['penerimaTugas', 'bagian', 'laporanHarian' => function ($q) {
                 $q->latest();
             }])
+            ->when($request->filled('cari'), function ($q) use ($request) {
+                $keyword = $request->string('cari');
+                $q->where(function ($q) use ($keyword) {
+                    $q->where('judul', 'like', "%{$keyword}%")
+                        ->orWhereHas('penerimaTugas', fn ($q) => $q->where('name', 'like', "%{$keyword}%"));
+                });
+            })
+            ->when($request->filled('bagian'), function ($q) use ($request) {
+                $q->where('bagian_id', $request->integer('bagian'));
+            })
+            ->when($request->filled('status'), function ($q) use ($request) {
+                $q->where('status', $request->string('status'));
+            })
             ->latest()
-            ->paginate(15);
+            ->paginate(15)
+            ->withQueryString();
 
-        return view('tugas.index-kepala-bps', compact('tugas'));
+        $daftarBagian = Bagian::orderBy('nama_bagian')->get();
+
+        return view('tugas.index-kepala-bps', compact('tugas', 'daftarBagian'));
     }
 
     public function create(): View

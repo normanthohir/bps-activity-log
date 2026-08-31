@@ -16,22 +16,22 @@
                     @if ($laporan->status === 'draft')
                         <div class="flex gap-2">
                             <a href="{{ route('laporan.edit', $laporan) }}"
-                               class="text-sm font-medium text-gray-600 hover:text-[#1F3864] transition-colors">
+                                class="text-sm font-medium text-gray-600 hover:text-[#1F3864] transition-colors">
                                 Edit
                             </a>
                         </div>
                     @endif
                 </div>
 
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
-                <div>
-                    <p class="text-sm text-gray-500 mb-1">Tanggal</p>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+                    <div>
+                        <p class="text-sm text-gray-500 mb-1">Tanggal</p>
                         <p class="text-sm font-medium text-gray-900">{{ $laporan->tanggal->format('d M Y') }}</p>
                     </div>
                     <div>
                         <p class="text-sm text-gray-500 mb-1">Lokasi</p>
                         @php
-                            $lokasiStyle = match($laporan->lokasi) {
+                            $lokasiStyle = match ($laporan->lokasi) {
                                 'kantor' => 'bg-blue-50 text-blue-700',
                                 'lapangan' => 'bg-green-50 text-green-700',
                                 'dinas_luar' => 'bg-purple-50 text-purple-700',
@@ -44,9 +44,9 @@
                     </div>
                 </div>
 
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
-                <div>
-                    <p class="text-sm text-gray-500 mb-1">Jam Mulai</p>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+                    <div>
+                        <p class="text-sm text-gray-500 mb-1">Jam Mulai</p>
                         <p class="text-sm font-medium text-gray-900">{{ $laporan->jam_mulai ?? '—' }}</p>
                     </div>
                     <div>
@@ -78,10 +78,7 @@
                     <div class="mb-4">
                         <p class="text-sm text-gray-500 mb-1">Lampiran</p>
                         <a href="{{ $laporan->file_lampiran }}" target="_blank"
-                           class="inline-flex items-center gap-1 text-sm text-[#1F3864] hover:underline font-medium">
-                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M13.19 8.688a4.5 4.5 0 0 1 1.242 7.244l-4.5 4.5a4.5 4.5 0 0 1-6.364-6.364l1.757-1.757m9.86-2.813a4.5 4.5 0 0 0-1.242-7.244l-4.5-4.5a4.5 4.5 0 0 0-6.364 6.364L4.34 8.374" />
-                            </svg>
+                            class="inline-flex items-center gap-1 text-sm text-[#1F3864] hover:underline font-medium">
                             Lihat Lampiran
                         </a>
                     </div>
@@ -111,9 +108,11 @@
                             <div class="flex justify-between items-center mb-1">
                                 <p class="text-sm font-medium text-gray-900">{{ $log->approver->name ?? '—' }}</p>
                                 @if ($log->aksi === 'disetujui')
-                                    <span class="inline-flex text-xs font-medium px-2 py-1 rounded-md bg-green-50 text-green-700">Disetujui</span>
+                                    <span
+                                        class="inline-flex text-xs font-medium px-2 py-1 rounded-md bg-green-50 text-green-700">Disetujui</span>
                                 @else
-                                    <span class="inline-flex text-xs font-medium px-2 py-1 rounded-md bg-red-50 text-red-700">Dikembalikan</span>
+                                    <span
+                                        class="inline-flex text-xs font-medium px-2 py-1 rounded-md bg-red-50 text-red-700">Dikembalikan</span>
                                 @endif
                             </div>
                             @if ($log->catatan)
@@ -126,12 +125,24 @@
             </div>
         @endif
 
-        <a href="{{ route('laporan.index') }}" class="inline-flex items-center gap-1.5 bg-[#1F3864]/10 border border-[#1F3864]/30 text-[#1F3864] hover:bg-[#1F3864]/20 text-sm font-medium px-4 py-2 rounded-lg transition-colors">
-            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18" />
-            </svg>
-            Kembali
-        </a>
+        @if (auth()->user()->role === 'staf')
+            <a href="{{ route('laporan.index') }}"
+                class="inline-flex items-center gap-1.5 bg-[#1F3864]/10 border border-[#1F3864]/30 text-[#1F3864] hover:bg-[#1F3864]/20 text-sm font-medium px-4 py-2 rounded-lg transition-colors">
+                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18" />
+                </svg>
+                Kembali
+            </a>
+        @else
+            <a href="{{ route('kabag.laporan.index') }}"
+                class="inline-flex items-center gap-1.5 bg-[#1F3864]/10 border border-[#1F3864]/30 text-[#1F3864] hover:bg-[#1F3864]/20 text-sm font-medium px-4 py-2 rounded-lg transition-colors">
+                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18" />
+                </svg>
+                Kembali
+            </a>
+        @endif
+
 
     </div>
 </x-app-layout>

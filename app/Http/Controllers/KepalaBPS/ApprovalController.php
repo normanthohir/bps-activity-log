@@ -14,29 +14,34 @@ class ApprovalController extends Controller
 {
     // TANPA filter bagian_id — inilah bedanya dengan versi Kepala Bagian.
     // Bisa juga difilter lewat query string ?bagian=id untuk drill-down.
+    // TANPA filter bagian_id — inilah bedanya dengan versi Kepala Bagian.
+    // Bisa juga difilter lewat query string ?bagian=id untuk drill-down.
     public function index(Request $request): View
     {
-        $query = LaporanHarian::with(['user.bagian']);
+        $filters = function ($query) use ($request) {
+            if ($request->filled('bagian')) {
+                $query->punyaBagian($request->integer('bagian'));
+            }
+            if ($request->filled('tanggal')) {
+                $query->whereDate('tanggal', $request->date('tanggal'));
+            }
+            if ($request->filled('bulan')) {
+                $query->whereMonth('tanggal', $request->integer('bulan'));
+            }
+            if ($request->filled('tahun')) {
+                $query->whereYear('tanggal', $request->integer('tahun'));
+            }
+        };
 
-        // Filter berdasarkan bagian (sudah ada sebelumnya)
-        if ($request->filled('bagian')) {
-            $query->punyaBagian($request->integer('bagian'));
-        }
+        $query = LaporanHarian::with(['user.bagian'])->tap($filters);
 
-        // Filter tanggal spesifik (harian) — contoh: 2026-08-19
-        if ($request->filled('tanggal')) {
-            $query->whereDate('tanggal', $request->date('tanggal'));
-        }
+        // Ringkasan jumlah per status, mengikuti filter bagian/tanggal yang
+        // aktif tapi TIDAK ikut filter status — supaya kartu ringkasan tetap
+        // menampilkan breakdown lengkap walau tabel di bawah sedang disaring.
+        $totalMenunggu = (clone $query)->where('status', 'menunggu')->count();
+        $totalDisetujui = (clone $query)->where('status', 'disetujui')->count();
+        $totalDikembalikan = (clone $query)->where('status', 'dikembalikan')->count();
 
-        // Filter bulan (terpisah dari tanggal harian) — contoh: bulan=8, tahun=2026
-        if ($request->filled('bulan')) {
-            $query->whereMonth('tanggal', $request->integer('bulan'));
-        }
-        if ($request->filled('tahun')) {
-            $query->whereYear('tanggal', $request->integer('tahun'));
-        }
-
-        // Filter status — default tampilkan semua, tapi bisa dipersempit
         if ($request->filled('status')) {
             $query->where('status', $request->string('status'));
         }
@@ -44,7 +49,13 @@ class ApprovalController extends Controller
         $laporan = $query->latest('tanggal')->paginate(15)->withQueryString();
         $daftarBagian = Bagian::all();
 
-        return view('approval.index-kepala-bps', compact('laporan', 'daftarBagian'));
+        return view('approval.index-kepala-bps', compact(
+            'laporan',
+            'daftarBagian',
+            'totalMenunggu',
+            'totalDisetujui',
+            'totalDikembalikan'
+        ));
     }
 
     public function proses(Request $request, LaporanHarian $laporan): RedirectResponse
@@ -54,7 +65,9 @@ class ApprovalController extends Controller
 
         $data = $request->validate([
             'aksi' => ['required', 'in:disetujui,ditolak'],
-            'catatan' => ['nullable', 'string'],
+            'catatan' => ['required_if:aksi,ditolak', 'nullable', 'string'],
+        ], [
+            'catatan.required_if' => 'Catatan wajib diisi saat menolak laporan.',
         ]);
 
         $laporan->update([

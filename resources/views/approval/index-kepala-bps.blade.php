@@ -1,16 +1,75 @@
 {{-- resources/views/approval/index-kepala-bps.blade.php --}}
 <x-app-layout>
+    <style>
+        @keyframes fade-slide-up {
+            from { opacity: 0; transform: translateY(12px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-in { animation: fade-slide-up 0.5s ease-out both; }
+        .delay-1 { animation-delay: .05s; }
+        .delay-2 { animation-delay: .1s; }
+
+        @keyframes fade-in-row {
+            from { opacity: 0; transform: translateX(-6px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        .animate-row { animation: fade-in-row 0.4s ease-out both; }
+    </style>
+
     <div class="max-w-5xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
 
         {{-- Header --}}
-        <div class="mb-6">
+        <div class="animate-in mb-6">
             <h1 class="text-xl font-semibold text-gray-900">Persetujuan Laporan (Semua Bagian)</h1>
             <p class="text-sm text-gray-500 mt-0.5">Review dan proses laporan dari seluruh staf dan Kepala Bagian.</p>
         </div>
 
+        {{-- Ringkasan status --}}
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+            <div class="animate-in delay-1 bg-white border border-gray-200 rounded-xl p-5 transition-all hover:shadow-md hover:-translate-y-0.5">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-lg bg-amber-50 flex items-center justify-center shrink-0">
+                        <svg class="w-5 h-5 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                        </svg>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-500">Menunggu</p>
+                        <p class="text-2xl font-semibold {{ $totalMenunggu > 0 ? 'text-amber-600' : 'text-gray-900' }}">{{ $totalMenunggu }}</p>
+                    </div>
+                </div>
+            </div>
+            <div class="animate-in delay-2 bg-white border border-gray-200 rounded-xl p-5 transition-all hover:shadow-md hover:-translate-y-0.5">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-lg bg-green-50 flex items-center justify-center shrink-0">
+                        <svg class="w-5 h-5 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                        </svg>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-500">Disetujui</p>
+                        <p class="text-2xl font-semibold text-gray-900">{{ $totalDisetujui }}</p>
+                    </div>
+                </div>
+            </div>
+            <div class="animate-in delay-2 bg-white border border-gray-200 rounded-xl p-5 transition-all hover:shadow-md hover:-translate-y-0.5">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-lg bg-red-50 flex items-center justify-center shrink-0">
+                        <svg class="w-5 h-5 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
+                        </svg>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-500">Dikembalikan</p>
+                        <p class="text-2xl font-semibold text-gray-900">{{ $totalDikembalikan }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         {{-- Filter card --}}
         <form method="GET" action="{{ route('kepala-bps.approval.index') }}"
-            class="bg-white rounded-xl border border-gray-200 p-4 mb-5">
+            class="animate-in delay-1 bg-white rounded-xl border border-gray-200 p-4 mb-5">
             <div class="grid grid-cols-2 md:grid-cols-5 gap-3 items-end">
                 <div>
                     <label class="text-xs text-gray-500 block mb-1">Bagian</label>
@@ -21,7 +80,6 @@
                         @endforeach
                     </select>
                 </div>
-
                 <div>
                     <label class="text-xs text-gray-500 block mb-1">Status</label>
                     <select name="status" class="w-full text-sm rounded-lg border-gray-300 focus:ring-[#1F3864]/20 focus:border-[#1F3864]">
@@ -32,13 +90,11 @@
                         <option value="draft" @selected(request('status') === 'draft')>Draft</option>
                     </select>
                 </div>
-
                 <div>
                     <label class="text-xs text-gray-500 block mb-1">Tanggal Spesifik</label>
                     <input type="date" name="tanggal" value="{{ request('tanggal') }}"
                         class="w-full text-sm rounded-lg border-gray-300 focus:ring-[#1F3864]/20 focus:border-[#1F3864]">
                 </div>
-
                 <div>
                     <label class="text-xs text-gray-500 block mb-1">Bulan</label>
                     <select name="bulan" class="w-full text-sm rounded-lg border-gray-300 focus:ring-[#1F3864]/20 focus:border-[#1F3864]">
@@ -48,7 +104,6 @@
                         @endforeach
                     </select>
                 </div>
-
                 <div>
                     <label class="text-xs text-gray-500 block mb-1">Tahun</label>
                     <select name="tahun" class="w-full text-sm rounded-lg border-gray-300 focus:ring-[#1F3864]/20 focus:border-[#1F3864]">
@@ -59,7 +114,6 @@
                     </select>
                 </div>
             </div>
-
             <div class="flex gap-2 mt-3">
                 <button type="submit"
                     class="px-4 py-2 text-sm font-medium rounded-lg bg-[#1F3864] hover:bg-[#16294a] text-white transition-colors">
@@ -75,7 +129,7 @@
         </form>
 
         {{-- Table card --}}
-        <div class="bg-white rounded-xl border border-gray-200 overflow-hidden">
+        <div class="animate-in delay-2 bg-white rounded-xl border border-gray-200 overflow-hidden">
             @if ($laporan->isEmpty())
                 <div class="text-center py-16 px-4">
                     <svg class="w-10 h-10 mx-auto text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
@@ -93,77 +147,68 @@
                 </div>
             @else
                 <div class="overflow-x-auto">
-                <table class="w-full text-sm">
-                    <thead>
-                        <tr class="text-left text-xs text-gray-500 uppercase tracking-wide bg-gray-50 border-b border-gray-200">
-                            <th class="py-3 px-5 font-medium">Pegawai</th>
-                            <th class="py-3 px-5 font-medium">Bagian</th>
-                            <th class="py-3 px-5 font-medium">Tanggal</th>
-                            <th class="py-3 px-5 font-medium">Uraian</th>
-                            <th class="py-3 px-5 font-medium">Status</th>
-                            <th class="py-3 px-5 font-medium text-right">Aksi</th>
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y divide-gray-100">
-                        @foreach ($laporan as $item)
-                            <tr class="hover:bg-gray-50/70 transition-colors">
-                                <td class="py-3.5 px-5">
-                                    <div class="flex items-center gap-2">
-                                        <span class="w-7 h-7 rounded-full bg-[#DCE6F1] text-[#1F3864] text-xs font-semibold flex items-center justify-center shrink-0">
-                                            {{ strtoupper(substr($item->user->name, 0, 1)) }}
-                                        </span>
-                                        <a href="{{ route('kepala-bps.approval.show', $item) }}" class="font-medium text-gray-900 hover:text-[#1F3864] hover:underline">
-                                            {{ $item->user->name }}
-                                        </a>
-                                    </div>
-                                </td>
-                                <td class="py-3.5 px-5 text-gray-500 text-xs">{{ $item->user->bagian->nama_bagian ?? '—' }}</td>
-                                <td class="py-3.5 px-5 text-gray-500 whitespace-nowrap">{{ $item->tanggal->format('d M Y') }}</td>
-                                <td class="py-3.5 px-5 text-gray-700">{{ Str::limit($item->uraian, 40) }}</td>
-                                <td class="py-3.5 px-5">
-                                    <x-status-badge :status="$item->status" />
-                                </td>
-                                <td class="py-3.5 px-5">
-                                    <div class="flex items-center justify-end gap-2">
-                                        @if ($item->status === 'menunggu')
-                                            <form method="POST" action="{{ route('kepala-bps.approval.proses', $item) }}">
-                                                @csrf
-                                                <input type="hidden" name="aksi" value="disetujui">
-                                                <button class="inline-flex items-center gap-1 text-sm font-medium px-3 py-1.5 rounded-lg bg-green-50 text-green-700 hover:bg-green-100 transition-colors">
-                                                    <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" />
-                                                    </svg>
-                                                    Setujui
-                                                </button>
-                                            </form>
-                                            <form method="POST" action="{{ route('kepala-bps.approval.proses', $item) }}">
-                                                @csrf
-                                                <input type="hidden" name="aksi" value="ditolak">
-                                                <button class="inline-flex items-center gap-1 text-sm font-medium px-3 py-1.5 rounded-lg bg-red-50 text-red-700 hover:bg-red-100 transition-colors">
-                                                    <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
-                                                    </svg>
-                                                    Tolak
-                                                </button>
-                                            </form>
-                                        @endif
-                                        <a href="{{ route('kepala-bps.approval.show', $item) }}"
-                                           class="text-[#1F3864] hover:underline text-sm font-medium ml-2">
-                                            Detail
-                                        </a>
-                                    </div>
-                                </td>
+                    <table class="w-full text-sm">
+                        <thead>
+                            <tr class="text-left text-xs text-gray-500 uppercase tracking-wide bg-gray-50 border-b border-gray-200">
+                                <th class="py-3 px-5 font-medium">Pegawai</th>
+                                <th class="py-3 px-5 font-medium">Bagian</th>
+                                <th class="py-3 px-5 font-medium">Tanggal</th>
+                                <th class="py-3 px-5 font-medium">Uraian</th>
+                                <th class="py-3 px-5 font-medium">Status</th>
+                                <th class="py-3 px-5 font-medium text-right">Aksi</th>
                             </tr>
-                        @endforeach
-                    </tbody>
-                </table>
-                </div>
+                        </thead>
+                        <tbody class="divide-y divide-gray-100">
+                            @foreach ($laporan as $i => $item)
+                                <tr class="animate-row hover:bg-gray-50/70 transition-colors" style="animation-delay: {{ min($i, 10) * 0.04 }}s">
+                                    <td class="py-3.5 px-5">
+                                        <div class="flex items-center gap-2">
+                                            <span class="w-7 h-7 rounded-full bg-[#DCE6F1] text-[#1F3864] text-xs font-semibold flex items-center justify-center shrink-0">
+                                                {{ strtoupper(substr($item->user->name, 0, 1)) }}
+                                            </span>
+                                            <a href="{{ route('kepala-bps.approval.show', $item) }}" class="font-medium text-gray-900 hover:text-[#1F3864] hover:underline">
+                                                {{ $item->user->name }}
+                                            </a>
+                                        </div>
+                                    </td>
+                                    <td class="py-3.5 px-5 text-gray-500 text-xs">{{ $item->user->bagian->nama_bagian ?? '—' }}</td>
+                                    <td class="py-3.5 px-5 text-gray-500 whitespace-nowrap">{{ $item->tanggal->format('d M Y') }}</td>
+                                    <td class="py-3.5 px-5 text-gray-700">{{ Str::limit($item->uraian, 40) }}</td>
+                                    <td class="py-3.5 px-5">
+                                        <x-status-badge :status="$item->status" />
+                                    </td>
+                                    <td class="py-3.5 px-5">
+                                        <div class="flex items-center justify-end gap-2">
+                                            @if ($item->status === 'menunggu')
+                                                <form method="POST" action="{{ route('kepala-bps.approval.proses', $item) }}">
+                                                    @csrf
+                                                    <input type="hidden" name="aksi" value="disetujui">
+                                                    <button class="inline-flex items-center gap-1 text-sm font-medium px-3 py-1.5 rounded-lg bg-green-50 text-green-700 hover:bg-green-100 transition-colors">
+                                                        <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" />
+                                                        </svg>
+                                                        Setujui
+                                                    </button>
+                                                </form>
 
+                                                <x-reject-modal :action="route('kepala-bps.approval.proses', $item)" />
+                                            @endif
+
+                                            <a href="{{ route('kepala-bps.approval.show', $item) }}"
+                                                class="text-[#1F3864] hover:underline text-sm font-medium ml-1">
+                                                Detail
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
                 <div class="border-t border-gray-100 px-5 py-3">
                     {{ $laporan->links() }}
                 </div>
             @endif
         </div>
-
     </div>
 </x-app-layout>

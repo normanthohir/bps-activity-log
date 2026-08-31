@@ -1,12 +1,13 @@
 {{-- resources/views/tugas/show-staf.blade.php --}}
+{{-- tugas aktif --}}
 <x-app-layout>
     <div class="max-w-2xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
 
-        <a href="{{ route('staf.tugas.index') }}"
+        <a href="{{ route('kabag.tugas-aktif.index') }}"
             class="inline-flex items-center mb-2 bg-[#1F3864]/10 border border-[#1F3864]/30 text-[#1F3864] hover:bg-[#1F3864]/20 text-sm font-medium px-4 py-2 rounded-lg transition-colors">
             <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18" />
-            </svg>
+            </svg>`
             Kembali
         </a>
         
@@ -23,7 +24,7 @@
                         </p>
                     </div>
                     @if ($tugas->status === 'belum_dikerjakan')
-                        <a href="{{ route('laporan.create', ['tugas' => $tugas->id]) }}"
+                        <a href="{{ route('kabag.laporan.create', ['tugas' => $tugas->id]) }}"
                             class="inline-flex items-center  bg-[#1F3864] hover:bg-[#16294a] text-white text-sm font-medium px-4 py-2.5 rounded-lg transition-colors shrink-0">
                             Buat Laporan
                         </a>

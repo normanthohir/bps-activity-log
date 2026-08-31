@@ -2,9 +2,6 @@
 <x-app-layout>
     <div class="max-w-2xl mx-auto py-8 px-4">
 
-        @if (session('success'))
-            <div class="bg-green-50 text-green-700 text-sm p-3 rounded-lg mb-4">{{ session('success') }}</div>
-        @endif
 
         <div class="bg-white rounded-xl border p-6 mb-6">
             <div class="flex justify-between items-start mb-4">
@@ -62,8 +59,8 @@
             <div class="mb-4">
                 <p class="text-sm text-gray-500 mb-1">Lampiran</p>
                 @if ($laporan->file_lampiran)
-                    <a href="{{ Storage::url($laporan->file_lampiran) }}" target="_blank" class="text-sm underline">
-                        Lihat file
+                    <a href="{{ $laporan->file_lampiran }}" target="_blank" class="text-sm underline">
+                        Lihat file Lampiran
                     </a>
                 @else
                     <p class="text-sm text-gray-400">Tidak ada</p>
@@ -71,18 +68,69 @@
             </div>
 
             @if ($laporan->status === 'menunggu')
-                <div class="flex gap-2 pt-4 border-t">
-                    <form method="POST" action="{{ route('kabag.approval.proses', $laporan) }}">
-                        @csrf
-                        <input type="hidden" name="aksi" value="disetujui">
-                        <button class="text-sm px-4 py-2 rounded-lg border text-green-500 hover:text-green-50 border-green-300 hover:bg-green-500  duration-100">Setujui</button>
-                    </form>
-                    <form method="POST" action="{{ route('kabag.approval.proses', $laporan) }}">
+                <div class="pt-4 border-t">
+
+                    {{-- Tombol Setujui: langsung submit, tidak perlu catatan --}}
+                    <div id="area-tombol-utama" class="flex gap-2">
+                        <form method="POST" action="{{ route('kabag.approval.proses', $laporan) }}">
+                            @csrf
+                            <input type="hidden" name="aksi" value="disetujui">
+                            <button
+                                class="bg-green-50 hover:bg-green-100 text-green-600 border border-green-300 text-sm font-medium px-4 py-2 rounded-lg transition-colors">
+                                Setujui
+                            </button>
+                        </form>
+
+                        <button type="button" onclick="tampilkanFormTolak()"
+                            class="bg-red-50 hover:bg-red-100 text-red-600 border border-red-300 text-sm font-medium px-4 py-2 rounded-lg transition-colors">
+                            Tolak
+                        </button>
+                    </div>
+
+                    {{-- Form penolakan: muncul setelah tombol "Tolak" diklik, wajib isi catatan --}}
+                    <form id="form-tolak" method="POST" action="{{ route('kabag.approval.proses', $laporan) }}"
+                        class="hidden mt-3">
                         @csrf
                         <input type="hidden" name="aksi" value="ditolak">
-                        <button class="text-sm px-4 py-2 rounded-lg border border-red-300 hover:bg-red-500 text-red-600 hover:text-red-50 duration-100">Tolak</button>
+
+                        <label class="text-sm text-gray-500 block mb-1">Alasan penolakan (wajib diisi)</label>
+                        <textarea name="catatan" rows="3" required
+                            class="w-full rounded-lg border-gray-300 text-sm @error('catatan') border-red-500 @enderror"
+                            placeholder="Jelaskan apa yang perlu diperbaiki staf...">{{ old('catatan') }}</textarea>
+                        @error('catatan')
+                            <p class="text-sm text-red-600 mt-1">{{ $message }}</p>
+                        @enderror
+
+                        <div class="flex gap-2 mt-2">
+                            <button type="submit"
+                                class="bg-red-50 hover:bg-red-100 text-red-600 border border-red-300 text-sm font-medium px-4 py-2 rounded-lg transition-colors">
+                                Kirim penolakan
+                            </button>
+                            <button type="button" onclick="batalkanFormTolak()"
+                                class="bg-gray-50 hover:bg-gray-100 text-gray-500 border border-gray-300 text-sm font-medium px-4 py-2 rounded-lg transition-colors">
+                                Batal
+                            </button>
+                        </div>
                     </form>
                 </div>
+
+                <script>
+                    function tampilkanFormTolak() {
+                        document.getElementById('area-tombol-utama').classList.add('hidden');
+                        document.getElementById('form-tolak').classList.remove('hidden');
+                    }
+
+                    function batalkanFormTolak() {
+                        document.getElementById('form-tolak').classList.add('hidden');
+                        document.getElementById('area-tombol-utama').classList.remove('hidden');
+                    }
+
+                    // Kalau validasi gagal (misal catatan kosong) dan halaman reload,
+                    // otomatis tampilkan lagi form tolaknya supaya pesan error terlihat
+                    @if ($errors->has('catatan'))
+                        tampilkanFormTolak();
+                    @endif
+                </script>
             @endif
         </div>
 

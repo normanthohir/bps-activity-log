@@ -14,7 +14,7 @@ class TugasController extends Controller
     {
         $tugasAktif = $request->user()
             ->tugasDiterima()
-            ->with(['pemberiTugas', 'laporanHarian' => fn ($q) => $q->latest()])
+            ->with(['pemberiTugas', 'laporanHarian' => fn($q) => $q->latest()])
             ->where('status', '!=', 'selesai')
             ->latest()
             ->get();
@@ -28,11 +28,24 @@ class TugasController extends Controller
         return view('tugas.index-staf', compact('tugasAktif', 'tugasSelesai'));
     }
 
-    public function show(Tugas $tugas): View
+    public function show(Request $request, Tugas $tugas): View
     {
-        abort_unless($tugas->ditugaskan_ke === auth()->id(), 403);
+        // DIUBAH: Izinkan jika user adalah pemilik tugas ATAU user adalah Kepala Bagian/Pemberi Tugas
+        // abort_unless(
+        //     $tugas->ditugaskan_ke === auth()->id() || auth()->user()->isKepalaBagian(),
+        //     403
+        // );
 
-        $tugas->load(['pemberiTugas', 'bagian', 'laporanHarian' => fn ($q) => $q->latest()]);
+        // $tugas->load(['pemberiTugas', 'bagian', 'laporanHarian' => fn($q) => $q->latest()]);
+
+        // return view('tugas.show-staf', compact('tugas'));
+
+
+        // abort_unless($request->user()->isKepalaBagian(), 403);
+
+        $tugas->load(['penerimaTugas', 'bagian', 'laporanHarian' => function ($q) {
+            $q->latest();
+        }]);
 
         return view('tugas.show-staf', compact('tugas'));
     }
