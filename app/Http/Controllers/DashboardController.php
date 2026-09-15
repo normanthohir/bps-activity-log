@@ -23,8 +23,22 @@ class DashboardController extends Controller
         return match ($user->role) {
             'staf' => view('dashboard.staf', [
                 'laporanTerbaru' => $user->laporanHarian()->latest('tanggal')->take(5)->get(),
+
                 'tugasAktif' => $user->tugasDiterima()->where('status', '!=', 'selesai')->count(),
                 'menungguApproval' => $user->laporanHarian()->where('status', 'menunggu')->count(),
+
+                'laporanBulanIni' => $user->laporanHarian()->whereMonth('tanggal', now()->month)->count(),
+                'disetujuiBulanIni' => $user->laporanHarian()
+                    ->whereMonth('tanggal', now()->month)
+                    ->where('status', 'disetujui')->count(),
+
+                // 5 tugas aktif teratas, untuk preview di dashboard
+                'tugasAktifList' => $user->tugasDiterima()
+                    ->where('status', '!=', 'selesai')
+                    ->with('pemberiTugas')
+                    ->latest()
+                    ->take(5)
+                    ->get(),
             ]),
 
             'kepala_bagian' => redirect()->route('kabag.dashboard'),

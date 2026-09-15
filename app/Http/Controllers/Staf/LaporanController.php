@@ -14,12 +14,21 @@ class LaporanController extends Controller
     // Riwayat laporan milik user yang login
     public function index(Request $request): View
     {
+        $bulan = $request->has('bulan') ? ($request->integer('bulan') ?: null) : now()->month;
+        $tahun = $request->has('tahun') ? ($request->integer('tahun') ?: null) : now()->year;
+
         $laporan = $request->user()
             ->laporanHarian()
+            ->when($request->filled('status'), function ($q) use ($request) {
+                $q->where('status', $request->string('status'));
+            })
+            ->when($bulan, fn($q) => $q->whereMonth('tanggal', $bulan))
+            ->when($tahun, fn($q) => $q->whereYear('tanggal', $tahun))
             ->latest('tanggal')
-            ->paginate(15);
+            ->paginate(15)
+            ->withQueryString();
 
-        return view('laporan.index', compact('laporan'));
+        return view('laporan.index', compact('laporan', 'bulan', 'tahun'));
     }
 
     public function show(LaporanHarian $laporan): View
@@ -33,11 +42,11 @@ class LaporanController extends Controller
 
     public function create(Request $request): View
     {
-        // Hanya tampilkan tugas milik sendiri yang belum selesai,
+        // Hanya tampilkan tugas milik sendiri yang belum dikerjakaan,
         // untuk pilihan dropdown "terkait tugas"
         $tugasAktif = $request->user()
             ->tugasDiterima()
-            ->where('status', '!=', 'selesai')
+            ->where('status', '!=', 'dikerjakan')
             ->get();
 
         // Kalau halaman ini dibuka dari tombol "Buat laporan" di detail
@@ -96,8 +105,8 @@ class LaporanController extends Controller
 
         $data = $request->validate([
             'tanggal' => ['required', 'date'],
-            'jam_mulai' => ['nullable', 'date_format:H:i'],
-            'jam_selesai' => ['nullable', 'date_format:H:i', 'after:jam_mulai'],
+            'jam_mulai' => ['nullable', 'date_format:H:i,H:i:s'],
+            'jam_selesai' => ['nullable', 'date_format:H:i,H:i:s', 'after:jam_mulai'],
             'uraian' => ['required', 'string'],
             'output' => ['nullable', 'string'],
             'lokasi' => ['required', 'in:kantor,lapangan,dinas_luar'],

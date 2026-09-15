@@ -179,7 +179,7 @@
                                     </td>
                                     <td class="py-3.5 px-5">
                                         <div class="flex items-center justify-end gap-2">
-                                            @if ($item->status === 'menunggu')
+                                            {{-- @if ($item->status === 'menunggu')
                                                 <form method="POST" action="{{ route('kepala-bps.approval.proses', $item) }}">
                                                     @csrf
                                                     <input type="hidden" name="aksi" value="disetujui">
@@ -192,7 +192,7 @@
                                                 </form>
 
                                                 <x-reject-modal :action="route('kepala-bps.approval.proses', $item)" />
-                                            @endif
+                                            @endif --}}
 
                                             <a href="{{ route('kepala-bps.approval.show', $item) }}"
                                                 class="text-[#1F3864] hover:underline text-sm font-medium ml-1">

@@ -22,11 +22,14 @@
         </div>
 
         <x-loading-overlay message="Memverifikasi akun..." />
-
-        <button type="submit" :disabled="loading"
+       
+        <x-submit-button loadingText="Memverifikasi akun..." class="w-full">
+            Masuk
+        </x-submit-button>
+        {{-- <button type="submit" :disabled="loading"
             class="w-full inline-flex items-center justify-center gap-2 bg-[#1F3864] hover:bg-[#16294a] disabled:opacity-70 disabled:cursor-not-allowed text-white text-sm font-semibold py-2.5 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-[#1F3864]/30 focus:ring-offset-2">
             <x-button-spinner x-show="loading" x-cloak />
             <span x-text="loading ? 'Memproses...' : 'Masuk'"></span>
-        </button>
+        </button> --}}
     </form>
 </x-guest-layout>

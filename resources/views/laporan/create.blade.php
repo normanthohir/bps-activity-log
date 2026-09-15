@@ -16,20 +16,20 @@
 
         {{-- Form card --}}
         <div class="bg-white rounded-xl border border-gray-200 overflow-hidden" x-data="{
-            show: false,
+            loading: false,
             errors: @js(
-            collect(['tanggal', 'jam_mulai', 'jam_selesai', 'uraian', 'lokasi', 'tugas_id', 'file_lampiran'])
-                ->mapWithKeys(fn($f) => [$f => $errors->first($f)])
-                ->filter()
-                ->all(),
-                  ),
+    collect(['tanggal', 'jam_mulai', 'jam_selesai', 'uraian', 'lokasi', 'tugas_id', 'file_lampiran'])
+        ->mapWithKeys(fn($f) => [$f => $errors->first($f)])
+        ->filter()
+        ->all(),
+),
             tanggal: @js(old('tanggal', now()->toDateString())),
-            jam_mulai: @js(old('jam_mulai')),
-            jam_selesai: @js(old('jam_selesai')),
-            uraian: @js(old('uraian')),
-            output: @js(old('output')),
+            jam_mulai: @js(old('jam_mulai', '')),
+            jam_selesai: @js(old('jam_selesai', '')),
+            uraian: @js(old('uraian', '')),
+            output: @js(old('output', '')),
             lokasi: @js(old('lokasi', 'kantor')),
-            file_lampiran: @js(old('file_lampiran')),
+            file_lampiran: @js(old('file_lampiran', '')),
             validate() {
                 this.errors = {};
                 if (!this.tanggal) this.errors.tanggal = 'Tanggal wajib diisi.';
@@ -45,12 +45,12 @@
             },
             submit(aksi) {
                 if (this.validate()) {
+                    this.loading = true;
                     this.$refs.form.querySelector('[name=aksi]').value = aksi;
                     this.$refs.form.submit();
                 }
             }
-        }"
-            x-init="$watch('show', v => { if (v) $el.scrollIntoView({ behavior: 'smooth', block: 'start' }) })">
+        }">
 
             @if (auth()->user()->role === 'staf')
                 <form method="POST" action="{{ route('laporan.store') }}" class="p-6" x-ref="form" novalidate>
@@ -151,16 +151,13 @@
                 </div>
             </div>
 
+            <x-loading-overlay message="Mengirim laporan..." />
+
             {{-- Action buttons --}}
             <div class="flex flex-col sm:flex-row justify-end gap-3 pt-5 border-t border-gray-100">
-                <button type="button" @click="submit('draft')"
-                    class="px-5 py-2.5 text-sm font-medium rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50 transition-colors">
-                    Simpan Draft
-                </button>
-                <button type="button" @click="submit('ajukan')"
-                    class="px-5 py-2.5 text-sm font-medium rounded-lg bg-[#1F3864] hover:bg-[#16294a] text-white transition-colors">
-                    Kirim untuk Persetujuan
-                </button>
+                <x-submit-button type="button" onclick="submit('ajukan')" loadingText="Mengirim laporan...">
+                    Kirim Laporan
+                </x-submit-button>
             </div>
             </form>
         </div>

@@ -15,148 +15,161 @@
         @endif
 
         {{-- Form card --}}
-        <div class="bg-white rounded-xl border border-gray-200 overflow-hidden"
-             x-data="{
-                 errors: {},
-                 tanggal: '{{ old('tanggal', $laporan->tanggal->toDateString()) }}',
-                 jam_mulai: '{{ old('jam_mulai', $laporan->jam_mulai) }}',
-                 jam_selesai: '{{ old('jam_selesai', $laporan->jam_selesai) }}',
-                 uraian: '{{ old('uraian', $laporan->uraian) }}',
-                 output: '{{ old('output', $laporan->output) }}',
-                 lokasi: '{{ old('lokasi', $laporan->lokasi) }}',
-                 file_lampiran: '{{ old('file_lampiran', $laporan->file_lampiran) }}',
-                 validate() {
-                     this.errors = {};
-                     if (!this.tanggal) this.errors.tanggal = 'Tanggal wajib diisi.';
-                     if (!this.uraian.trim()) this.errors.uraian = 'Uraian kegiatan wajib diisi.';
-                     if (!this.lokasi) this.errors.lokasi = 'Lokasi wajib dipilih.';
-                     if (this.jam_mulai && this.jam_selesai && this.jam_selesai <= this.jam_mulai) {
-                         this.errors.jam_selesai = 'Jam selesai harus setelah jam mulai.';
-                     }
-                     if (this.file_lampiran && !/^https?:\/\/.+/.test(this.file_lampiran)) {
-                         this.errors.file_lampiran = 'Link lampiran harus berupa URL yang valid.';
-                     }
-                     return Object.keys(this.errors).length === 0;
-                 },
-                 submit(aksi) {
-                     if (this.validate()) {
-                         this.$refs.form.querySelector('[name=aksi]').value = aksi;
-                         this.$refs.form.submit();
-                     }
-                 }
-             }">
-            <form method="POST" action="{{ route('laporan.update', $laporan) }}" class="p-6" x-ref="form" novalidate>
-                @csrf
-                @method('PUT')
-                <input type="hidden" name="aksi" value="draft">
+        <div class="bg-white rounded-xl border border-gray-200 overflow-hidden" x-data="{
+            loading: false,
+            errors: {},
+            tanggal: '{{ old('tanggal', $laporan->tanggal->toDateString()) }}',
+            jam_mulai: @js(old('jam_mulai', $laporan->jam_mulai ? substr($laporan->jam_mulai, 0, 5) : '')),
+            jam_selesai: @js(old('jam_selesai', $laporan->jam_selesai ? substr($laporan->jam_selesai, 0, 5) : '')),
+            uraian: '{{ old('uraian', $laporan->uraian) }}',
+            output: '{{ old('output', $laporan->output) }}',
+            lokasi: '{{ old('lokasi', $laporan->lokasi) }}',
+            file_lampiran: '{{ old('file_lampiran', $laporan->file_lampiran) }}',
+            validate() {
+                this.errors = {};
+                if (!this.tanggal) this.errors.tanggal = 'Tanggal wajib diisi.';
+                if (!this.uraian.trim()) this.errors.uraian = 'Uraian kegiatan wajib diisi.';
+                if (!this.lokasi) this.errors.lokasi = 'Lokasi wajib dipilih.';
+                if (this.jam_mulai && this.jam_selesai && this.jam_selesai <= this.jam_mulai) {
+                    this.errors.jam_selesai = 'Jam selesai harus setelah jam mulai.';
+                }
+                if (this.file_lampiran && !/^https?:\/\/.+/.test(this.file_lampiran)) {
+                    this.errors.file_lampiran = 'Link lampiran harus berupa URL yang valid.';
+                }
+                return Object.keys(this.errors).length === 0;
+            },
+            submit(aksi) {
+                if (this.validate()) {
+                    this.loading = true;
+                    this.$refs.form.querySelector('[name=aksi]').value = aksi;
+                    this.$refs.form.submit();
+                }
+            }
+        }">
 
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-5">
-                    <div>
-                        <label class="text-sm font-medium text-gray-700 block mb-1.5">Tanggal</label>
-                        <input type="date" name="tanggal" x-model="tanggal"
-                               class="w-full rounded-lg text-sm focus:ring-[#1F3864]/20 focus:border-[#1F3864]"
-                               :class="errors.tanggal ? 'border-red-500' : 'border-gray-300'">
-                        <template x-if="errors.tanggal">
-                            <p class="text-xs text-red-600 mt-1" x-text="errors.tanggal"></p>
-                        </template>
-                    </div>
-                    <div>
-                        <label class="text-sm font-medium text-gray-700 block mb-1.5">Terkait Tugas</label>
-                        <select name="tugas_id" class="w-full rounded-lg border-gray-300 text-sm focus:ring-[#1F3864]/20 focus:border-[#1F3864]">
-                            <option value="">Tidak terkait tugas</option>
-                            @foreach ($tugasAktif as $tugas)
-                                <option value="{{ $tugas->id }}" @selected(old('tugas_id', $laporan->tugas_id) == $tugas->id)>{{ $tugas->judul }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-                </div>
+            @if (auth()->user()->role === 'staf')
+                <form method="POST" action="{{ route('laporan.update', $laporan) }}" class="p-6" x-ref="form"
+                    novalidate>
+                @else
+                    <form method="POST" action="{{ route('kabag.laporan.update', $laporan) }}" class="p-6"
+                        x-ref="form" novalidate>
+            @endif
 
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-5">
-                    <div>
-                        <label class="text-sm font-medium text-gray-700 block mb-1.5">Jam Mulai</label>
-                        <input type="time" name="jam_mulai" x-model="jam_mulai"
-                               class="w-full rounded-lg border-gray-300 text-sm focus:ring-[#1F3864]/20 focus:border-[#1F3864]">
-                    </div>
-                    <div>
-                        <label class="text-sm font-medium text-gray-700 block mb-1.5">Jam Selesai</label>
-                        <input type="time" name="jam_selesai" x-model="jam_selesai"
-                               class="w-full rounded-lg text-sm focus:ring-[#1F3864]/20 focus:border-[#1F3864]"
-                               :class="errors.jam_selesai ? 'border-red-500' : 'border-gray-300'">
-                        <template x-if="errors.jam_selesai">
-                            <p class="text-xs text-red-600 mt-1" x-text="errors.jam_selesai"></p>
-                        </template>
-                    </div>
-                </div>
+            @csrf
+            @method('PUT')
+            <input type="hidden" name="aksi" value="draft">
 
-                @error('jam_selesai')
-                    <div class="flex items-center gap-2 bg-red-50 border border-red-200 text-red-700 text-sm px-4 py-2.5 rounded-lg mb-5">
-                        <svg class="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 3.75h.008v.008H12v-.008Z" />
-                        </svg>
-                        {{ $message }}
-                    </div>
-                @enderror
-
-                <div class="mb-5">
-                    <label class="text-sm font-medium text-gray-700 block mb-1.5">Uraian Kegiatan <span class="text-red-500">*</span></label>
-                    <textarea name="uraian" rows="4" x-model="uraian"
-                              class="w-full rounded-lg text-sm focus:ring-[#1F3864]/20 focus:border-[#1F3864]"
-                              :class="errors.uraian ? 'border-red-500' : 'border-gray-300'"
-                              placeholder="Jelaskan kegiatan yang dilakukan hari ini..."></textarea>
-                    <template x-if="errors.uraian">
-                        <p class="text-xs text-red-600 mt-1" x-text="errors.uraian"></p>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-5">
+                <div>
+                    <label class="text-sm font-medium text-gray-700 block mb-1.5">Tanggal</label>
+                    <input type="date" name="tanggal" x-model="tanggal"
+                        class="w-full rounded-lg text-sm focus:ring-[#1F3864]/20 focus:border-[#1F3864]"
+                        :class="errors.tanggal ? 'border-red-500' : 'border-gray-300'">
+                    <template x-if="errors.tanggal">
+                        <p class="text-xs text-red-600 mt-1" x-text="errors.tanggal"></p>
                     </template>
                 </div>
-
-                <div class="mb-5">
-                    <label class="text-sm font-medium text-gray-700 block mb-1.5">Output / Hasil</label>
-                    <input type="text" name="output" x-model="output"
-                           class="w-full rounded-lg border-gray-300 text-sm focus:ring-[#1F3864]/20 focus:border-[#1F3864]"
-                           placeholder="Contoh: Laporan statistik bulanan">
+                <div>
+                    <label class="text-sm font-medium text-gray-700 block mb-1.5">Terkait Tugas</label>
+                    <select name="tugas_id"
+                        class="w-full rounded-lg border-gray-300 text-sm focus:ring-[#1F3864]/20 focus:border-[#1F3864]">
+                        <option value="">Tidak terkait tugas</option>
+                        @foreach ($tugasAktif as $tugas)
+                            <option value="{{ $tugas->id }}" @selected(old('tugas_id', $laporan->tugas_id) == $tugas->id)>{{ $tugas->judul }}
+                            </option>
+                        @endforeach
+                    </select>
                 </div>
+            </div>
 
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
-                    <div>
-                        <label class="text-sm font-medium text-gray-700 block mb-1.5">Lokasi <span class="text-red-500">*</span></label>
-                        <select name="lokasi" x-model="lokasi"
-                                class="w-full rounded-lg text-sm focus:ring-[#1F3864]/20 focus:border-[#1F3864]"
-                                :class="errors.lokasi ? 'border-red-500' : 'border-gray-300'">
-                            <option value="kantor">Kantor</option>
-                            <option value="lapangan">Lapangan</option>
-                            <option value="dinas_luar">Dinas Luar</option>
-                        </select>
-                        <template x-if="errors.lokasi">
-                            <p class="text-xs text-red-600 mt-1" x-text="errors.lokasi"></p>
-                        </template>
-                    </div>
-                    <div>
-                        <label class="text-sm font-medium text-gray-700 block mb-1.5">Link Lampiran Bukti</label>
-                        <input type="url" name="file_lampiran" x-model="file_lampiran"
-                               class="w-full rounded-lg text-sm focus:ring-[#1F3864]/20 focus:border-[#1F3864]"
-                               :class="errors.file_lampiran ? 'border-red-500' : 'border-gray-300'"
-                               placeholder="https://drive.google.com/file/d/...">
-                        <p class="text-xs text-gray-400 mt-1">Paste link Google Drive bukti kegiatan</p>
-                        <template x-if="errors.file_lampiran">
-                            <p class="text-xs text-red-600 mt-1" x-text="errors.file_lampiran"></p>
-                        </template>
-                    </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-5">
+                <div>
+                    <label class="text-sm font-medium text-gray-700 block mb-1.5">Jam Mulai</label>
+                    <input type="time" name="jam_mulai" x-model="jam_mulai"
+                        class="w-full rounded-lg border-gray-300 text-sm focus:ring-[#1F3864]/20 focus:border-[#1F3864]">
                 </div>
+                <div>
+                    <label class="text-sm font-medium text-gray-700 block mb-1.5">Jam Selesai</label>
+                    <input type="time" name="jam_selesai" x-model="jam_selesai"
+                        class="w-full rounded-lg text-sm focus:ring-[#1F3864]/20 focus:border-[#1F3864]"
+                        :class="errors.jam_selesai ? 'border-red-500' : 'border-gray-300'">
+                    <template x-if="errors.jam_selesai">
+                        <p class="text-xs text-red-600 mt-1" x-text="errors.jam_selesai"></p>
+                    </template>
+                </div>
+            </div>
 
-                {{-- Action buttons --}}
-                <div class="flex flex-col sm:flex-row justify-end gap-3 pt-5 border-t border-gray-100">
-                    <a href="{{ route('laporan.index') }}"
-                       class="px-5 py-2.5 text-sm font-medium rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50 transition-colors">
-                        Batal
-                    </a>
-                    <button type="button" @click="submit('draft')"
-                            class="px-5 py-2.5 text-sm font-medium rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50 transition-colors">
-                        Simpan Draft
-                    </button>
-                    <button type="button" @click="submit('ajukan')"
-                            class="px-5 py-2.5 text-sm font-medium rounded-lg bg-[#1F3864] hover:bg-[#16294a] text-white transition-colors">
-                        Kirim untuk Persetujuan
-                    </button>
+            @error('jam_selesai')
+                <div
+                    class="flex items-center gap-2 bg-red-50 border border-red-200 text-red-700 text-sm px-4 py-2.5 rounded-lg mb-5">
+                    <svg class="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M12 9v3.75m9-.75a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 3.75h.008v.008H12v-.008Z" />
+                    </svg>
+                    {{ $message }}
                 </div>
+            @enderror
+
+            <div class="mb-5">
+                <label class="text-sm font-medium text-gray-700 block mb-1.5">Uraian Kegiatan <span
+                        class="text-red-500">*</span></label>
+                <textarea name="uraian" rows="4" x-model="uraian"
+                    class="w-full rounded-lg text-sm focus:ring-[#1F3864]/20 focus:border-[#1F3864]"
+                    :class="errors.uraian ? 'border-red-500' : 'border-gray-300'"
+                    placeholder="Jelaskan kegiatan yang dilakukan hari ini..."></textarea>
+                <template x-if="errors.uraian">
+                    <p class="text-xs text-red-600 mt-1" x-text="errors.uraian"></p>
+                </template>
+            </div>
+
+            <div class="mb-5">
+                <label class="text-sm font-medium text-gray-700 block mb-1.5">Output / Hasil</label>
+                <input type="text" name="output" x-model="output"
+                    class="w-full rounded-lg border-gray-300 text-sm focus:ring-[#1F3864]/20 focus:border-[#1F3864]"
+                    placeholder="Contoh: Laporan statistik bulanan">
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
+                <div>
+                    <label class="text-sm font-medium text-gray-700 block mb-1.5">Lokasi <span
+                            class="text-red-500">*</span></label>
+                    <select name="lokasi" x-model="lokasi"
+                        class="w-full rounded-lg text-sm focus:ring-[#1F3864]/20 focus:border-[#1F3864]"
+                        :class="errors.lokasi ? 'border-red-500' : 'border-gray-300'">
+                        <option value="kantor">Kantor</option>
+                        <option value="lapangan">Lapangan</option>
+                        <option value="dinas_luar">Dinas Luar</option>
+                    </select>
+                    <template x-if="errors.lokasi">
+                        <p class="text-xs text-red-600 mt-1" x-text="errors.lokasi"></p>
+                    </template>
+                </div>
+                <div>
+                    <label class="text-sm font-medium text-gray-700 block mb-1.5">Link Lampiran Bukti</label>
+                    <input type="url" name="file_lampiran" x-model="file_lampiran"
+                        class="w-full rounded-lg text-sm focus:ring-[#1F3864]/20 focus:border-[#1F3864]"
+                        :class="errors.file_lampiran ? 'border-red-500' : 'border-gray-300'"
+                        placeholder="https://drive.google.com/file/d/...">
+                    <p class="text-xs text-gray-400 mt-1">Paste link Google Drive bukti kegiatan</p>
+                    <template x-if="errors.file_lampiran">
+                        <p class="text-xs text-red-600 mt-1" x-text="errors.file_lampiran"></p>
+                    </template>
+                </div>
+            </div>
+
+            <x-loading-overlay message="Mengirim laporan..." />
+
+            {{-- Action buttons --}}
+            <div class="flex flex-col sm:flex-row justify-end gap-3 pt-5 border-t border-gray-100">
+                <a href="{{ route(auth()->user()->role === 'staf' ? 'laporan.index' : 'kabag.laporan.index') }}"
+                    class="px-5 py-2.5 text-sm font-medium rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50 transition-colors">
+                    Batal
+                </a>
+
+                <x-submit-button type="button" onclick="submit('ajukan')" loadingText="Mengirim laporan...">
+                    Kirim Laporan
+                </x-submit-button>
+            </div>
             </form>
         </div>
 

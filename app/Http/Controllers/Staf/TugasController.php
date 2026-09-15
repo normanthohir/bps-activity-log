@@ -16,6 +16,12 @@ class TugasController extends Controller
             ->tugasDiterima()
             ->with(['pemberiTugas', 'laporanHarian' => fn($q) => $q->latest()])
             ->where('status', '!=', 'selesai')
+            ->when($request->filled('cari'), function ($q) use ($request) {
+                $q->where('judul', 'like', '%' . $request->string('cari') . '%');
+            })
+            ->when($request->filled('status'), function ($q) use ($request) {
+                $q->where('status', $request->string('status'));
+            })
             ->latest()
             ->get();
 
@@ -30,20 +36,9 @@ class TugasController extends Controller
 
     public function show(Request $request, Tugas $tugas): View
     {
-        // DIUBAH: Izinkan jika user adalah pemilik tugas ATAU user adalah Kepala Bagian/Pemberi Tugas
-        // abort_unless(
-        //     $tugas->ditugaskan_ke === auth()->id() || auth()->user()->isKepalaBagian(),
-        //     403
-        // );
+        abort_unless($tugas->ditugaskan_ke === $request->user()->id, 403);
 
-        // $tugas->load(['pemberiTugas', 'bagian', 'laporanHarian' => fn($q) => $q->latest()]);
-
-        // return view('tugas.show-staf', compact('tugas'));
-
-
-        // abort_unless($request->user()->isKepalaBagian(), 403);
-
-        $tugas->load(['penerimaTugas', 'bagian', 'laporanHarian' => function ($q) {
+        $tugas->load(['pemberiTugas', 'bagian', 'laporanHarian' => function ($q) {
             $q->latest();
         }]);
 
@@ -55,7 +50,7 @@ class TugasController extends Controller
         abort_unless($tugas->ditugaskan_ke === $request->user()->id, 403);
 
         $data = $request->validate([
-            'status' => ['required', 'in:belum_dikerjakan,sedang_dikerjakan,selesai'],
+            'status' => ['required', 'in:belum_dikerjakan,dikerjakan,selesai'],
         ]);
 
         $tugas->update($data);

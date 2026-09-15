@@ -2,17 +2,40 @@
 <x-app-layout>
     <style>
         @keyframes fade-slide-up {
-            from { opacity: 0; transform: translateY(12px); }
-            to { opacity: 1; transform: translateY(0); }
+            from {
+                opacity: 0;
+                transform: translateY(12px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
-        .animate-in { animation: fade-slide-up 0.5s ease-out both; }
-        .delay-1 { animation-delay: .05s; }
+
+        .animate-in {
+            animation: fade-slide-up 0.5s ease-out both;
+        }
+
+        .delay-1 {
+            animation-delay: .05s;
+        }
 
         @keyframes fade-in-row {
-            from { opacity: 0; transform: translateX(-6px); }
-            to { opacity: 1; transform: translateX(0); }
+            from {
+                opacity: 0;
+                transform: translateX(-6px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
         }
-        .animate-row { animation: fade-in-row 0.4s ease-out both; }
+
+        .animate-row {
+            animation: fade-in-row 0.4s ease-out both;
+        }
     </style>
 
     <div class="max-w-5xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
@@ -23,13 +46,10 @@
                 <h1 class="text-xl font-semibold text-gray-900">Tugas Tim</h1>
                 <p class="text-sm text-gray-500 mt-0.5">Tugas yang Anda berikan ke staf di bagian Anda.</p>
             </div>
-            <a href="{{ route('kabag.tugas.create') }}"
-                class="inline-flex items-center gap-1.5 bg-[#1F3864] hover:bg-[#16294a] text-white text-sm font-medium px-4 py-2.5 rounded-lg transition-all hover:scale-[1.02] active:scale-[0.98]">
-                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-                </svg>
+            <x-action-button href="{{ route('kabag.tugas.create') }}">
                 Beri Tugas
-            </a>
+            </x-action-button>
+
         </div>
 
         {{-- Filter card --}}
@@ -39,16 +59,20 @@
                 <div class="sm:col-span-2">
                     <label class="text-xs text-gray-500 block mb-1">Cari judul / nama staf</label>
                     <div class="relative">
-                        <svg class="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
+                        <svg class="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" fill="none"
+                            viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
                         </svg>
-                        <input type="text" name="cari" value="{{ request('cari') }}" placeholder="cth: rekap bulanan..."
+                        <input type="text" name="cari" value="{{ request('cari') }}"
+                            placeholder="cth: rekap bulanan..."
                             class="w-full text-sm rounded-lg border-gray-300 pl-9 focus:ring-[#1F3864]/20 focus:border-[#1F3864]">
                     </div>
                 </div>
                 <div>
                     <label class="text-xs text-gray-500 block mb-1">Status</label>
-                    <select name="status" class="w-full text-sm rounded-lg border-gray-300 focus:ring-[#1F3864]/20 focus:border-[#1F3864]">
+                    <select name="status"
+                        class="w-full text-sm rounded-lg border-gray-300 focus:ring-[#1F3864]/20 focus:border-[#1F3864]">
                         <option value="">Semua status</option>
                         <option value="belum_dikerjakan" @selected(request('status') === 'belum_dikerjakan')>Belum Dikerjakan</option>
                         <option value="dikerjakan" @selected(request('status') === 'dikerjakan')>Dikerjakan</option>
@@ -87,10 +111,11 @@
                     </p>
                 </div>
             @else
-                <div class="overflow-x-auto">
+                <div class="overflow-x-auto overflow-y-visible">
                     <table class="w-full text-sm">
                         <thead>
-                            <tr class="text-left text-xs text-gray-500 uppercase tracking-wide bg-gray-50 border-b border-gray-200">
+                            <tr
+                                class="text-left text-xs text-gray-500 uppercase tracking-wide bg-gray-50 border-b border-gray-200">
                                 <th class="py-3 px-5 font-medium">Judul</th>
                                 <th class="py-3 px-5 font-medium">Ditugaskan Ke</th>
                                 <th class="py-3 px-5 font-medium">Tenggat</th>
@@ -103,20 +128,26 @@
                                 @php
                                     $badge = match ($item->status) {
                                         'selesai' => ['bg-green-50 text-green-700 ring-green-600/20', 'bg-green-500'],
-                                        'dikerjakan' => ['bg-amber-50 text-amber-700 ring-amber-600/20', 'bg-amber-500'],
+                                        'dikerjakan' => [
+                                            'bg-amber-50 text-amber-700 ring-amber-600/20',
+                                            'bg-amber-500',
+                                        ],
                                         default => ['bg-gray-100 text-gray-600 ring-gray-500/20', 'bg-gray-400'],
                                     };
                                 @endphp
-                                <tr class="animate-row hover:bg-gray-50/70 transition-colors" style="animation-delay: {{ min($i, 10) * 0.04 }}s">
+                                <tr class="animate-row hover:bg-gray-50/70 transition-colors relative"
+                                    style="animation-delay: {{ min($i, 10) * 0.04 }}s; z-index: {{ 100 - $i }};">
                                     <td class="py-3.5 px-5">
                                         <p class="font-medium text-gray-900">{{ $item->judul }}</p>
                                         @if ($item->deskripsi)
-                                            <p class="text-xs text-gray-500 mt-0.5">{{ Str::limit($item->deskripsi, 50) }}</p>
+                                            <p class="text-xs text-gray-500 mt-0.5">
+                                                {{ Str::limit($item->deskripsi, 50) }}</p>
                                         @endif
                                     </td>
                                     <td class="py-3.5 px-5">
                                         <div class="flex items-center gap-2">
-                                            <span class="w-6 h-6 rounded-full bg-[#DCE6F1] text-[#1F3864] text-[10px] font-semibold flex items-center justify-center shrink-0">
+                                            <span
+                                                class="w-6 h-6 rounded-full bg-[#DCE6F1] text-[#1F3864] text-[10px] font-semibold flex items-center justify-center shrink-0">
                                                 {{ strtoupper(substr($item->penerimaTugas->name ?? '-', 0, 1)) }}
                                             </span>
                                             <span class="text-gray-700">{{ $item->penerimaTugas->name ?? '—' }}</span>
@@ -126,13 +157,14 @@
                                         {{ $item->tenggat ? $item->tenggat->format('d M Y') : '—' }}
                                     </td>
                                     <td class="py-3.5 px-5">
-                                        <span class="inline-flex items-center gap-1.5 {{ $badge[0] }} text-xs font-medium px-2.5 py-1 rounded-full ring-1 ring-inset">
+                                        <span
+                                            class="inline-flex items-center gap-1.5 {{ $badge[0] }} text-xs font-medium px-2.5 py-1 rounded-full ring-1 ring-inset">
                                             <span class="w-1.5 h-1.5 rounded-full {{ $badge[1] }}"></span>
                                             {{ ucwords(str_replace('_', ' ', $item->status)) }}
                                         </span>
                                     </td>
                                     <td class="py-3.5 px-5">
-                                        <div class="flex items-center justify-end gap-2">
+                                        <div class="flex items-center justify-end gap-2 relative z-50">
                                             <x-dropdown-action>
                                                 <a href="{{ route('kabag.tugas.show', $item) }}"
                                                     class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
@@ -144,11 +176,13 @@
                                                         class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                                                         Ubah Data
                                                     </a>
-                                                    <form method="POST" action="{{ route('kabag.tugas.destroy', $item) }}"
+                                                    <form method="POST"
+                                                        action="{{ route('kabag.tugas.destroy', $item) }}"
                                                         onsubmit="return confirm('Hapus tugas ini?')">
                                                         @csrf
                                                         @method('DELETE')
-                                                        <button class="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50">
+                                                        <button
+                                                            class="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50">
                                                             Hapus
                                                         </button>
                                                     </form>
