@@ -1,11 +1,8 @@
 <section>
-    <header>
-        <h2 class="text-lg font-medium text-gray-900">
-            {{ __('Profile Information') }}
-        </h2>
-
-        <p class="mt-1 text-sm text-gray-600">
-            {{ __("Update your account's profile information and email address.") }}
+    <header class="mb-5">
+        <p class="font-medium">Informasi Profil</p>
+        <p class="text-sm text-gray-500 mt-1">
+            Perbarui nama dan alamat email akun Anda.
         </p>
     </header>
 
@@ -13,77 +10,74 @@
         @csrf
     </form>
 
-    <form method="post" action="{{ route('profile.update') }}" class="mt-6 space-y-6"
-          x-data="{
-              errors: {},
-              name: '{{ old('name', $user->name) }}',
-              email: '{{ old('email', $user->email) }}',
-              validate() {
-                  this.errors = {};
-                  if (!this.name.trim()) this.errors.name = 'Nama wajib diisi.';
-                  if (!this.email.trim()) this.errors.email = 'Email wajib diisi.';
-                  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(this.email)) this.errors.email = 'Format email tidak valid.';
-                  return Object.keys(this.errors).length === 0;
-              },
-              submit() {
-                  if (this.validate()) {
-                      this.$refs.form.submit();
-                  }
-              }
-          }" x-ref="form" novalidate>
+    {{-- <form method="post" action="{{ route('profile.update') }}" x-ref="form" novalidate class="space-y-4"> --}}
+    <form method="post" action="{{ route('profile.update') }}" class="space-y-4" x-data="{ loading: false }"
+        @submit="loading = true">
         @csrf
         @method('patch')
 
         <div>
-            <x-input-label for="name" :value="__('Name')" />
-            <x-text-input id="name" name="name" type="text" class="mt-1 block w-full" :class="errors.name ? 'border-red-500' : ''" x-model="name" autofocus autocomplete="name" />
-            <template x-if="errors.name">
-                <p class="text-sm text-red-600 mt-2" x-text="errors.name"></p>
-            </template>
-            <x-input-error class="mt-2" :messages="$errors->get('name')" />
+            <label for="name" class="text-sm text-gray-500 block mb-1">Nama</label>
+            <input id="name" name="name" type="text" value="{{ old('name', $user->name) }}"
+                class="w-full rounded-lg border-gray-300 @error('name') border-red-500 @enderror" required autofocus
+                autocomplete="name">
+            @error('name')
+                <p class="text-sm text-red-600 mt-1">{{ $message }}</p>
+            @enderror
         </div>
 
         <div>
-            <x-input-label for="email" :value="__('Email')" />
-            <x-text-input id="email" name="email" type="email" class="mt-1 block w-full" :class="errors.email ? 'border-red-500' : ''" x-model="email" autocomplete="username" />
-            <template x-if="errors.email">
-                <p class="text-sm text-red-600 mt-2" x-text="errors.email"></p>
-            </template>
-            <x-input-error class="mt-2" :messages="$errors->get('email')" />
+            <label for="nip" class="text-sm text-gray-500 block mb-1">NIP</label>
+            <input id="nip" name="nip" type="text" value="{{ old('nip', $user->nip) }}"
+                class="w-full rounded-lg border-gray-300 @error('nip') border-red-500 @enderror" autocomplete="off">
+            @error('nip')
+                <p class="text-sm text-red-600 mt-1">{{ $message }}</p>
+            @enderror
+        </div>
 
-            @if ($user instanceof \Illuminate\Contracts\Auth\MustVerifyEmail && ! $user->hasVerifiedEmail())
-                <div>
-                    <p class="text-sm mt-2 text-gray-800">
-                        {{ __('Your email address is unverified.') }}
+        <div>
+            <label for="email" class="text-sm text-gray-500 block mb-1">Email</label>
+            <input id="email" name="email" type="email" value="{{ old('email', $user->email) }}"
+                class="w-full rounded-lg border-gray-300 @error('email') border-red-500 @enderror" required
+                autocomplete="username">
+            @error('email')
+                <p class="text-sm text-red-600 mt-1">{{ $message }}</p>
+            @enderror
 
-                        <button form="send-verification" class="underline text-sm text-gray-600 hover:text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#1F3864]/30">
-                            {{ __('Click here to re-send the verification email.') }}
+            @if ($user instanceof \Illuminate\Contracts\Auth\MustVerifyEmail && !$user->hasVerifiedEmail())
+                <div class="mt-2">
+                    <p class="text-sm text-gray-600">
+                        Alamat email Anda belum diverifikasi.
+                        <button form="send-verification" class="underline hover:text-gray-900">
+                            Klik di sini untuk kirim ulang email verifikasi.
                         </button>
                     </p>
 
                     @if (session('status') === 'verification-link-sent')
-                        <p class="mt-2 font-medium text-sm text-green-600">
-                            {{ __('A new verification link has been sent to your email address.') }}
+                        <p class="mt-2 text-sm text-green-600 font-medium">
+                            Tautan verifikasi baru telah dikirim ke email Anda.
                         </p>
                     @endif
                 </div>
             @endif
         </div>
 
-        <div class="flex items-center gap-4">
-            <button type="button" @click="submit()"
-                    class="px-5 py-2.5 text-sm font-medium rounded-lg bg-[#1F3864] hover:bg-[#16294a] text-white transition-colors">
-                {{ __('Save') }}
+
+
+        <div class="flex items-center gap-3 pt-2">
+            <button type="submit" :disabled="loading"
+                class="bg-blue-950 text-white text-sm px-4 py-2 rounded-lg flex items-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed">
+                <svg x-show="loading" x-cloak class="animate-spin h-4 w-4" viewBox="0 0 24 24" fill="none">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor"
+                        stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
+                </svg>
+                <span x-text="loading ? 'Menyimpan...' : 'Simpan'"></span>
             </button>
 
             @if (session('status') === 'profile-updated')
-                <p
-                    x-data="{ show: true }"
-                    x-show="show"
-                    x-transition
-                    x-init="setTimeout(() => show = false, 2000)"
-                    class="text-sm text-gray-600"
-                >{{ __('Saved.') }}</p>
+                <p x-data="{ show: true }" x-show="show" x-transition x-init="setTimeout(() => show = false, 2000)"
+                    class="text-sm text-green-600">Tersimpan.</p>
             @endif
         </div>
     </form>

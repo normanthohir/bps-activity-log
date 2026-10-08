@@ -12,7 +12,7 @@ use Illuminate\View\View;
 class ProfileController extends Controller
 {
     /**
-     * Display the user's profile form.
+     * Tampilkan form profil milik user yang login.
      */
     public function edit(Request $request): View
     {
@@ -22,7 +22,7 @@ class ProfileController extends Controller
     }
 
     /**
-     * Update the user's profile information.
+     * Update data profil user (nama, NIP, email).
      */
     public function update(ProfileUpdateRequest $request): RedirectResponse
     {
@@ -34,11 +34,12 @@ class ProfileController extends Controller
 
         $request->user()->save();
 
-        return Redirect::route('profile.edit')->with('status', 'profile-updated');
+        return Redirect::route($this->namaRouteProfile('edit'))
+            ->with('status', 'profile-updated');
     }
 
     /**
-     * Delete the user's account.
+     * Hapus akun user yang login.
      */
     public function destroy(Request $request): RedirectResponse
     {
@@ -56,5 +57,22 @@ class ProfileController extends Controller
         $request->session()->regenerateToken();
 
         return Redirect::to('/');
+    }
+
+    /**
+     * Helper: tentukan nama route profile yang benar sesuai role user
+     * yang login, karena route profile kini tersebar per-role dengan
+     * prefix berbeda (profile.edit, kabag.profile.edit, dst).
+     */
+    private function namaRouteProfile(string $action): string
+    {
+        $prefix = match (auth()->user()->role) {
+            'kepala_bagian' => 'kabag.',
+            'kepala_bps' => 'kepala-bps.',
+            'admin' => 'admin.',
+            default => '', // staf, tanpa prefix
+        };
+
+        return $prefix . 'profile.' . $action;
     }
 }

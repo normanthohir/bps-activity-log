@@ -15,6 +15,8 @@ return [
 
     'name' => env('APP_NAME', 'BPS-Log'),
 
+    'sqids_alphabet' => env('SQIDS_ALPHABET'),
+
     /*
     |--------------------------------------------------------------------------
     | Application Environment

@@ -4,7 +4,7 @@
 
         {{-- Header --}}
         <div class="mb-6">
-            <h1 class="text-xl font-semibold text-gray-900">Edit Laporan</h1>
+            <h1 class="text-xl font-semibold text-gray-900">Revisi Laporan</h1>
             <p class="text-sm text-gray-500 mt-0.5">Perbarui laporan aktivitas harian Anda.</p>
         </div>
 
@@ -18,13 +18,13 @@
         <div class="bg-white rounded-xl border border-gray-200 overflow-hidden" x-data="{
             loading: false,
             errors: {},
-            tanggal: '{{ old('tanggal', $laporan->tanggal->toDateString()) }}',
+            tanggal: @js(old('tanggal', $laporan->tanggal->toDateString())),
             jam_mulai: @js(old('jam_mulai', $laporan->jam_mulai ? substr($laporan->jam_mulai, 0, 5) : '')),
             jam_selesai: @js(old('jam_selesai', $laporan->jam_selesai ? substr($laporan->jam_selesai, 0, 5) : '')),
-            uraian: '{{ old('uraian', $laporan->uraian) }}',
-            output: '{{ old('output', $laporan->output) }}',
-            lokasi: '{{ old('lokasi', $laporan->lokasi) }}',
-            file_lampiran: '{{ old('file_lampiran', $laporan->file_lampiran) }}',
+            uraian: @js(old('uraian', $laporan->uraian)),
+            output: @js(old('output', $laporan->output)),
+            lokasi: @js(old('lokasi', $laporan->lokasi)),
+            file_lampiran: @js(old('file_lampiran', $laporan->file_lampiran)),
             validate() {
                 this.errors = {};
                 if (!this.tanggal) this.errors.tanggal = 'Tanggal wajib diisi.';

@@ -1,31 +1,31 @@
 <x-guest-layout>
     <div class="mb-4 text-sm text-gray-600">
-        {{ __('Thanks for signing up! Before getting started, could you verify your email address by clicking on the link we just emailed to you? If you didn\'t receive the email, we will gladly send you another.') }}
+        Lupa password? Masukkan email akun Anda, dan kami akan mengirim
+        tautan untuk membuat password baru.
     </div>
 
-    @if (session('status') == 'verification-link-sent')
-        <div class="mb-4 font-medium text-sm text-green-600">
-            {{ __('A new verification link has been sent to the email address you provided during registration.') }}
-        </div>
+    @if (session('status'))
+        <div class="mb-4 font-medium text-sm text-green-600">{{ session('status') }}</div>
     @endif
 
-    <div class="mt-4 flex items-center justify-between">
-        <form method="POST" action="{{ route('verification.send') }}">
-            @csrf
+    <form method="POST" action="{{ route('password.email') }}"
+          x-data="{ loading: false }" @submit="loading = true">
+        @csrf
 
-            <div>
-                <x-primary-button>
-                    {{ __('Resend Verification Email') }}
-                </x-primary-button>
-            </div>
-        </form>
+        <div>
+            <label for="email" class="text-sm text-gray-500 block mb-1">Email</label>
+            <input id="email" name="email" type="email" value="{{ old('email') }}" required autofocus
+                   class="w-full rounded-lg border-gray-300 @error('email') border-red-500 @enderror">
+            @error('email')
+                <p class="text-sm text-red-600 mt-1">{{ $message }}</p>
+            @enderror
+        </div>
 
-        <form method="POST" action="{{ route('logout') }}">
-            @csrf
-
-            <button type="submit" class="underline text-sm text-gray-600 hover:text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#1F3864]/30">
-                {{ __('Log Out') }}
-            </button>
-        </form>
-    </div>
+        <div class="flex items-center justify-between mt-4">
+            <a href="{{ route('login') }}" class="underline text-sm text-gray-600 hover:text-gray-900">
+                Kembali ke login
+            </a>
+            <x-submit-button loadingText="Mengirim...">Kirim Tautan Reset</x-submit-button>
+        </div>
+    </form>
 </x-guest-layout>

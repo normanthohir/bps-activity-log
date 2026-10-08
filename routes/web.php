@@ -24,7 +24,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::middleware(['role:staf'])->group(function () {
         Route::resource('laporan', LaporanController::class)
-            ->only(['index', 'create', 'store', 'show', 'edit', 'update', 'destroy']);
+            ->only(['index', 'create', 'store', 'show', 'update', 'destroy']);
+
+        Route::get('laporan/{laporan}/revisi', [LaporanController::class, 'edit'])->name('laporan.edit');
 
         Route::get('tugas-aktif', [StafTugasController::class, 'index'])->name('staf.tugas.index');
         Route::get('tugas-aktif/{tugas}', [StafTugasController::class, 'show'])->name('staf.tugas.show');
@@ -67,7 +69,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('approval', [KepalaBpsApprovalController::class, 'index'])->name('approval.index');
         Route::get('approval/{laporan}', [KepalaBpsApprovalController::class, 'show'])->name('approval.show');
         Route::post('approval/{laporan}', [KepalaBpsApprovalController::class, 'proses'])->name('approval.proses');
-        
+
         Route::get('rekap/export-pdf', [RekapController::class, 'exportPdf'])->name('rekap.export-pdf');
         Route::get('rekap/export-excel', [RekapController::class, 'exportExcel'])->name('rekap.export-excel');
     });

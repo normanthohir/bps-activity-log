@@ -1,25 +1,30 @@
 <x-guest-layout>
     <div class="mb-4 text-sm text-gray-600">
-        {{ __('Forgot your password? No problem. Just let us know your email address and we will email you a password reset link that will allow you to choose a new one.') }}
+        Lupa password? Masukkan email akun Anda, dan kami akan mengirim
+        tautan untuk membuat password baru.
     </div>
 
-    <!-- Session Status -->
-    <x-auth-session-status class="mb-4" :status="session('status')" />
+    @if (session('status'))
+        <div class="mb-4 font-medium text-sm text-green-600">{{ session('status') }}</div>
+    @endif
 
-    <form method="POST" action="{{ route('password.email') }}">
+    <form method="POST" action="{{ route('password.email') }}" x-data="{ loading: false }" @submit="loading = true">
         @csrf
 
-        <!-- Email Address -->
         <div>
-            <x-input-label for="email" :value="__('Email')" />
-            <x-text-input id="email" class="block mt-1 w-full" type="email" name="email" :value="old('email')" required autofocus />
-            <x-input-error :messages="$errors->get('email')" class="mt-2" />
+            <label for="email" class="text-sm text-gray-500 block mb-1">Email</label>
+            <input id="email" name="email" type="email" value="{{ old('email') }}" required autofocus
+                class="w-full rounded-lg border-gray-300 @error('email') border-red-500 @enderror">
+            @error('email')
+                <p class="text-sm text-red-600 mt-1">{{ $message }}</p>
+            @enderror
         </div>
 
-        <div class="flex items-center justify-end mt-4">
-            <x-primary-button>
-                {{ __('Email Password Reset Link') }}
-            </x-primary-button>
+        <div class="flex items-center justify-between mt-4">
+            <a href="{{ route('login') }}" class="underline text-sm text-gray-600 hover:text-gray-900">
+                Kembali ke login
+            </a>
+            <x-submit-button loadingText="Mengirim...">Kirim Tautan Reset</x-submit-button>
         </div>
     </form>
 </x-guest-layout>

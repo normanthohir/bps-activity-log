@@ -22,7 +22,7 @@
         </div>
 
         <x-loading-overlay message="Memverifikasi akun..." />
-       
+
         <x-submit-button loadingText="Memverifikasi akun..." class="w-full">
             Masuk
         </x-submit-button>
@@ -31,5 +31,14 @@
             <x-button-spinner x-show="loading" x-cloak />
             <span x-text="loading ? 'Memproses...' : 'Masuk'"></span>
         </button> --}}
+
+        <div class="flex items-center justify-between mt-2">
+            @if (Route::has('password.request'))
+                <a class="underline text-sm text-gray-600 hover:text-gray-900" href="{{ route('password.request') }}">
+                    Lupa password?
+                </a>
+            @endif
+        </div>
+
     </form>
 </x-guest-layout>
