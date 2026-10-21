@@ -82,11 +82,11 @@ class TugasController extends Controller
         return view('tugas.show-kabag-tugas-tim', ['tugas' => $tugas_tim]);
     }
 
-    public function edit(Request $request, Tugas $tugas): View
+    public function edit(Request $request, Tugas $tugas_tim): View
     {
         abort_unless($request->user()->isKepalaBagian(), 403);
 
-        return view('tugas.edit-kabag-tugas-tim', compact('tugas'));
+        return view('tugas.edit-kabag-tugas-tim',['tugas' => $tugas_tim]);
     }
 
     public function update(Request $request, Tugas $tugas): RedirectResponse

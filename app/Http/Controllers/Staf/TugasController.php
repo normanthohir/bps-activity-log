@@ -22,6 +22,11 @@ class TugasController extends Controller
             ->when($request->filled('status'), function ($q) use ($request) {
                 $q->where('status', $request->string('status'));
             })
+            // TAMBAHKAN BLOK KODE INI (Asumsi nama kolom di database Anda adalah 'tenggat')
+            ->when($request->filled('bulan_tahun'), function ($q) use ($request) {
+                // Mencari data yang waktu tenggatnya diawali dengan tahun-bulan terpilih (contoh: "2026-10%")
+                $q->where('tenggat', 'like', $request->string('bulan_tahun') . '%');
+            })
             ->latest()
             ->get();
 
@@ -33,6 +38,7 @@ class TugasController extends Controller
 
         return view('tugas.index-staf', compact('tugasAktif', 'tugasSelesai'));
     }
+
 
     public function show(Request $request, Tugas $tugas): View
     {

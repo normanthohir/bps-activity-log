@@ -52,8 +52,10 @@
 
         {{-- Filter --}}
         <form method="GET" action="{{ route('staf.tugas.index') }}"
-            class="animate-in delay-1 bg-white rounded-xl border border-gray-200 p-4 mb-5">
-            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 items-end">
+            class="animate-in delay-1 bg-white rounded-xl border border-gray-200 p-4 mb-3">
+            <div class="grid grid-cols-1 sm:grid-cols-4 gap-4 items-start">
+
+                {{-- INPUT CARI OTOMATIS: Berjalan otomatis 0.5 detik setelah berhenti mengetik --}}
                 <div class="sm:col-span-2">
                     <label class="text-xs text-gray-500 block mb-1">Cari judul tugas</label>
                     <div class="relative">
@@ -64,31 +66,54 @@
                         </svg>
                         <input type="text" name="cari" value="{{ request('cari') }}"
                             placeholder="cth: rekap bulanan..."
+                            oninput="clearTimeout(window.searchTimer); window.searchTimer = setTimeout(() => this.form.submit(), 500)"
+                            autofocus onfocus="this.setSelectionRange(this.value.length, this.value.length)"
                             class="w-full text-sm rounded-lg border-gray-300 pl-9 focus:ring-[#1F3864]/20 focus:border-[#1F3864]">
                     </div>
                 </div>
+
+                <div>
+                    <label class="text-xs text-gray-500 block mb-1">Periode</label>
+                    <select name="bulan_tahun" onchange="this.form.submit()"
+                        class="w-full text-sm rounded-lg border-gray-300 focus:ring-[#1F3864]/20 focus:border-[#1F3864]">
+                        <option value="">Semua Periode</option>
+                        @php
+                            $tahunIni = now()->year;
+                        @endphp
+                        @foreach (['01' => 'Januari', '02' => 'Februari', '03' => 'Maret', '04' => 'April', '05' => 'Mei', '06' => 'Juni', '07' => 'Juli', '08' => 'Agustus', '09' => 'September', '10' => 'Oktober', '11' => 'November', '12' => 'Desember'] as $angka => $nama)
+                            @php
+                                // Menghasilkan string seperti "2026-01", "2026-02", dst.
+                                $valueOpsi = $tahunIni . '-' . $angka;
+                            @endphp
+                            <option value="{{ $valueOpsi }}" @selected(request('bulan_tahun') === $valueOpsi)>
+                                {{ $nama }} {{ $tahunIni }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+
+                {{-- SELECT STATUS OTOMATIS: Langsung terkirim saat opsi diklik --}}
                 <div>
                     <label class="text-xs text-gray-500 block mb-1">Status</label>
-                    <select name="status"
+                    <select name="status" onchange="this.form.submit()"
                         class="w-full text-sm rounded-lg border-gray-300 focus:ring-[#1F3864]/20 focus:border-[#1F3864]">
-                        <option value="">Semua status aktif</option>
+                        <option value="">Semua status</option>
                         <option value="belum_dikerjakan" @selected(request('status') === 'belum_dikerjakan')>Belum Dikerjakan</option>
                         <option value="dikerjakan" @selected(request('status') === 'dikerjakan')>Dikerjakan</option>
                     </select>
                 </div>
             </div>
-            <div class="flex gap-2 mt-3">
-                <button type="submit"
-                    class="px-4 py-2 text-sm font-medium rounded-lg bg-[#1F3864] hover:bg-[#16294a] text-white transition-colors">
-                    Terapkan
-                </button>
-                @if (request()->hasAny(['cari', 'status']))
+
+
+            {{-- Tombol Reset
+            @if (request()->hasAny(['cari', 'status']) && (request('cari') != '' || request('status') != ''))
+                <div class="flex gap-2 mt-3">
                     <a href="{{ route('staf.tugas.index') }}"
                         class="px-4 py-2 text-sm font-medium rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50 transition-colors">
-                        Reset
+                        Reset Filter
                     </a>
-                @endif
-            </div>
+                </div>
+            @endif --}}
         </form>
 
         {{-- Tugas Aktif --}}

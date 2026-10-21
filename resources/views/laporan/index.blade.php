@@ -86,9 +86,9 @@
                 <option value="dikembalikan" @selected(request('status') === 'dikembalikan')>Dikembalikan</option>
             </select>
 
-            @if (request()->hasAny(['status', 'bulan', 'tahun']))
+            {{-- @if (request()->hasAny(['status', 'bulan', 'tahun']))
                 <a href="{{ route($indexRoute) }}" class="text-sm text-gray-400 hover:text-gray-600">Reset</a>
-            @endif
+            @endif --}}
         </form>
 
         {{-- Table card --}}
