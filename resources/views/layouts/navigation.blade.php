@@ -7,7 +7,7 @@
             <div class="flex items-center gap-3">
                 <a href="{{ route('dashboard') }}" class="flex items-center gap-2.5">
                     <img src="{{ asset('images/bps.svg') }}" alt="BPS" class="w-8 h-8 brightness-0 invert">
-                    <span class="text-white font-semibold text-sm tracking-wide hidden sm:block">RAPI - BPS Kota
+                    <span class="text-white font-semibold text-sm tracking-wide ">RAPI - BPS Kota
                         Ambon</span>
                 </a>
             </div>
@@ -161,51 +161,88 @@
     {{-- Mobile menu --}}
     <div id="mobile-nav" class="hidden md:hidden border-t border-white/10">
         <div class="px-4 py-3 space-y-1">
-            <a href="{{ route('dashboard') }}"
-                class="block px-3 py-2 rounded-lg text-sm font-medium text-white/70 hover:text-white hover:bg-white/10">Dashboard</a>
-            @if (!auth()->user()->isKepalaBps())
-                <a href="{{ route('laporan.index') }}"
-                    class="block px-3 py-2 rounded-lg text-sm font-medium text-white/70 hover:text-white hover:bg-white/10">Laporan
-                    Saya</a>
-            @endif
+
+            <a href="{{ route($dashboardRoute) }}"
+                class="block px-3 py-2 rounded-lg text-sm font-medium transition-colors {{ in_array($currentRoute, ['dashboard', 'kabag.dashboard', 'kepala-bps.dashboard']) ? 'bg-white/15 text-white' : 'text-white/70 hover:text-white hover:bg-white/10' }}">
+                Dashboard
+            </a>
+
             @if (auth()->user()->role === 'staf')
+                <a href="{{ route('laporan.index') }}"
+                    class="block px-3 py-2 rounded-lg text-sm font-medium transition-colors {{ str_starts_with($currentRoute, 'laporan') ? 'bg-white/15 text-white' : 'text-white/70 hover:text-white hover:bg-white/10' }}">
+                    Laporan
+                </a>
                 <a href="{{ route('staf.tugas.index') }}"
-                    class="block px-3 py-2 rounded-lg text-sm font-medium text-white/70 hover:text-white hover:bg-white/10">Tugas
-                    Saya</a>
+                    class="block px-3 py-2 rounded-lg text-sm font-medium transition-colors {{ str_starts_with($currentRoute, 'staf.tugas') ? 'bg-white/15 text-white' : 'text-white/70 hover:text-white hover:bg-white/10' }}">
+                    Tugas Aktif
+                </a>
             @endif
+
             @if (auth()->user()->isKepalaBagian())
+                <a href="{{ route('kabag.laporan.index') }}"
+                    class="block px-3 py-2 rounded-lg text-sm font-medium transition-colors {{ str_starts_with($currentRoute, 'kabag.laporan') ? 'bg-white/15 text-white' : 'text-white/70 hover:text-white hover:bg-white/10' }}">
+                    Laporan
+                </a>
+                <a href="{{ route('kabag.tugas-aktif.index') }}"
+                    class="block px-3 py-2 rounded-lg text-sm font-medium transition-colors {{ str_starts_with($currentRoute, 'kabag.tugas-aktif') ? 'bg-white/15 text-white' : 'text-white/70 hover:text-white hover:bg-white/10' }}">
+                    Tugas Aktif
+                </a>
                 <a href="{{ route('kabag.tugas.index') }}"
-                    class="block px-3 py-2 rounded-lg text-sm font-medium text-white/70 hover:text-white hover:bg-white/10">Tugas
-                    Tim</a>
+                    class="block px-3 py-2 rounded-lg text-sm font-medium transition-colors {{ str_starts_with($currentRoute, 'kabag.tugas.') ? 'bg-white/15 text-white' : 'text-white/70 hover:text-white hover:bg-white/10' }}">
+                    Tugas Tim
+                </a>
                 <a href="{{ route('kabag.approval.index') }}"
-                    class="block px-3 py-2 rounded-lg text-sm font-medium text-white/70 hover:text-white hover:bg-white/10">Persetujuan</a>
+                    class="block px-3 py-2 rounded-lg text-sm font-medium transition-colors {{ str_starts_with($currentRoute, 'kabag.approval') ? 'bg-white/15 text-white' : 'text-white/70 hover:text-white hover:bg-white/10' }}">
+                    Persetujuan
+                </a>
             @endif
+
             @if (auth()->user()->isKepalaBps())
                 <a href="{{ route('kepala-bps.rekap') }}"
-                    class="block px-3 py-2 rounded-lg text-sm font-medium text-white/70 hover:text-white hover:bg-white/10">Rekap
-                    Kantor</a>
+                    class="block px-3 py-2 rounded-lg text-sm font-medium transition-colors {{ str_starts_with($currentRoute, 'kepala-bps.rekap') ? 'bg-white/15 text-white' : 'text-white/70 hover:text-white hover:bg-white/10' }}">
+                    Rekap Kantor
+                </a>
                 <a href="{{ route('kepala-bps.tugas.index') }}"
-                    class="block px-3 py-2 rounded-lg text-sm font-medium text-white/70 hover:text-white hover:bg-white/10">Beri
-                    Tugas</a>
+                    class="block px-3 py-2 rounded-lg text-sm font-medium transition-colors {{ str_starts_with($currentRoute, 'kepala-bps.tugas') ? 'bg-white/15 text-white' : 'text-white/70 hover:text-white hover:bg-white/10' }}">
+                    Beri Tugas
+                </a>
                 <a href="{{ route('kepala-bps.approval.index') }}"
-                    class="block px-3 py-2 rounded-lg text-sm font-medium text-white/70 hover:text-white hover:bg-white/10">Persetujuan</a>
+                    class="block px-3 py-2 rounded-lg text-sm font-medium transition-colors {{ str_starts_with($currentRoute, 'kepala-bps.approval') ? 'bg-white/15 text-white' : 'text-white/70 hover:text-white hover:bg-white/10' }}">
+                    Persetujuan
+                </a>
             @endif
+
             @if (auth()->user()->isAdmin())
                 <a href="{{ route('admin.users.index') }}"
-                    class="block px-3 py-2 rounded-lg text-sm font-medium text-white/70 hover:text-white hover:bg-white/10">Kelola
-                    User</a>
+                    class="block px-3 py-2 rounded-lg text-sm font-medium transition-colors {{ str_starts_with($currentRoute, 'admin.users') ? 'bg-white/15 text-white' : 'text-white/70 hover:text-white hover:bg-white/10' }}">
+                    Kelola User
+                </a>
                 <a href="{{ route('admin.bagian.index') }}"
-                    class="block px-3 py-2 rounded-lg text-sm font-medium text-white/70 hover:text-white hover:bg-white/10">Kelola
-                    Bagian</a>
+                    class="block px-3 py-2 rounded-lg text-sm font-medium transition-colors {{ str_starts_with($currentRoute, 'admin.bagian') ? 'bg-white/15 text-white' : 'text-white/70 hover:text-white hover:bg-white/10' }}">
+                    Kelola Bagian
+                </a>
             @endif
+
             <hr class="border-white/10 my-2">
+
             <a href="{{ route('profile.edit') }}"
-                class="block px-3 py-2 rounded-lg text-sm font-medium text-white/70 hover:text-white hover:bg-white/10">Profile
-                Saya</a>
-            <form method="POST" action="{{ route('logout') }}">
+                class="block px-3 py-2 rounded-lg text-sm font-medium transition-colors {{ str_ends_with($currentRoute, 'profile.edit') ? 'bg-white/15 text-white' : 'text-white/70 hover:text-white hover:bg-white/10' }}">
+                Profil Saya
+            </a>
+
+            <form method="POST" action="{{ route('logout') }}" x-data="{ loading: false }" @submit="loading = true">
                 @csrf
-                <button type="submit"
-                    class="block w-full text-left px-3 py-2 rounded-lg text-sm font-medium text-red-400 hover:text-red-300 hover:bg-white/10">Keluar</button>
+                <x-loading-overlay message="Mengeluarkan akun..." />
+                <button type="submit" :disabled="loading"
+                    class="flex items-center gap-2 w-full  text-left px-3 py-2 rounded-lg text-sm font-medium text-red-400 hover:text-red-300 hover:bg-white/10 disabled:opacity-70 disabled:cursor-not-allowed transition-colors">
+                    <x-button-spinner x-show="loading" x-cloak class="text-red-400" />
+                    <svg x-show="!loading" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+                        stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15m3 0l3-3m0 0l-3-3m3 3H9" />
+                    </svg>
+                    <span x-text="loading ? 'Keluar...' : 'Keluar'"></span>
+                </button>
             </form>
         </div>
     </div>
