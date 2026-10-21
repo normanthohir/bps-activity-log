@@ -67,15 +67,17 @@
                         {{ now()->translatedFormat('l, d F Y') }}
                     </p>
                     <h1 class="text-2xl font-semibold">Halo, {{ auth()->user()->name }}</h1>
-                    <p class="text-white/70 text-sm mt-1">Kepala Seksi &middot; {{ $bagian->nama_bagian }} &middot;
+                    <p class="text-white/70 text-sm mt-1">Ketua Tim &middot; {{ $namaTim ?: ($bagian?->nama_bagian ?? "Belum memimpin tim") }} &middot;
                         {{ $staf->count() }} staf</p>
                 </div>
-                <x-action-button href="{{ route('kabag.tugas.create') }}" variant="light">
+                <x-action-button href="{{ route('pekerjaan.create') }}" variant="light">
                     Beri Tugas
                 </x-action-button>
               
             </div>
         </div>
+
+                @include('dashboard.partials.kalender-pekerjaan')
 
         {{-- Stats --}}
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">

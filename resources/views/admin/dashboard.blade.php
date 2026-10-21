@@ -8,6 +8,7 @@
     
     <div class="py-8 bg-gray-50 min-h-screen">
         <div class="max-w-6xl mx-auto px-4">
+            @include('dashboard.partials.kalender-pekerjaan')
             <div class="mb-8 flex flex-col md:flex-row gap-4">
                 <!-- Card: Total User -->
                 <div class="flex-1 bg-white shadow-sm rounded-xl p-6 flex items-center gap-4 border border-gray-100">
@@ -24,7 +25,7 @@
                         <div class="text-gray-600 text-sm">Total User</div>
                     </div>
                 </div>
-                <!-- Card: Total Bagian -->
+                <!-- Card: Total Tim -->
                 <div class="flex-1 bg-white shadow-sm rounded-xl p-6 flex items-center gap-4 border border-gray-100">
                     <div class="bg-green-100 text-green-600 rounded-full p-3">
                         <svg class="w-7 h-7" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
@@ -36,10 +37,10 @@
                         <h3 class="text-2xl font-bold text-gray-900">
                             {{ $totalBagian }}
                         </h3>
-                        <div class="text-gray-600 text-sm">Total Bagian</div>
+                        <div class="text-gray-600 text-sm">Total Tim</div>
                     </div>
                 </div>
-                <!-- Card: Total Kepala Bagian -->
+                <!-- Card: Total Ketua Tim -->
                 <div class="flex-1 bg-white shadow-sm rounded-xl p-6 flex items-center gap-4 border border-gray-100">
                     <div class="bg-yellow-100 text-yellow-500 rounded-full p-3">
                         <svg class="w-7 h-7" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
@@ -52,7 +53,7 @@
                         <h3 class="text-2xl font-bold text-gray-900">
                             {{ $totalKepalaBagian }}
                         </h3>
-                        <div class="text-gray-600 text-sm">Total Kepala Bagian</div>
+                        <div class="text-gray-600 text-sm">Total Ketua Tim</div>
                     </div>
                 </div>
             </div>
@@ -67,7 +68,7 @@
                                 <tr>
                                     <th class="py-2 px-2">Nama</th>
                                     <th class="py-2 px-2">Role</th>
-                                    <th class="py-2 px-2">Bagian</th>
+                                    <th class="py-2 px-2">Tim</th>
                                     <th class="py-2 px-2">Email</th>
                                 </tr>
                             </thead>
@@ -81,7 +82,7 @@
                                             @elseif($user->role=='kepala_bps') bg-pink-100 text-pink-600 
                                             @elseif($user->role=='kepala_bagian') bg-yellow-100 text-yellow-800 
                                             @else bg-gray-100 text-gray-700 @endif">
-                                            {{ str_replace('_', ' ', $user->role) }}
+                                            {{ $user->role === 'kepala_bagian' ? 'Ketua Tim' : str_replace('_', ' ', $user->role) }}
                                         </span>
                                     </td>
                                     <td class="py-1.5 px-2">
@@ -98,16 +99,16 @@
                     </div>
                 </div>
 
-                <!-- Data Bagian (Tabel Ringkas) -->
+                <!-- Data Tim (Tabel Ringkas) -->
                 <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-                    <h3 class="font-semibold text-lg mb-3 text-green-700">Data Bagian</h3>
+                    <h3 class="font-semibold text-lg mb-3 text-green-700">Data Tim</h3>
                     <div class="overflow-x-auto">
                         <table class="w-full text-sm text-left text-gray-700">
                             <thead class="border-b text-gray-500">
                                 <tr>
                                     <th class="py-2 px-2">Kode</th>
-                                    <th class="py-2 px-2">Nama Bagian</th>
-                                    <th class="py-2 px-2">Kepala Bagian</th>
+                                    <th class="py-2 px-2">Nama Tim</th>
+                                    <th class="py-2 px-2">Ketua Tim</th>
                                     <th class="py-2 px-2">Total Staf</th>
                                 </tr>
                             </thead>
@@ -119,14 +120,14 @@
                                     <td class="py-1.5 px-2">
                                         {{ optional($bagian->kepalaBagian)->name ?? '—' }}
                                     </td>
-                                    <td class="py-1.5 px-2">{{ $bagian->pegawai_count }}</td>
+                                    <td class="py-1.5 px-2">{{ $bagian->anggota_tim_count }}</td>
                                 </tr>
                                 @endforeach
                             </tbody>
                         </table>
                     </div>
                     <div class="text-right text-xs mt-2">
-                        <a href="{{ route('admin.bagian.index') }}" class="text-green-600 hover:underline">Kelola Bagian</a>
+                        <a href="{{ route('admin.bagian.index') }}" class="text-green-600 hover:underline">Kelola Tim</a>
                     </div>
                 </div>
             </div>

@@ -59,7 +59,7 @@
                     <p class="text-blue-700">{{ $laporan->tugas->judul }}</p>
                     <p class="text-blue-600 text-xs mt-1">
                         Diberikan oleh {{ $laporan->tugas->pemberiTugas->name }}
-                        ({{ $laporan->tugas->pemberiTugas->isKepalaBps() ? 'Kepala BPS' : 'Kepala Bagian' }})
+                        ({{ $laporan->tugas->pemberiTugas->isKepalaBps() ? 'Kepala BPS' : 'Ketua Tim' }})
                     </p>
                 </div>
             @else
@@ -180,7 +180,7 @@
                         <p class="text-sm text-gray-900">
                             {{ $log->approver->name }}
                             <span class="text-gray-400 text-xs">
-                                ({{ $log->approver->isKepalaBps() ? 'Kepala BPS' : 'Kepala Bagian' }})
+                                ({{ $log->approver->isKepalaBps() ? 'Kepala BPS' : 'Ketua Tim' }})
                             </span>
                         </p>
                         <span

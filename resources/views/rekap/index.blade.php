@@ -27,7 +27,7 @@
             <div>
                 <h1 class="text-xl font-semibold text-gray-900">Rekap Kantor</h1>
                 <p class="text-sm text-gray-500 mt-0.5">
-                    Ringkasan laporan seluruh bagian &middot; periode {{ \Carbon\Carbon::create($tahun, $bulan, 1)->translatedFormat('F Y') }}.
+                    Ringkasan laporan seluruh tim &middot; periode {{ \Carbon\Carbon::create($tahun, $bulan, 1)->translatedFormat('F Y') }}.
                 </p>
             </div>
 
@@ -85,7 +85,7 @@
                         </svg>
                     </div>
                     <div>
-                        <p class="text-sm text-gray-500">Total Bagian</p>
+                        <p class="text-sm text-gray-500">Total Tim</p>
                         <p class="text-2xl font-semibold text-gray-900">{{ $rekapPerBagian->count() }}</p>
                     </div>
                 </div>
@@ -121,7 +121,7 @@
         {{-- Rekap table dengan kontribusi per bagian --}}
         <div class="animate-in delay-2 bg-white rounded-xl border border-gray-200 overflow-hidden">
             <div class="px-5 py-4 border-b border-gray-100">
-                <h2 class="font-semibold text-gray-900">Rekap Per Bagian</h2>
+                <h2 class="font-semibold text-gray-900">Rekap Per Tim</h2>
             </div>
 
             @php $totalKeseluruhan = $rekapPerBagian->sum('total_laporan'); @endphp
@@ -130,7 +130,7 @@
                 <table class="w-full text-sm">
                     <thead>
                         <tr class="text-left text-xs text-gray-500 uppercase tracking-wide bg-gray-50 border-b border-gray-200">
-                            <th class="py-3 px-5 font-medium">Bagian</th>
+                            <th class="py-3 px-5 font-medium">Tim</th>
                             <th class="py-3 px-5 font-medium text-center">Pegawai</th>
                             <th class="py-3 px-5 font-medium">Laporan</th>
                             <th class="py-3 px-5 font-medium text-center">Disetujui</th>
@@ -187,7 +187,7 @@
                         @empty
                             <tr>
                                 <td colspan="6" class="py-12 text-center">
-                                    <p class="text-sm text-gray-500">Belum ada data bagian.</p>
+                                    <p class="text-sm text-gray-500">Belum ada data tim.</p>
                                 </td>
                             </tr>
                         @endforelse

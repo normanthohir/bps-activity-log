@@ -53,8 +53,7 @@ class TugasController extends Controller
             'status' => ['required', 'in:belum_dikerjakan,dikerjakan,selesai'],
         ]);
 
-        $tugas->update($data);
-
-        return back()->with('success', 'Status tugas berhasil diperbarui.');
+        // Semua penyelesaian melewati validasi output dan ketergantungan input.
+        return app(\App\Http\Controllers\PekerjaanController::class)->update($request, $tugas);
     }
 }

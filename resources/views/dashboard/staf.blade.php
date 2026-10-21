@@ -64,13 +64,15 @@
                         {{ now()->translatedFormat('l, d F Y') }}
                     </p>
                     <h1 class="text-2xl font-semibold">Halo, {{ auth()->user()->name }}</h1>
-                    <p class="text-white/70 text-sm mt-1">{{ auth()->user()->bagian->nama_bagian }}</p>
+                    <p class="text-white/70 text-sm mt-1">{{ auth()->user()->bagian?->nama_bagian ?? 'Anggota Tim' }}</p>
                 </div>
                 <x-action-button href="{{ route('laporan.create') }}" variant="light">
                     Laporan Baru
                 </x-action-button>
             </div>
         </div>
+
+                @include('dashboard.partials.kalender-pekerjaan')
 
         {{-- Stats --}}
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">

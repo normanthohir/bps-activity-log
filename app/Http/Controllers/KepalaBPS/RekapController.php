@@ -58,7 +58,7 @@ class RekapController extends Controller
     private function rekapData(int $bulan, int $tahun)
     {
         return Bagian::withCount(['pegawai'])
-            ->get()
+            ->orderBy('kode_bagian')->orderBy('nama_bagian')->get()
             ->map(function ($bagian) use ($bulan, $tahun) {
                 $query = LaporanHarian::punyaBagian($bagian->id)
                     ->whereMonth('tanggal', $bulan)

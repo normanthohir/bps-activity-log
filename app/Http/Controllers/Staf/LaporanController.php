@@ -8,6 +8,8 @@ use App\Models\Tugas;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
+use Illuminate\Validation\Rule;
+use Illuminate\Validation\ValidationException;
 
 class LaporanController extends Controller
 {
@@ -65,12 +67,18 @@ class LaporanController extends Controller
             'uraian' => ['required', 'string'],
             'output' => ['nullable', 'string'],
             'lokasi' => ['required', 'in:kantor,lapangan,dinas_luar'],
-            'tugas_id' => ['nullable', 'exists:tugas,id'],
+            'tugas_id' => ['nullable', Rule::exists('tugas','id')->where('ditugaskan_ke', auth()->id())],
             'file_lampiran' => ['nullable', 'url'],
             // tombol submit menentukan status: draft atau langsung diajukan
             'aksi' => ['required', 'in:draft,ajukan'],
         ]);
 
+        if (!empty($data['tugas_id'])) {
+            $tugas = Tugas::findOrFail($data['tugas_id']);
+            if ($tugas->input_tugas_id && $tugas->inputDariTugas?->status !== 'selesai') {
+                throw ValidationException::withMessages(['tugas_id'=>'Input dari pekerjaan sebelumnya belum selesai.']);
+            }
+        }
         $data['user_id'] = $request->user()->id;
         $data['status'] = $data['aksi'] === 'ajukan' ? 'menunggu' : 'draft';
         unset($data['aksi']);
@@ -110,7 +118,7 @@ class LaporanController extends Controller
             'uraian' => ['required', 'string'],
             'output' => ['nullable', 'string'],
             'lokasi' => ['required', 'in:kantor,lapangan,dinas_luar'],
-            'tugas_id' => ['nullable', 'exists:tugas,id'],
+            'tugas_id' => ['nullable', Rule::exists('tugas','id')->where('ditugaskan_ke', auth()->id())],
             'file_lampiran' => ['nullable', 'url'],
             'aksi' => ['required', 'in:draft,ajukan'],
         ]);

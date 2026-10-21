@@ -20,8 +20,8 @@
 
         {{-- Header --}}
         <div class="animate-in mb-6">
-            <h1 class="text-xl font-semibold text-gray-900">Persetujuan Laporan (Semua Bagian)</h1>
-            <p class="text-sm text-gray-500 mt-0.5">Review dan proses laporan dari seluruh staf dan Kepala Bagian.</p>
+            <h1 class="text-xl font-semibold text-gray-900">Persetujuan Laporan (Semua Tim)</h1>
+            <p class="text-sm text-gray-500 mt-0.5">Review dan proses laporan dari seluruh staf dan Ketua Tim.</p>
         </div>
 
         {{-- Ringkasan status --}}
@@ -72,9 +72,9 @@
             class="animate-in delay-1 bg-white rounded-xl border border-gray-200 p-4 mb-5">
             <div class="grid grid-cols-2 md:grid-cols-5 gap-3 items-end">
                 <div>
-                    <label class="text-xs text-gray-500 block mb-1">Bagian</label>
+                    <label class="text-xs text-gray-500 block mb-1">Tim</label>
                     <select name="bagian" class="w-full text-sm rounded-lg border-gray-300 focus:ring-[#1F3864]/20 focus:border-[#1F3864]">
-                        <option value="">Semua bagian</option>
+                        <option value="">Semua tim</option>
                         @foreach ($daftarBagian as $b)
                             <option value="{{ $b->id }}" @selected(request('bagian') == $b->id)>{{ $b->nama_bagian }}</option>
                         @endforeach
@@ -119,7 +119,7 @@
                     class="px-4 py-2 text-sm font-medium rounded-lg bg-[#1F3864] hover:bg-[#16294a] text-white transition-colors">
                     Terapkan
                 </button>
-                @if (request()->hasAny(['bagian', 'status', 'tanggal', 'bulan', 'tahun']))
+                @if (request()->hasAny(['tim', 'status', 'tanggal', 'bulan', 'tahun']))
                     <a href="{{ route('kepala-bps.approval.index') }}"
                         class="px-4 py-2 text-sm font-medium rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50 transition-colors">
                         Reset
@@ -135,7 +135,7 @@
                     <svg class="w-10 h-10 mx-auto text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
                     </svg>
-                    @if (request()->hasAny(['bagian', 'status', 'tanggal', 'bulan', 'tahun']))
+                    @if (request()->hasAny(['tim', 'status', 'tanggal', 'bulan', 'tahun']))
                         <p class="text-sm font-medium text-gray-900 mt-3">Tidak ada laporan yang cocok dengan filter ini</p>
                         <a href="{{ route('kepala-bps.approval.index') }}" class="inline-block mt-4 text-sm text-[#1F3864] font-medium hover:underline">
                             Reset filter
@@ -151,7 +151,7 @@
                         <thead>
                             <tr class="text-left text-xs text-gray-500 uppercase tracking-wide bg-gray-50 border-b border-gray-200">
                                 <th class="py-3 px-5 font-medium">Pegawai</th>
-                                <th class="py-3 px-5 font-medium">Bagian</th>
+                                <th class="py-3 px-5 font-medium">Tim</th>
                                 <th class="py-3 px-5 font-medium">Tanggal</th>
                                 <th class="py-3 px-5 font-medium">Uraian</th>
                                 <th class="py-3 px-5 font-medium">Status</th>

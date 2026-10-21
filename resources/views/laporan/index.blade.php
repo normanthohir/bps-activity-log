@@ -1,6 +1,6 @@
 {{-- resources/views/laporan/index.blade.php --}}
 @php
-    $isKabag = auth()->user()->role === 'kepala_bagian';
+    $isKabag = \App\Support\ModeKerja::ketuaAktif(auth()->user());
     $createRoute = $isKabag ? 'kabag.laporan.create' : 'laporan.create';
     $editRoute = $isKabag ? 'kabag.laporan.edit' : 'laporan.edit';
     $showRoute = $isKabag ? 'kabag.laporan.show' : 'laporan.show';

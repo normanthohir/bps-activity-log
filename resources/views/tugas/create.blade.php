@@ -13,9 +13,9 @@
             <h1 class="text-xl font-semibold text-gray-900">Beri Tugas Baru</h1>
             <p class="text-sm text-gray-500 mt-0.5">
                 @if ($isKepalaBps)
-                    Tentukan staf dari bagian mana pun untuk menerima tugas ini.
+                    Tentukan staf dari tim mana pun untuk menerima tugas ini.
                 @else
-                    Berikan tugas ke staf di bagian {{ auth()->user()->bagian->nama_bagian }}.
+                    Berikan tugas ke staf di tim {{ auth()->user()->bagian->nama_bagian }}.
                 @endif
             </p>
         </div>

@@ -16,7 +16,11 @@ class CheckRole
     {
         $user = $request->user();
 
-        if (! $user || ! in_array($user->role, $roles, true)) {
+        if (! $user || ! collect($roles)->contains(fn ($role) => match ($role) {
+            'kepala_bagian' => \App\Support\ModeKerja::ketuaAktif($user),
+            'staf' => \App\Support\ModeKerja::anggotaAktif($user),
+            default => $user->role === $role,
+        })) {
             abort(403, 'Anda tidak memiliki akses ke halaman ini.');
         }
 

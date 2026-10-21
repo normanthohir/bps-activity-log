@@ -6,7 +6,7 @@
         <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
             <div>
                 <h1 class="text-xl font-semibold text-gray-900">Kelola Akun Pegawai</h1>
-                <p class="text-sm text-gray-500 mt-0.5">Semua pengguna sistem beserta role dan bagiannya.</p>
+                <p class="text-sm text-gray-500 mt-0.5">Semua pegawai beserta hak sistem dan perannya di masing-masing tim.</p>
             </div>
             <a href="{{ route('admin.users.create') }}"
                class="inline-flex items-center gap-1.5 bg-[#1F3864] hover:bg-[#16294a] text-white text-sm font-medium px-4 py-2.5 rounded-lg transition-colors">
@@ -16,6 +16,12 @@
                 Tambah Akun
             </a>
         </div>
+
+        @include('partials.import-excel', [
+            'judul' => 'Akun Pegawai', 'jenisImport' => 'akun',
+            'templateRoute' => 'admin.users.template-excel', 'importRoute' => 'admin.users.import-excel',
+            'catatanImport' => 'Isian wajib: nama, NIP, email. Kolom role boleh kosong (otomatis pegawai biasa). Gunakan kode tim yang ada dan format TEKS untuk NIP 18 digit. Akun yang telah ada tidak ditimpa.',
+        ])
 
         {{-- Search & filter --}}
         <form method="GET" class="flex flex-wrap items-center gap-3 mb-5">
@@ -28,9 +34,9 @@
             </div>
             <select name="role" onchange="this.form.submit()"
                     class="text-sm border border-gray-300 rounded-lg py-2 pl-3 pr-8 focus:outline-none focus:ring-2 focus:ring-[#1F3864]/20 focus:border-[#1F3864]">
-                <option value="">Semua Role</option>
-                <option value="staf" @selected(request('role') === 'staf')>Staf</option>
-                <option value="kepala_bagian" @selected(request('role') === 'kepala_bagian')>Kepala Bagian</option>
+                <option value="">Semua Hak Sistem</option>
+                <option value="staf" @selected(request('role') === 'staf')>Pegawai</option>
+                <option value="kepala_bagian" @selected(request('role') === 'kepala_bagian')>Pegawai (data lama)</option>
                 <option value="kepala_bps" @selected(request('role') === 'kepala_bps')>Kepala BPS</option>
                 <option value="admin" @selected(request('role') === 'admin')>Admin</option>
             </select>
@@ -70,8 +76,8 @@
                         <tr class="text-left text-xs text-gray-500 uppercase tracking-wide bg-gray-50 border-b border-gray-200">
                             <th class="py-3 px-5 font-medium">Nama</th>
                             <th class="py-3 px-5 font-medium">NIP</th>
-                            <th class="py-3 px-5 font-medium">Role</th>
-                            <th class="py-3 px-5 font-medium">Bagian</th>
+                            <th class="py-3 px-5 font-medium">Hak Sistem</th>
+                            <th class="py-3 px-5 font-medium">Peran per Tim</th>
                             <th class="py-3 px-5 font-medium text-right">Aksi</th>
                         </tr>
                     </thead>
@@ -97,10 +103,18 @@
                                 <td class="py-3.5 px-5 font-mono text-xs text-gray-600">{{ $user->nip }}</td>
                                 <td class="py-3.5 px-5">
                                     <span class="inline-flex text-xs font-medium px-2 py-1 rounded-md {{ $roleStyles[$user->role] ?? 'bg-gray-100 text-gray-600' }}">
-                                        {{ ucwords(str_replace('_', ' ', $user->role)) }}
+                                        {{ $user->role === 'admin' ? 'Admin' : ($user->role === 'kepala_bps' ? 'Kepala BPS' : 'Pegawai') }}
                                     </span>
                                 </td>
-                                <td class="py-3.5 px-5 text-gray-700">{{ $user->bagian?->nama_bagian ?? '—' }}</td>
+                                <td class="py-3.5 px-5 text-gray-700">
+                                    @forelse($user->tim as $tim)
+                                        <div class="text-xs mb-1">{{ $tim->nama_bagian }}
+                                            <span class="font-semibold {{ $tim->pivot->peran_tim === 'ketua' ? 'text-blue-700' : 'text-gray-500' }}">({{ ucfirst($tim->pivot->peran_tim) }})</span>
+                                        </div>
+                                    @empty
+                                        <span class="text-xs text-gray-400">Belum tergabung tim</span>
+                                    @endforelse
+                                </td>
                                 <td class="py-3.5 px-5">
                                     <div class="flex items-center justify-end gap-3">
                                         <a href="{{ route('admin.users.edit', $user) }}"

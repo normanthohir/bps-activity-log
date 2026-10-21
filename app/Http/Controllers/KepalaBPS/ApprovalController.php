@@ -47,7 +47,7 @@ class ApprovalController extends Controller
         }
 
         $laporan = $query->latest('tanggal')->paginate(15)->withQueryString();
-        $daftarBagian = Bagian::all();
+        $daftarBagian = Bagian::orderBy('kode_bagian')->orderBy('nama_bagian')->get();
 
         return view('approval.index-kepala-bps', compact(
             'laporan',

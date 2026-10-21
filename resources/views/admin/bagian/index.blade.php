@@ -5,30 +5,36 @@
         {{-- Header --}}
         <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
             <div>
-                <h1 class="text-xl font-semibold text-gray-900">Kelola Bagian/Seksi</h1>
-                <p class="text-sm text-gray-500 mt-0.5">Struktur unit kerja dan penanggung jawab tiap bagian.</p>
+                <h1 class="text-xl font-semibold text-gray-900">Kelola Tim</h1>
+                <p class="text-sm text-gray-500 mt-0.5">Struktur unit kerja dan penanggung jawab tiap tim.</p>
             </div>
             <a href="{{ route('admin.bagian.create') }}"
                class="inline-flex items-center gap-1.5 bg-[#1F3864] hover:bg-[#16294a] text-white text-sm font-medium px-4 py-2.5 rounded-lg transition-colors">
                 <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
                 </svg>
-                Tambah Bagian
+                Tambah Tim
             </a>
         </div>
+
+        @include('partials.import-excel', [
+            'judul' => 'Tim', 'jenisImport' => 'tim',
+            'templateRoute' => 'admin.bagian.template-excel', 'importRoute' => 'admin.bagian.import-excel',
+            'catatanImport' => 'Sheet Tim untuk ketua tiap tim, sheet Anggota Tim untuk anggota multi-tim, dan Daftar Pegawai untuk referensi NIP. Satu akun bisa ketua banyak tim sekaligus anggota di tim lain.',
+        ])
 
         {{-- Summary stats --}}
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
             <div class="bg-white border border-gray-200 rounded-xl p-4">
-                <p class="text-xs text-gray-500">Total Bagian</p>
+                <p class="text-xs text-gray-500">Total Tim</p>
                 <p class="text-2xl font-semibold text-gray-900 mt-1">{{ $bagian->count() }}</p>
             </div>
             <div class="bg-white border border-gray-200 rounded-xl p-4">
-                <p class="text-xs text-gray-500">Total Pegawai</p>
-                <p class="text-2xl font-semibold text-gray-900 mt-1">{{ $bagian->sum('pegawai_count') }}</p>
+                <p class="text-xs text-gray-500">Total Keanggotaan (bisa terhitung di beberapa tim)</p>
+                <p class="text-2xl font-semibold text-gray-900 mt-1">{{ $bagian->sum('anggota_tim_count') }}</p>
             </div>
             <div class="bg-white border border-gray-200 rounded-xl p-4">
-                <p class="text-xs text-gray-500">Belum Ada Kepala Bagian</p>
+                <p class="text-xs text-gray-500">Belum Ada Ketua Tim</p>
                 <p class="text-2xl font-semibold {{ $bagian->whereNull('kepala_bagian_id')->count() > 0 ? 'text-amber-600' : 'text-gray-900' }} mt-1">
                     {{ $bagian->whereNull('kepala_bagian_id')->count() }}
                 </p>
@@ -43,11 +49,11 @@
                     <svg class="w-10 h-10 mx-auto text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 21h16.5M4.5 3h15M5.25 3v18m13.5-18v18M9 6.75h1.5m-1.5 3h1.5m-1.5 3h1.5m3-6H15m-1.5 3H15m-1.5 3H15M9 21v-3.375c0-.621.504-1.125 1.125-1.125h3.75c.621 0 1.125.504 1.125 1.125V21" />
                     </svg>
-                    <p class="text-sm font-medium text-gray-900 mt-3">Belum ada bagian</p>
-                    <p class="text-sm text-gray-500 mt-1">Tambahkan bagian/seksi pertama untuk mulai mengatur struktur organisasi.</p>
+                    <p class="text-sm font-medium text-gray-900 mt-3">Belum ada tim</p>
+                    <p class="text-sm text-gray-500 mt-1">Tambahkan tim pertama untuk mulai mengatur struktur organisasi.</p>
                     <a href="{{ route('admin.bagian.create') }}"
                        class="inline-flex items-center gap-1.5 mt-4 bg-[#1F3864] hover:bg-[#16294a] text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors">
-                        + Tambah Bagian
+                        + Tambah Tim
                     </a>
                 </div>
             @else
@@ -55,9 +61,9 @@
                 <table class="w-full text-sm">
                     <thead>
                         <tr class="text-left text-xs text-gray-500 uppercase tracking-wide bg-gray-50 border-b border-gray-200">
-                            <th class="py-3 px-5 font-medium">Nama Bagian</th>
+                            <th class="py-3 px-5 font-medium">Nama Tim</th>
                             <th class="py-3 px-5 font-medium">Kode</th>
-                            <th class="py-3 px-5 font-medium">Kepala Bagian</th>
+                            <th class="py-3 px-5 font-medium">Ketua Tim</th>
                             <th class="py-3 px-5 font-medium text-center">Pegawai</th>
                             <th class="py-3 px-5 font-medium text-right">Aksi</th>
                         </tr>
@@ -88,7 +94,7 @@
                                         </span>
                                     @endif
                                 </td>
-                                <td class="py-3.5 px-5 text-center text-gray-700">{{ $item->pegawai_count }}</td>
+                                <td class="py-3.5 px-5 text-center text-gray-700">{{ $item->anggota_tim_count }}</td>
                                 <td class="py-3.5 px-5">
                                     <div class="flex items-center justify-end gap-3">
                                         <a href="{{ route('admin.bagian.edit', $item) }}"
@@ -97,7 +103,7 @@
                                         </a>
                                         <form method="POST" action="{{ route('admin.bagian.destroy', $item) }}">
                                             @csrf @method('DELETE')
-                                            <button type="submit" data-confirm="Hapus bagian {{ $item->nama_bagian }}? Tindakan ini tidak bisa dibatalkan."
+                                            <button type="submit" data-confirm="Hapus tim {{ $item->nama_bagian }}? Tindakan ini tidak bisa dibatalkan."
                                                     class="text-red-500 hover:text-red-700 text-sm font-medium transition-colors">
                                                 Hapus
                                             </button>

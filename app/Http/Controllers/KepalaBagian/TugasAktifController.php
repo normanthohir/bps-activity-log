@@ -29,7 +29,7 @@ class TugasAktifController extends Controller
 
     public function show(Request $request, Tugas $tugas_aktif): View
     {
-        abort_unless($request->user()->isKepalaBagian(), 403);
+        abort_unless(\App\Support\ModeKerja::ketuaAktif($request->user()) && $tugas_aktif->ditugaskan_ke === $request->user()->id, 403);
 
         $tugas_aktif->load(['pemberiTugas', 'bagian', 'laporanHarian' => fn($q) => $q->latest()]);
 

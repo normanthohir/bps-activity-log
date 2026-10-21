@@ -52,7 +52,7 @@
             }
         }">
 
-            @if (auth()->user()->role === 'staf')
+            @if (\App\Support\ModeKerja::anggotaAktif(auth()->user()))
                 <form method="POST" action="{{ route('laporan.store') }}" class="p-6" x-ref="form" novalidate>
                 @else
                     <form method="POST" action="{{ route('kabag.laporan.store') }}" class="p-6" x-ref="form"

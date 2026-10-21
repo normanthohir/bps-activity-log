@@ -24,7 +24,7 @@
     <table>
         <thead>
             <tr>
-                <th>Bagian</th>
+                <th>Tim</th>
                 <th class="text-center">Pegawai</th>
                 <th class="text-center">Total Laporan</th>
                 <th class="text-center">Disetujui</th>
