@@ -35,6 +35,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
         // (setiap pegawai bisa jadi penerima tugas, termasuk kepala bagian)
         Route::resource('tugas', StafTugasController::class)
             ->only(['index', 'show'])->parameters(['tugas' => 'tugas']);;
+
+        Route::get('profile', [ProfileController::class, 'edit'])->name('profile.edit');
+        Route::patch('profile', [ProfileController::class, 'update'])->name('profile.update');
+        Route::delete('profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
     });
 
 
@@ -56,6 +60,14 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('approval', [KabagApprovalController::class, 'index'])->name('approval.index');
         Route::get('approval/{laporan}', [KabagApprovalController::class, 'show'])->name('approval.show');
         Route::post('approval/{laporan}', [KabagApprovalController::class, 'proses'])->name('approval.proses');
+
+        Route::get('profile', [ProfileController::class, 'edit'])->name('profile.edit');
+        Route::patch('profile', [ProfileController::class, 'update'])->name('profile.update');
+        Route::delete('profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+
+        Route::get('profile', [ProfileController::class, 'edit'])->name('profile.edit');
+        Route::patch('profile', [ProfileController::class, 'update'])->name('profile.update');
+        Route::delete('profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
     });
 
     Route::middleware(['role:kepala_bps'])->prefix('kepala-bps')->name('kepala-bps.')->group(function () {
@@ -72,16 +84,20 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
         Route::get('rekap/export-pdf', [RekapController::class, 'exportPdf'])->name('rekap.export-pdf');
         Route::get('rekap/export-excel', [RekapController::class, 'exportExcel'])->name('rekap.export-excel');
-    });
 
-    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
-    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
-    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+        Route::get('profile', [ProfileController::class, 'edit'])->name('profile.edit');
+        Route::patch('profile', [ProfileController::class, 'update'])->name('profile.update');
+        Route::delete('profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+    });
 
     Route::middleware(['role:admin'])->prefix('admin')->name('admin.')->group(function () {
         Route::resource('users', UserController::class);
         Route::post('users/{user}/reset-password', [UserController::class, 'resetPassword'])->name('users.reset-password');
         Route::resource('bagian', BagianController::class);
+
+        Route::get('profile', [ProfileController::class, 'edit'])->name('profile.edit');
+        Route::patch('profile', [ProfileController::class, 'update'])->name('profile.update');
+        Route::delete('profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
     });
 });
 

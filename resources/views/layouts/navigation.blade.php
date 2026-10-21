@@ -117,7 +117,15 @@
                         <p class="text-sm font-semibold text-gray-900">{{ auth()->user()->name }}</p>
                         <p class="text-xs text-gray-500">{{ auth()->user()->email }}</p>
                     </div>
-                    <a href="{{ route('profile.edit') }}"
+                    @php
+                        $routeProfile = match (auth()->user()->role) {
+                            'kepala_bagian' => 'kabag.profile.edit',
+                            'kepala_bps' => 'kepala-bps.profile.edit',
+                            'admin' => 'admin.profile.edit',
+                            default => 'profile.edit',
+                        };
+                    @endphp
+                    <a href="{{ route($routeProfile) }}"
                         class="flex items-center gap-2 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50">
                         <svg class="w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"
                             stroke-width="2">
@@ -224,8 +232,15 @@
             @endif
 
             <hr class="border-white/10 my-2">
-
-            <a href="{{ route('profile.edit') }}"
+            @php
+                $routeProfile = match (auth()->user()->role) {
+                    'kepala_bagian' => 'kabag.profile.edit',
+                    'kepala_bps' => 'kepala-bps.profile.edit',
+                    'admin' => 'admin.profile.edit',
+                    default => 'profile.edit',
+                };
+            @endphp
+            <a href="{{ route($routeProfile) }}"
                 class="block px-3 py-2 rounded-lg text-sm font-medium transition-colors {{ str_ends_with($currentRoute, 'profile.edit') ? 'bg-white/15 text-white' : 'text-white/70 hover:text-white hover:bg-white/10' }}">
                 Profil Saya
             </a>
