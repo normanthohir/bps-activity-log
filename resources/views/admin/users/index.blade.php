@@ -23,22 +23,6 @@
 <x-app-layout>
     <div class="max-w-6xl mx-auto py-8 px-4 sm:px-6 lg:px-8" x-data="daftarUser()">
 
-        @if (session('success'))
-            <div
-                class="flex items-start gap-2 bg-green-50 border border-green-200 text-green-700 text-sm p-3 rounded-lg mb-4">
-                <svg class="w-4 h-4 mt-0.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"
-                    stroke-width="2">
-                    <path stroke-linecap="round" stroke-linejoin="round"
-                        d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-                {{ session('success') }}
-            </div>
-        @endif
-        @if (session('warning'))
-            <div class="bg-amber-50 border border-amber-200 text-amber-800 text-sm p-3 rounded-lg mb-4">
-                {{ session('warning') }}
-            </div>
-        @endif
 
         {{-- Header --}}
         <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">

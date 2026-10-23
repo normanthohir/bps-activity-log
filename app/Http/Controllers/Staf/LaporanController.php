@@ -110,12 +110,21 @@ class LaporanController extends Controller
             'jam_selesai' => ['nullable', 'date_format:H:i,H:i:s', 'after:jam_mulai'],
             'uraian' => ['required', 'string'],
             'output' => ['required', 'in:selesai,gagal,tertunda'],
-            'alasan' => ['nullable', 'string'],
+            'alasan' => ['required_if:output,gagal,tertunda', 'nullable', 'string', 'max:1000'],
             'lokasi' => ['required', 'in:kantor,lapangan,dinas_luar'],
             'tugas_id' => ['nullable', 'exists:tugas,id'],
             'file_lampiran' => ['nullable', 'url'],
             'aksi' => ['required', 'in:draft,ajukan'],
+        ], [
+            'alasan.required_if' => 'Alasan wajib diisi jika output gagal atau tertunda.',
         ]);
+
+        // Alasan hanya berlaku untuk output gagal/tertunda. Ditulis eksplisit
+        // supaya nilai lama pasti terhapus saat output diganti ke "selesai",
+        // dan pasti terisi saat output menjadi gagal/tertunda.
+        $data['alasan'] = $data['output'] === 'selesai'
+            ? null
+            : trim((string) ($data['alasan'] ?? ''));
 
         $data['status'] = $data['aksi'] === 'ajukan' ? 'menunggu' : 'draft';
         unset($data['aksi']);

@@ -22,8 +22,8 @@
             jam_mulai: @js(old('jam_mulai', $laporan->jam_mulai ? substr($laporan->jam_mulai, 0, 5) : '')),
             jam_selesai: @js(old('jam_selesai', $laporan->jam_selesai ? substr($laporan->jam_selesai, 0, 5) : '')),
             uraian: @js(old('uraian', $laporan->uraian)),
-            output: @js(old('output', $laporan->output)),
-            alasan: @js(old('alasan', $laporan->alasan)),
+            output: @js(old('output', in_array($laporan->output, ['selesai', 'gagal', 'tertunda'], true) ? $laporan->output : '')),
+            alasan: @js(old('alasan', $laporan->alasan ?? '')),
             lokasi: @js(old('lokasi', $laporan->lokasi)),
             file_lampiran: @js(old('file_lampiran', $laporan->file_lampiran)),
             validate() {
@@ -122,13 +122,6 @@
                     <p class="text-xs text-red-600 mt-1" x-text="errors.uraian"></p>
                 </template>
             </div>
-
-            {{-- <div class="mb-5">
-                <label class="text-sm font-medium text-gray-700 block mb-1.5">Output / Hasil</label>
-                <input type="text" name="output" x-model="output"
-                    class="w-full rounded-lg border-gray-300 text-sm focus:ring-[#1F3864]/20 focus:border-[#1F3864]"
-                    placeholder="Contoh: Laporan statistik bulanan">
-            </div> --}}
 
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-5">
                 <div>

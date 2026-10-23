@@ -57,6 +57,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
             ->names('tugas-aktif');
 
         Route::resource('laporan', LaporanController::class)->names('laporan');
+
+        Route::get('laporan/{laporan}/revisi', [LaporanController::class, 'edit'])->name('laporan.edit');
+
         Route::get('approval', [KabagApprovalController::class, 'index'])->name('approval.index');
         Route::get('approval/{laporan}', [KabagApprovalController::class, 'show'])->name('approval.show');
         Route::post('approval/{laporan}', [KabagApprovalController::class, 'proses'])->name('approval.proses');
