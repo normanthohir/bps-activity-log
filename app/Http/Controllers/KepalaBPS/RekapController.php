@@ -2,74 +2,58 @@
 
 namespace App\Http\Controllers\KepalaBPS;
 
-use App\Exports\RekapBagianExport;
+use App\Exports\RekapKinerjaExcel;
 use App\Http\Controllers\Controller;
 use App\Models\Bagian;
-use App\Models\LaporanHarian;
+use App\Services\RekapKinerjaService;
 use Barryvdh\DomPDF\Facade\Pdf;
-use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\View\View;
-use Maatwebsite\Excel\Facades\Excel;
-use Symfony\Component\HttpFoundation\BinaryFileResponse;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class RekapController extends Controller
 {
-    public function index(Request $request): View
+    public function index(Request $request, RekapKinerjaService $service): View
     {
-        $bulan = $request->integer('bulan', now()->month);
-        $tahun = $request->integer('tahun', now()->year);
+        [$bulan, $tahun, $bagianId] = $this->parameter($request);
 
-        return view('rekap.index', [
-            'rekapPerBagian' => $this->rekapData($bulan, $tahun),
-            'bulan' => $bulan,
-            'tahun' => $tahun,
-        ]);
+        $rekap = $service->hitung($bulan, $tahun, $bagianId);
+        $daftarBagian = Bagian::orderBy('nama_bagian')->get(['id', 'nama_bagian']);
+
+        return view('rekap.index', compact('rekap', 'daftarBagian', 'bulan', 'tahun', 'bagianId'));
     }
 
-    public function exportPdf(Request $request): Response
+    public function exportPdf(Request $request, RekapKinerjaService $service): Response
     {
-        $bulan = $request->integer('bulan', now()->month);
-        $tahun = $request->integer('tahun', now()->year);
+        [$bulan, $tahun, $bagianId] = $this->parameter($request);
+        $rekap = $service->hitung($bulan, $tahun, $bagianId);
 
-        $pdf = Pdf::loadView('rekap.pdf', [
-            'rekapPerBagian' => $this->rekapData($bulan, $tahun),
-            'namaBulan' => Carbon::create($tahun, $bulan, 1)->translatedFormat('F Y'),
-        ])->setPaper('a4', 'portrait');
-
-        return $pdf->download("rekap-kantor-{$tahun}-{$bulan}.pdf");
+        return Pdf::loadView('rekap.pdf', ['rekap' => $rekap])
+            ->setPaper('a4', 'landscape')
+            ->download($this->namaFile($bulan, $tahun, 'pdf'));
     }
 
-    public function exportExcel(Request $request): BinaryFileResponse
+    public function exportExcel(Request $request, RekapKinerjaService $service): StreamedResponse
     {
-        $bulan = $request->integer('bulan', now()->month);
-        $tahun = $request->integer('tahun', now()->year);
+        [$bulan, $tahun, $bagianId] = $this->parameter($request);
+        $rekap = $service->hitung($bulan, $tahun, $bagianId);
 
-        return Excel::download(
-            new RekapBagianExport($this->rekapData($bulan, $tahun)),
-            "rekap-kantor-{$tahun}-{$bulan}.xlsx"
-        );
+        return (new RekapKinerjaExcel())->unduh($rekap, $this->namaFile($bulan, $tahun, 'xlsx'));
     }
 
-    // Satu sumber data dipakai bareng oleh index(), exportPdf(), dan
-    // exportExcel(), supaya angka yang ditampilkan & yang diekspor
-    // selalu konsisten dan tidak perlu ditulis 3x.
-    private function rekapData(int $bulan, int $tahun)
+    /** Ambil bulan, tahun, dan bagian dari URL dengan nilai yang sudah dibatasi. */
+    private function parameter(Request $request): array
     {
-        return Bagian::withCount(['pegawai'])
-            ->get()
-            ->map(function ($bagian) use ($bulan, $tahun) {
-                $query = LaporanHarian::punyaBagian($bagian->id)
-                    ->whereMonth('tanggal', $bulan)
-                    ->whereYear('tanggal', $tahun);
+        $bulan = min(12, max(1, $request->integer('bulan', now()->month)));
+        $tahun = min(now()->year + 1, max(now()->year - 5, $request->integer('tahun', now()->year)));
+        $bagianId = $request->integer('bagian') ?: null;
 
-                $bagian->total_laporan = (clone $query)->count();
-                $bagian->disetujui = (clone $query)->where('status', 'disetujui')->count();
-                $bagian->menunggu = (clone $query)->where('status', 'menunggu')->count();
-                $bagian->dikembalikan = (clone $query)->where('status', 'dikembalikan')->count();
+        return [$bulan, $tahun, $bagianId];
+    }
 
-                return $bagian;
-            });
+    private function namaFile(int $bulan, int $tahun, string $ekstensi): string
+    {
+        return sprintf('rekap-kinerja-%d-%02d.%s', $tahun, $bulan, $ekstensi);
     }
 }
