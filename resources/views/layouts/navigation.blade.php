@@ -191,7 +191,7 @@
                     class="block px-3 py-2 rounded-lg text-sm font-medium transition-colors {{ str_starts_with($currentRoute, 'kabag.laporan') ? 'bg-white/15 text-white' : 'text-white/70 hover:text-white hover:bg-white/10' }}">
                     Laporan
                 </a>
-                <a href="{{ route('kabag.tugas-aktif.index') }}"
+                <a href="{{ route('staf.tugas.index') }}"
                     class="block px-3 py-2 rounded-lg text-sm font-medium transition-colors {{ str_starts_with($currentRoute, 'kabag.tugas-aktif') ? 'bg-white/15 text-white' : 'text-white/70 hover:text-white hover:bg-white/10' }}">
                     Tugas Aktif
                 </a>

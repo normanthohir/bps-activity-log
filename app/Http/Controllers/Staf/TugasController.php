@@ -27,16 +27,12 @@ class TugasController extends Controller
                 // Mencari data yang waktu tenggatnya diawali dengan tahun-bulan terpilih (contoh: "2026-10%")
                 $q->where('tenggat', 'like', $request->string('bulan_tahun') . '%');
             })
-            ->latest()
-            ->get();
+            ->latest('created_at')
+            ->paginate(10)->withQueryString();
 
-        $tugasSelesai = $request->user()
-            ->tugasDiterima()
-            ->where('status', 'selesai')
-            ->latest()
-            ->paginate(10, ['*'], 'selesai_page');
+    
 
-        return view('tugas.index-staf', compact('tugasAktif', 'tugasSelesai'));
+        return view('tugas.index-staf', compact('tugasAktif'));
     }
 
 

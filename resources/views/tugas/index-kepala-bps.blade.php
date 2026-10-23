@@ -192,7 +192,6 @@
                                         @endif
                                     </td>
                                     <td class="py-3.5 px-5">
-                                        <!-- PERBAIKAN 4: Menambahkan kelas 'relative z-50' pada wrapper dropdown -->
                                         <div class="flex items-center justify-end gap-2 relative z-50">
                                             <x-dropdown-action>
                                                 <a href="{{ route('kepala-bps.tugas.show', $item) }}"

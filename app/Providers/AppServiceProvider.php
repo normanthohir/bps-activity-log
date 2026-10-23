@@ -8,6 +8,7 @@ use App\Policies\LaporanHarianPolicy;
 use App\Policies\TugasPolicy;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Pagination\Paginator;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -23,5 +24,6 @@ class AppServiceProvider extends ServiceProvider
         // otomatis memanggil method approve() di LaporanHarianPolicy.
         Gate::policy(LaporanHarian::class, LaporanHarianPolicy::class);
         Gate::policy(Tugas::class, TugasPolicy::class);
+        Paginator::defaultView('vendor.pagination.tailwind');
     }
 }

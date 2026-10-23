@@ -179,21 +179,6 @@
                                     </td>
                                     <td class="py-3.5 px-5">
                                         <div class="flex items-center justify-end gap-2">
-                                            {{-- @if ($item->status === 'menunggu')
-                                                <form method="POST" action="{{ route('kepala-bps.approval.proses', $item) }}">
-                                                    @csrf
-                                                    <input type="hidden" name="aksi" value="disetujui">
-                                                    <button class="inline-flex items-center gap-1 text-sm font-medium px-3 py-1.5 rounded-lg bg-green-50 text-green-700 hover:bg-green-100 transition-colors">
-                                                        <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                                            <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" />
-                                                        </svg>
-                                                        Setujui
-                                                    </button>
-                                                </form>
-
-                                                <x-reject-modal :action="route('kepala-bps.approval.proses', $item)" />
-                                            @endif --}}
-
                                             <a href="{{ route('kepala-bps.approval.show', $item) }}"
                                                 class="text-[#1F3864] hover:underline text-sm font-medium ml-1">
                                                 Detail

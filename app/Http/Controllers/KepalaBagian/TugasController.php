@@ -26,7 +26,7 @@ class TugasController extends Controller
             ->when($request->filled('status'), function ($q) use ($request) {
                 $q->where('status', $request->string('status'));
             })
-            ->latest()
+            ->latest('created_at')
             ->paginate(15)
             ->withQueryString();
 

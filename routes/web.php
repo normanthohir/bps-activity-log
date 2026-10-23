@@ -95,6 +95,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('users/{user}/reset-password', [UserController::class, 'resetPassword'])->name('users.reset-password');
         Route::resource('bagian', BagianController::class);
 
+        Route::post('users/{user}/resend-verification', [UserController::class, 'resendVerification'])
+            ->name('users.resend-verification');
+
         Route::get('profile', [ProfileController::class, 'edit'])->name('profile.edit');
         Route::patch('profile', [ProfileController::class, 'update'])->name('profile.update');
         Route::delete('profile', [ProfileController::class, 'destroy'])->name('profile.destroy');

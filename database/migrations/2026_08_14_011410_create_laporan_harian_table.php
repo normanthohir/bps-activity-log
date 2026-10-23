@@ -27,10 +27,11 @@ return new class extends Migration
             $table->time('jam_mulai')->nullable();
             $table->time('jam_selesai')->nullable();
             $table->text('uraian');
-            $table->text('output')->nullable();
+            $table->text('output');
+            $table->text('alasan')->nullable();
 
             // lokasi: kantor, lapangan, dinas_luar
-            $table->string('lokasi')->default('kantor');
+            $table->string('lokasi');
 
             $table->string('file_lampiran')->nullable();
 

@@ -221,58 +221,11 @@
                         </tbody>
                     </table>
                 </div>
+                <div class="border-t border-gray-100 px-5 py-3">
+                    {{ $tugasAktif->links() }}
+                </div>
             @endif
         </div>
-
-        {{-- Tugas Selesai --}}
-        @if ($tugasSelesai->count())
-            <div class="animate-in delay-2 bg-white rounded-xl border border-gray-200 overflow-hidden">
-                <div class="px-5 py-4 border-b border-gray-100">
-                    <h2 class="font-semibold text-gray-900">Tugas Selesai</h2>
-                </div>
-                <div class="overflow-x-auto">
-                    <table class="w-full text-sm">
-                        <thead>
-                            <tr
-                                class="text-left text-xs text-gray-500 uppercase tracking-wide bg-gray-50 border-b border-gray-200">
-                                <th class="py-3 px-5 font-medium">Judul</th>
-                                <th class="py-3 px-5 font-medium">Diberikan Oleh</th>
-                                <th class="py-3 px-5 font-medium text-right">Aksi</th>
-                            </tr>
-                        </thead>
-                        <tbody class="divide-y divide-gray-100">
-                            @foreach ($tugasSelesai as $i => $tugas)
-                                <tr class="animate-row hover:bg-gray-50/70 transition-colors"
-                                    style="animation-delay: {{ min($i, 10) * 0.04 }}s">
-                                    <td class="py-3 px-5">
-                                        <div class="flex items-center gap-1.5">
-                                            <svg class="w-3.5 h-3.5 text-green-500 shrink-0" fill="none"
-                                                viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                                <path stroke-linecap="round" stroke-linejoin="round"
-                                                    d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
-                                            </svg>
-                                            <span class="text-gray-700">{{ $tugas->judul }}</span>
-                                        </div>
-                                    </td>
-                                    <td class="py-3 px-5 text-gray-500 text-xs">
-                                        {{ $tugas->pemberiTugas->name ?? '—' }}
-                                    </td>
-                                    <td class="py-3 px-5 text-right">
-                                        <a href="{{ route('staf.tugas.show', $tugas) }}"
-                                            class="text-[#1F3864] hover:underline text-sm font-medium">
-                                            Lihat
-                                        </a>
-                                    </td>
-                                </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
-                </div>
-                <div class="border-t border-gray-100 px-5 py-3">
-                    {{ $tugasSelesai->links() }}
-                </div>
-            </div>
-        @endif
 
     </div>
 </x-app-layout>

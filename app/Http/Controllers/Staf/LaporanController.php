@@ -24,7 +24,7 @@ class LaporanController extends Controller
             })
             ->when($bulan, fn($q) => $q->whereMonth('tanggal', $bulan))
             ->when($tahun, fn($q) => $q->whereYear('tanggal', $tahun))
-            ->latest('tanggal')
+            ->latest('created_at')
             ->paginate(15)
             ->withQueryString();
 
@@ -63,7 +63,8 @@ class LaporanController extends Controller
             'jam_mulai' => ['nullable', 'date_format:H:i'],
             'jam_selesai' => ['nullable', 'date_format:H:i', 'after:jam_mulai'],
             'uraian' => ['required', 'string'],
-            'output' => ['nullable', 'string'],
+            'output' => ['required', 'in:selesai,gagal,tertunda'],
+            'alasan' => ['nullable', 'string'],
             'lokasi' => ['required', 'in:kantor,lapangan,dinas_luar'],
             'tugas_id' => ['nullable', 'exists:tugas,id'],
             'file_lampiran' => ['nullable', 'url'],
@@ -108,7 +109,8 @@ class LaporanController extends Controller
             'jam_mulai' => ['nullable', 'date_format:H:i,H:i:s'],
             'jam_selesai' => ['nullable', 'date_format:H:i,H:i:s', 'after:jam_mulai'],
             'uraian' => ['required', 'string'],
-            'output' => ['nullable', 'string'],
+            'output' => ['required', 'in:selesai,gagal,tertunda'],
+            'alasan' => ['nullable', 'string'],
             'lokasi' => ['required', 'in:kantor,lapangan,dinas_luar'],
             'tugas_id' => ['nullable', 'exists:tugas,id'],
             'file_lampiran' => ['nullable', 'url'],

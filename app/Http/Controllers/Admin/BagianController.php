@@ -11,11 +11,31 @@ use Illuminate\View\View;
 
 class BagianController extends Controller
 {
-    public function index(): View
+    public function index(Request $request): View
     {
-        $bagian = Bagian::withCount('pegawai')->with('kepalaBagian')->get();
+        $bagian = Bagian::with('kepalaBagian')
+            ->withCount('pegawai')
+            ->when($request->filled('search'), function ($q) use ($request) {
+                $kata = trim($request->search);
+                $q->where(function ($q) use ($kata) {
+                    $q->where('nama_bagian', 'like', "%{$kata}%")
+                        ->orWhere('kode_bagian', 'like', "%{$kata}%");
+                });
+            })
+            ->when($request->status === 'ada', fn($q) => $q->whereNotNull('kepala_bagian_id'))
+            ->when($request->status === 'belum', fn($q) => $q->whereNull('kepala_bagian_id'))
+            ->orderBy('nama_bagian')
+            ->paginate(25)
+            ->withQueryString();
 
-        return view('admin.bagian.index', compact('bagian'));
+        // Ringkasan dari semua bagian, bukan dari hasil filter
+        $ringkasan = [
+            'total'        => Bagian::count(),
+            'pegawai'      => User::whereNotNull('bagian_id')->count(),
+            'belum_kepala' => Bagian::whereNull('kepala_bagian_id')->count(),
+        ];
+
+        return view('admin.bagian.index', compact('bagian', 'ringkasan'));
     }
 
     public function create(): View

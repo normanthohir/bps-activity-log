@@ -22,6 +22,7 @@ class LaporanHarian extends Model
         'jam_selesai',
         'uraian',
         'output',
+        'alasan',
         'lokasi',
         'file_lampiran',
         'status',

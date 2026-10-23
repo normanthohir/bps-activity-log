@@ -46,7 +46,7 @@ class ApprovalController extends Controller
             $query->where('status', $request->string('status'));
         }
 
-        $laporan = $query->latest('tanggal')->paginate(15)->withQueryString();
+        $laporan = $query->latest('tanggal')->paginate(25)->withQueryString();
         $daftarBagian = Bagian::all();
 
         return view('approval.index-kepala-bps', compact(

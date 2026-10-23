@@ -215,7 +215,7 @@
                     @else
                         <div class="divide-y divide-gray-100">
                             @foreach ($tugasAktifList as $tugas)
-                                <a href="{{ route('tugas.show', $tugas) }}"
+                                <a href="{{ route('staf.tugas.show', $tugas) }}"
                                     class="block px-5 py-3 hover:bg-gray-50/70 transition-colors">
                                     <div class="flex items-center justify-between gap-2">
                                         <p class="text-sm font-medium text-gray-900 truncate">{{ $tugas->judul }}</p>

@@ -12,11 +12,35 @@ use Illuminate\View\View;
 
 class UserController extends Controller
 {
-    public function index(): View
+    public function index(Request $request): View
     {
-        $users = User::with('bagian')->latest()->paginate(15);
+        $users = User::with('bagian')
+            ->when($request->filled('search'), function ($q) use ($request) {
+                $kata = trim($request->search);
+                $q->where(function ($q) use ($kata) {
+                    $q->where('name', 'like', "%{$kata}%")
+                        ->orWhere('nip', 'like', "%{$kata}%")
+                        ->orWhere('email', 'like', "%{$kata}%");
+                });
+            })
+            ->when($request->filled('role'), fn($q) => $q->where('role', $request->role))
+            ->when($request->filled('bagian'), fn($q) => $q->where('bagian_id', $request->bagian))
+            ->when($request->status === 'terverifikasi', fn($q) => $q->whereNotNull('email_verified_at'))
+            ->when($request->status === 'belum', fn($q) => $q->whereNull('email_verified_at'))
+            ->latest()
+            ->paginate(25)
+            ->withQueryString();
 
-        return view('admin.users.index', compact('users'));
+        $ringkasan = User::selectRaw("
+        COUNT(*) as total,
+        SUM(role = 'staf') as staf,
+        SUM(role = 'kepala_bagian') as kepala_tim,
+        SUM(email_verified_at IS NULL) as belum_verifikasi
+    ")->first()->toArray();
+
+        $daftarBagian = Bagian::orderBy('nama_bagian')->get();
+
+        return view('admin.users.index', compact('users', 'ringkasan', 'daftarBagian'));
     }
 
     public function create(): View
@@ -35,23 +59,31 @@ class UserController extends Controller
             'nip' => ['required', 'string', 'max:20', 'unique:users,nip'],
             'email' => ['required', 'email', 'unique:users,email'],
             'role' => ['required', 'in:staf,kepala_bagian,kepala_bps,admin'],
-            // bagian_id wajib untuk staf & kepala_bagian, boleh kosong untuk kepala_bps/admin
             'bagian_id' => ['nullable', 'required_if:role,staf,kepala_bagian', 'exists:bagian,id'],
             'atasan_id' => ['nullable', 'exists:users,id'],
         ]);
 
-        $data['password'] = Hash::make('password'); // password default, wajib diganti saat login pertama
-        $data['email_verified_at'] = now();
+        $data['password'] = Hash::make('password'); // password default
+        // email_verified_at sengaja TIDAK diisi, jadi pegawai wajib verifikasi email dulu
 
         $user = User::create($data);
 
-        // Kalau role-nya kepala_bagian, otomatis set sebagai kepala di tabel bagian
         if ($user->role === 'kepala_bagian' && $user->bagian_id) {
             Bagian::where('id', $user->bagian_id)->update(['kepala_bagian_id' => $user->id]);
         }
 
+        try {
+            $user->sendEmailVerificationNotification();
+        } catch (\Throwable $e) {
+            // Akun tetap tersimpan walau email gagal terkirim (misal SMTP bermasalah)
+            report($e);
+
+            return redirect()->route('admin.users.index')
+                ->with('warning', "Akun {$user->name} dibuat, tetapi email verifikasi gagal dikirim. Gunakan tombol \"Kirim ulang verifikasi\" di daftar user.");
+        }
+
         return redirect()->route('admin.users.index')
-            ->with('success', 'Akun berhasil dibuat. Password default: password');
+            ->with('success', "Akun dibuat. Email verifikasi dikirim ke {$user->email}. Password awal: password");
     }
 
     public function edit(User $user): View
@@ -99,5 +131,16 @@ class UserController extends Controller
 
         return redirect()->route('admin.users.edit', $user)
             ->with('success', 'Password berhasil direset ke default: password');
+    }
+
+    public function resendVerification(User $user): RedirectResponse
+    {
+        if ($user->hasVerifiedEmail()) {
+            return back()->with('success', "Email {$user->email} sudah terverifikasi.");
+        }
+
+        $user->sendEmailVerificationNotification();
+
+        return back()->with('success', "Email verifikasi dikirim ulang ke {$user->email}.");
     }
 }

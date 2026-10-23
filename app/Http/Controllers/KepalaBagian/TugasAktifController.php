@@ -15,16 +15,11 @@ class TugasAktifController extends Controller
             ->tugasDiterima()
             ->with(['pemberiTugas', 'laporanHarian' => fn($q) => $q->latest()])
             ->where('status', '!=', 'selesai')
-            ->latest()
-            ->get();
+            ->paginate(10)->withQueryString();
 
-        $tugasSelesai = $request->user()
-            ->tugasDiterima()
-            ->where('status', 'selesai')
-            ->latest()
-            ->paginate(10, ['*'], 'selesai_page');
+      
 
-        return view('tugas.index-staf', compact('tugasAktif', 'tugasSelesai'));
+        return view('tugas.index-staf', compact('tugasAktif',));
     }
 
     public function show(Request $request, Tugas $tugas_aktif): View

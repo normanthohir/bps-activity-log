@@ -35,7 +35,7 @@ class ApprovalController extends Controller
             $query->where('status', $request->string('status'));
         }
 
-        $laporan = $query->latest('tanggal')->paginate(15)->withQueryString();
+        $laporan = $query->latest('created_at')->paginate(25)->withQueryString();
 
         return view('approval.index', compact('laporan'));
     }

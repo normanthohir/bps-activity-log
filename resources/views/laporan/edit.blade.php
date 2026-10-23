@@ -23,6 +23,7 @@
             jam_selesai: @js(old('jam_selesai', $laporan->jam_selesai ? substr($laporan->jam_selesai, 0, 5) : '')),
             uraian: @js(old('uraian', $laporan->uraian)),
             output: @js(old('output', $laporan->output)),
+            alasan: @js(old('alasan', $laporan->alasan)),
             lokasi: @js(old('lokasi', $laporan->lokasi)),
             file_lampiran: @js(old('file_lampiran', $laporan->file_lampiran)),
             validate() {
@@ -122,14 +123,14 @@
                 </template>
             </div>
 
-            <div class="mb-5">
+            {{-- <div class="mb-5">
                 <label class="text-sm font-medium text-gray-700 block mb-1.5">Output / Hasil</label>
                 <input type="text" name="output" x-model="output"
                     class="w-full rounded-lg border-gray-300 text-sm focus:ring-[#1F3864]/20 focus:border-[#1F3864]"
                     placeholder="Contoh: Laporan statistik bulanan">
-            </div>
+            </div> --}}
 
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-5">
                 <div>
                     <label class="text-sm font-medium text-gray-700 block mb-1.5">Lokasi <span
                             class="text-red-500">*</span></label>
@@ -145,16 +146,45 @@
                     </template>
                 </div>
                 <div>
-                    <label class="text-sm font-medium text-gray-700 block mb-1.5">Link Lampiran Bukti</label>
-                    <input type="url" name="file_lampiran" x-model="file_lampiran"
-                        class="w-full rounded-lg text-sm focus:ring-[#1F3864]/20 focus:border-[#1F3864]"
-                        :class="errors.file_lampiran ? 'border-red-500' : 'border-gray-300'"
-                        placeholder="https://drive.google.com/file/d/...">
-                    <p class="text-xs text-gray-400 mt-1">Paste link Google Drive bukti kegiatan</p>
-                    <template x-if="errors.file_lampiran">
-                        <p class="text-xs text-red-600 mt-1" x-text="errors.file_lampiran"></p>
-                    </template>
+                    <label class="text-sm font-medium text-gray-700 block mb-1.5">
+                        Output / Hasil <span class="text-red-500">*</span>
+                    </label>
+                    <select name="output" x-model="output" required
+                        class="w-full rounded-lg text-sm focus:ring-[#1F3864]/20 focus:border-[#1F3864] @error('output') border-red-500 @else border-gray-300 @enderror">
+                        <option value="" disabled>Pilih opsi</option>
+                        <option value="selesai">Selesai</option>
+                        <option value="tertunda">Tertunda</option>
+                        <option value="gagal">Gagal</option>
+                    </select>
+                    @error('output')
+                        <p class="text-xs text-red-600 mt-1">{{ $message }}</p>
+                    @enderror
                 </div>
+            </div>
+            <div>
+                {{-- Kolom alasan: hanya muncul kalau output gagal atau tertunda via Alpine tunggal --}}
+                <div x-show="output === 'gagal' || output === 'tertunda'" x-cloak x-transition>
+                    <label class="text-sm font-medium text-gray-700 block mb-1.5">
+                        <span x-text="output === 'gagal' ? 'Alasan Gagal' : 'Alasan Tertunda'"></span>
+                        <span class="text-red-500">*</span>
+                    </label>
+                    <textarea name="alasan" rows="2" x-model="alasan" placeholder="Jelaskan secara detail kendalanya..."
+                        class="w-full rounded-lg text-sm focus:ring-[#1F3864]/20 focus:border-[#1F3864] @error('alasan') border-red-500 @else border-gray-300 @enderror">{{ old('alasan') }}</textarea>
+                    @error('alasan')
+                        <p class="text-xs text-red-600 mt-1">{{ $message }}</p>
+                    @enderror
+                </div>
+            </div>
+            <div>
+                <label class="text-sm font-medium text-gray-700 block mb-1.5">Link Lampiran Bukti</label>
+                <input type="url" name="file_lampiran" x-model="file_lampiran"
+                    class="w-full rounded-lg text-sm focus:ring-[#1F3864]/20 focus:border-[#1F3864]"
+                    :class="errors.file_lampiran ? 'border-red-500' : 'border-gray-300'"
+                    placeholder="https://drive.google.com/file/d/...">
+                <p class="text-xs text-gray-400 mt-1">Paste link Google Drive bukti kegiatan</p>
+                <template x-if="errors.file_lampiran">
+                    <p class="text-xs text-red-600 mt-1" x-text="errors.file_lampiran"></p>
+                </template>
             </div>
 
             <x-loading-overlay message="Mengirim laporan..." />
