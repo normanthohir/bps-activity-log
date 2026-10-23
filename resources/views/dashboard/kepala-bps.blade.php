@@ -82,15 +82,18 @@
                         {{ now()->translatedFormat('l, d F Y') }}
                     </p>
                     <h1 class="text-2xl font-semibold">Kepala BPS Kota Ambon</h1>
-                    <p class="text-white/70 text-sm mt-1">Akses seluruh bagian &middot; Rekap dan persetujuan lintas
+                    <p class="text-white/70 text-sm mt-1">Akses seluruh tim &middot; Rekap dan persetujuan lintas
                         seksi</p>
                 </div>
-                <x-action-button href="{{ route('kepala-bps.tugas.create') }}" variant="light">
-                    Beri Tugas
-                </x-action-button>
+                <div class="flex flex-wrap gap-2">
+                    <x-action-button href="{{ route('pekerjaan.create') }}" variant="light">Beri Tugas</x-action-button>
+                    <a href="{{ route('sop.index') }}" class="border border-white/60 rounded-lg px-4 py-2 text-sm text-white hover:bg-white/10">Delegasikan SOP ke Ketua Tim</a>
+                </div>
                 
             </div>
         </div>
+
+                @include('dashboard.partials.kalender-pekerjaan')
 
         {{-- Stats --}}
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
@@ -141,7 +144,7 @@
                         </svg>
                     </div>
                     <div>
-                        <p class="text-sm text-gray-500">Total Bagian</p>
+                        <p class="text-sm text-gray-500">Total Tim</p>
                         <p class="text-2xl font-semibold text-gray-900">{{ $totalBagian }}</p>
                     </div>
                 </div>
@@ -210,7 +213,7 @@
                 <div class="animate-in delay-3 bg-white rounded-xl border border-gray-200 overflow-hidden">
                     <div
                         class="px-5 py-4 border-b border-gray-100 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
-                        <h2 class="font-semibold text-gray-900">Rekap Per Bagian</h2>
+                        <h2 class="font-semibold text-gray-900">Rekap Per Tim</h2>
                         <a href="{{ route('kepala-bps.rekap') }}"
                             class="text-sm text-[#1F3864] hover:underline font-medium">Lihat Detail</a>
                     </div>
@@ -220,7 +223,7 @@
                             <thead>
                                 <tr
                                     class="text-left text-xs text-gray-500 uppercase tracking-wide bg-gray-50 border-b border-gray-100">
-                                    <th class="py-2.5 px-5 font-medium">Bagian</th>
+                                    <th class="py-2.5 px-5 font-medium">Tim</th>
                                     <th class="py-2.5 px-5 font-medium text-right">Pegawai</th>
                                     <th class="py-2.5 px-5 font-medium text-right">Laporan Bulan Ini</th>
                                     <th class="py-2.5 px-5 font-medium text-right">Menunggu</th>
@@ -233,7 +236,7 @@
                                         style="animation-delay: {{ $i * 0.05 }}s">
                                         <td class="py-3 px-5 font-medium text-gray-900">{{ $bagian->nama_bagian }}
                                         </td>
-                                        <td class="py-3 px-5 text-right text-gray-500">{{ $bagian->pegawai_count }}
+                                        <td class="py-3 px-5 text-right text-gray-500">{{ $bagian->anggota_tim_count }}
                                         </td>
                                         <td class="py-3 px-5 text-right text-gray-500">
                                             {{ $bagian->total_laporan_bulan_ini }}</td>

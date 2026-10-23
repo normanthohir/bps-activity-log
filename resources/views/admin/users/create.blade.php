@@ -25,10 +25,7 @@
                      if (this.nip.length > 20) this.errors.nip = 'NIP maksimal 20 karakter.';
                      if (!this.email.trim()) this.errors.email = 'Email wajib diisi.';
                      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(this.email)) this.errors.email = 'Format email tidak valid.';
-                     if (!this.role) this.errors.role = 'Role wajib dipilih.';
-                     if (['staf', 'kepala_bagian'].includes(this.role) && !this.bagian_id) {
-                         this.errors.bagian_id = 'Bagian wajib dipilih untuk role ini.';
-                     }
+                     // Tim utama opsional: ketua/anggota dapat menjadi anggota banyak tim.
                      return Object.keys(this.errors).length === 0;
                  },
                  submit() {
@@ -73,23 +70,21 @@
                     </template>
                 </div>
 
-                <div class="mb-4">
-                    <label class="text-sm font-medium text-gray-700 block mb-1.5">Role <span class="text-red-500">*</span></label>
-                    <select name="role" x-model="role"
-                            class="w-full rounded-lg text-sm focus:ring-[#1F3864]/20 focus:border-[#1F3864]"
-                            :class="errors.role ? 'border-red-500' : 'border-gray-300'">
-                        <option value="staf">Staf</option>
-                        <option value="kepala_bagian">Kepala Bagian</option>
+                {{-- Jabatan ketua/anggota bukan jenis akun tetap. Hak khusus hanya untuk pimpinan/admin. --}}
+                <details class="mb-4 rounded-lg border border-slate-200 px-4 py-3 bg-slate-50">
+                    <summary class="cursor-pointer text-sm font-medium text-slate-700">Hak sistem khusus (opsional)</summary>
+                    <p class="text-xs text-slate-500 mt-2 mb-2">Akun pegawai biasa tidak perlu memilih jenis akun. Hak sebagai anggota atau ketua tim mengikuti centang keanggotaan di bawah dan dapat dipilih setelah login.</p>
+                    <label class="text-sm font-medium text-gray-700 block mb-1.5">Akses sistem</label>
+                    <select name="role" x-model="role" class="w-full rounded-lg border-gray-300 text-sm">
+                        <option value="staf">Pegawai biasa (standar)</option>
                         <option value="kepala_bps">Kepala BPS Kota</option>
-                        <option value="admin">Admin</option>
+                        <option value="admin">Admin sistem</option>
                     </select>
-                    <template x-if="errors.role">
-                        <p class="text-xs text-red-600 mt-1" x-text="errors.role"></p>
-                    </template>
-                </div>
+                    @error('role') <p class="text-xs text-red-600 mt-1">{{ $message }}</p> @enderror
+                </details>
 
                 <div class="mb-4">
-                    <label class="text-sm font-medium text-gray-700 block mb-1.5">Bagian <span x-show="['staf', 'kepala_bagian'].includes(role)" class="text-red-500">*</span></label>
+                    <label class="text-sm font-medium text-gray-700 block mb-1.5">Tim utama (opsional)</label>
                     <select name="bagian_id" x-model="bagian_id"
                             class="w-full rounded-lg text-sm focus:ring-[#1F3864]/20 focus:border-[#1F3864]"
                             :class="errors.bagian_id ? 'border-red-500' : 'border-gray-300'">
@@ -101,6 +96,28 @@
                     <template x-if="errors.bagian_id">
                         <p class="text-xs text-red-600 mt-1" x-text="errors.bagian_id"></p>
                     </template>
+                </div>
+
+                <div class="mb-5 rounded-lg border border-indigo-100 bg-indigo-50 p-4">
+                    <label class="block text-sm font-semibold text-gray-800 mb-2">Sebagai anggota tim (bisa banyak)</label>
+                    <p class="text-xs text-gray-600 mb-3">Centang semua tim tempat pegawai menjadi anggota. Tim utama otomatis terdaftar. Tim yang dipimpin tetap dapat dicentang juga.</p>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                        @foreach($daftarBagian as $tim)
+                            <label class="flex items-center gap-2 text-sm"><input type="checkbox" name="bagian_ids[]" value="{{ $tim->id }}"
+                                @checked(in_array($tim->id, old('bagian_ids', []))) class="rounded border-slate-300">{{ $tim->nama_bagian }}</label>
+                        @endforeach
+                    </div>
+                </div>
+
+                <div class="mb-5 rounded-lg border border-emerald-100 bg-emerald-50 p-4">
+                    <label class="block text-sm font-semibold text-gray-800 mb-2">Sebagai Ketua Tim (bisa banyak)</label>
+                    <p class="text-xs text-gray-600 mb-3">Peran ini khusus untuk tim yang dicentang. Pegawai yang sama tetap bisa menjadi anggota biasa pada tim lain. Tim yang sudah memiliki ketua lain harus diubah melalui Edit Tim.</p>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                        @foreach($daftarBagian as $tim)
+                            <label class="flex items-center gap-2 text-sm"><input type="checkbox" name="ketua_tim_ids[]" value="{{ $tim->id }}"
+                                @checked(in_array($tim->id, old('ketua_tim_ids', []))) class="rounded border-slate-300">{{ $tim->nama_bagian }}</label>
+                        @endforeach
+                    </div>
                 </div>
 
                 <div class="mb-5">

@@ -27,6 +27,8 @@ class AuthenticatedSessionController extends Controller
         $request->authenticate();
 
         $request->session()->regenerate();
+        // Setelah login, pegawai memulai dalam mode Anggota Tim.
+        $request->session()->forget('mode_kerja');
 
         return redirect()->intended(route('dashboard', absolute: false));
     }

@@ -5,7 +5,7 @@
         {{-- Header --}}
         <div class="mb-6">
             <h1 class="text-xl font-semibold text-gray-900">Beri Tugas Baru</h1>
-            <p class="text-sm text-gray-500 mt-0.5">Kepala BPS — bisa lintas semua bagian.</p>
+            <p class="text-sm text-gray-500 mt-0.5">Kepala BPS — bisa lintas semua tim.</p>
         </div>
 
         {{-- Form card --}}
@@ -18,7 +18,7 @@
             tenggat: '{{ old('tenggat') }}',
             validate() {
                 this.errors = {};
-                if (!this.bagian_id) this.errors.bagian_id = 'Pilih bagian terlebih dahulu.';
+                if (!this.bagian_id) this.errors.bagian_id = 'Pilih tim terlebih dahulu.';
                 if (!this.ditugaskan_ke) this.errors.ditugaskan_ke = 'Pilih staf yang akan ditugaskan.';
                 if (!this.judul.trim()) this.errors.judul = 'Judul tugas wajib diisi.';
                 if (this.tenggat && this.tenggat < '{{ now()->toDateString() }}') {
@@ -37,12 +37,12 @@
                 @csrf
 
                 <div class="mb-5">
-                    <label class="text-sm font-medium text-gray-700 block mb-1.5">Pilih Bagian <span
+                    <label class="text-sm font-medium text-gray-700 block mb-1.5">Pilih Tim <span
                             class="text-red-500">*</span></label>
                     <select id="bagian_id" name="bagian_id" x-model="bagian_id"
                         class="w-full rounded-lg text-sm focus:ring-[#1F3864]/20 focus:border-[#1F3864]"
                         :class="errors.bagian_id ? 'border-red-500' : 'border-gray-300'">
-                        <option value="">— Pilih Bagian —</option>
+                        <option value="">— Pilih Tim —</option>
                         @foreach ($daftarBagian as $bagian)
                             <option value="{{ $bagian->id }}">{{ $bagian->nama_bagian }}</option>
                         @endforeach
@@ -58,7 +58,7 @@
                     <select id="ditugaskan_ke" name="ditugaskan_ke" x-model="ditugaskan_ke"
                         class="w-full rounded-lg text-sm focus:ring-[#1F3864]/20 focus:border-[#1F3864]"
                         :class="errors.ditugaskan_ke ? 'border-red-500' : 'border-gray-300'" disabled>
-                        <option value="">— Pilih bagian terlebih dahulu —</option>
+                        <option value="">— Pilih tim terlebih dahulu —</option>
                     </select>
                     <template x-if="errors.ditugaskan_ke">
                         <p class="text-xs text-red-600 mt-1" x-text="errors.ditugaskan_ke"></p>
@@ -122,11 +122,11 @@
             const daftar = dataPegawaiPerBagian[bagianId] ?? [];
             if (daftar.length === 0) {
                 selectPegawai.disabled = true;
-                selectPegawai.innerHTML = '<option value="">- Tidak ada pegawai di bagian ini -</option>';
+                selectPegawai.innerHTML = '<option value="">- Tidak ada pegawai di tim ini -</option>';
                 return;
             }
             selectPegawai.disabled = false;
-            selectPegawai.innerHTML = '<option value="">- Pilih staf/kepala bagian -</option>';
+            selectPegawai.innerHTML = '<option value="">- Pilih staf/kepala tim -</option>';
             daftar.forEach(function(pegawai) {
                 const opt = document.createElement('option');
                 opt.value = pegawai.id;

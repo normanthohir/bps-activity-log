@@ -1,0 +1,7 @@
+<x-app-layout><div class="max-w-5xl mx-auto px-4 py-8 space-y-5"><h1 class="text-2xl font-bold">Pelaksanaan SOP: {{ $pelaksanaan->nama }}</h1><p class="text-sm text-slate-500">Dibentuk berdasarkan <a class="text-blue-700 underline" href="{{ route('sop.show',$pelaksanaan->sop) }}">{{ $pelaksanaan->sop->nama }}</a>. Hanya langkah yang berhak Anda lihat yang ditampilkan.</p>@if($pelaksanaan->tugas_induk_id)
+    <p class="rounded-lg bg-blue-50 border border-blue-200 p-3 text-sm">SOP utuh didelegasikan ke Ketua Tim. Progres semua langkah tercatat sebagai pekerjaan turunan.</p>
+    @if(auth()->id()===$pelaksanaan->tugasInduk?->ditugaskan_ke && \App\Support\ModeKerja::ketuaAktif(auth()->user()) && auth()->user()->memimpinTim($pelaksanaan->tugasInduk->bagian_id))
+        <a class="inline-block bg-[#1F3864] text-white rounded-lg px-4 py-2 text-sm" href="{{ route('sop.delegasi.langkah',$pelaksanaan) }}">Bagikan langkah ke pelaksana tim</a>
+    @endif
+@endif
+<div class="space-y-3">@foreach($visible as $t)<a href="{{ route('pekerjaan.show',$t) }}" class="block bg-white border p-4 rounded-xl hover:border-blue-400"><div class="flex justify-between gap-3"><div class="font-medium">{{ $t->judul }}</div><span class="text-sm">{{ ucwords(str_replace('_',' ',$t->status)) }}</span></div><div class="text-sm text-slate-500">Pelaksana: {{ $t->penerimaTugas?->name ?? '—' }} · Tenggat {{ $t->tenggat?->format('d/m/Y') ?? '—' }}</div></a>@endforeach</div></div></x-app-layout>

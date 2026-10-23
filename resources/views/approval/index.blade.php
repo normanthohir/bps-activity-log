@@ -59,7 +59,7 @@
                         class="px-4 py-2 text-sm font-medium rounded-lg bg-[#1F3864] hover:bg-[#16294a] text-white transition-colors">
                         Terapkan
                     </button>
-                    @if (request()->hasAny(['bagian', 'status', 'tanggal', 'bulan', 'tahun']))
+                    @if (request()->hasAny(['tim', 'status', 'tanggal', 'bulan', 'tahun']))
                         <a href="{{ route('kabag.approval.index') }}"
                             class="px-4 py-2 text-sm font-medium rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50 transition-colors">
                             Reset

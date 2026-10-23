@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Bagian;
+use App\Support\KalenderPekerjaan;
 use App\Models\LaporanHarian;
 use App\Models\Tugas;
 use App\Models\User;
@@ -20,8 +21,14 @@ class DashboardController extends Controller
     {
         $user = $request->user();
 
+        // Ketua tim bisa memiliki role login 'staf'; cek jabatan berbasis keanggotaan.
+        if (\App\Support\ModeKerja::ketuaAktif($user)) {
+            return redirect()->route('kabag.dashboard');
+        }
+
         return match ($user->role) {
-            'staf' => view('dashboard.staf', [
+            'staf', 'kepala_bagian' => view('dashboard.staf', [
+                'kalender' => KalenderPekerjaan::buat($request),
                 'laporanTerbaru' => $user->laporanHarian()->latest('tanggal')->take(5)->get(),
 
                 'tugasAktif' => $user->tugasDiterima()->where('status', '!=', 'selesai')->count(),
@@ -41,16 +48,16 @@ class DashboardController extends Controller
                     ->get(),
             ]),
 
-            'kepala_bagian' => redirect()->route('kabag.dashboard'),
 
             'kepala_bps' => redirect()->route('kepala-bps.dashboard'),
 
             'admin' => view('admin.dashboard', [
+                'kalender' => KalenderPekerjaan::buat($request),
                 'totalUser' => User::count(),
                 'totalBagian' => Bagian::count(),
-                'totalKepalaBagian' => User::where('role', 'kepala_bagian')->count(),
+                'totalKepalaBagian' => User::whereHas('timDipimpin')->count(),
                 'usersTerbaru' => User::with('bagian')->latest()->take(10)->get(),
-                'bagianList' => Bagian::with('kepalaBagian')->withCount('pegawai')->get(),
+                'bagianList' => Bagian::with('kepalaBagian')->withCount('anggotaTim')->orderBy('kode_bagian')->orderBy('nama_bagian')->get(),
             ]),
 
             default => abort(403, 'Role tidak dikenali.'),
@@ -60,45 +67,27 @@ class DashboardController extends Controller
     // "/kabag/dashboard" — dashboard khusus kepala bagian.
     public function kabag(Request $request): View
     {
-        abort_unless($request->user()->isKepalaBagian(), 403);
+        abort_unless(\App\Support\ModeKerja::ketuaAktif($request->user()), 403);
 
         $user = $request->user();
-        $bagian = $user->bagian;
+        $ids = \App\Support\ModeKerja::timDipimpinAktifIds($user);
+        $bagian = $user->timDipimpin()->orderBy('kode_bagian')->first() ?? $user->bagian;
+        $semuaTugas = Tugas::whereIn('bagian_id', $ids);
+        $laporanTim = \App\Support\LingkupLaporanTim::untukKetua($user);
 
         return view('dashboard.kepala-bagian', [
+            'kalender' => KalenderPekerjaan::buat($request),
             'bagian' => $bagian,
-            'staf' => $bagian->pegawai()->where('role', 'staf')->get(),
-
-            'menungguApproval' => LaporanHarian::punyaBagian($user->bagian_id)
-                ->menunggu()->count(),
-
-            // Ringkasan status tugas tim (untuk progress bar)
-            'tugasTimSelesai' => $bagian->tugas()->where('status', 'dikerjakan')->count(),
-            'tugasTimDikerjakan' => $bagian->tugas()->where('status', 'dikerjakan')->count(),
-            'tugasTimBelum' => $bagian->tugas()->where('status', 'belum_dikerjakan')->count(),
-
-            // 5 tugas tim terbaru yang diberikan, lengkap penerimanya
-            'tugasTimTerbaru' => $bagian->tugas()
-                ->with('penerimaTugas')
-                ->latest()
-                ->take(5)
-                ->get(),
-
-            // Tugas yang diterima kepala bagian sendiri (dari kepala BPS)
-            'tugasSaya' => $user->tugasDiterima()
-                ->where('status', '!=', 'selesai')
-                ->latest()
-                ->take(5)
-                ->get(),
-
-            // Laporan staf yang masih menunggu persetujuan (preview 5 teratas)
-            'laporanMenunggu' => LaporanHarian::punyaBagian($user->bagian_id)
-                ->where('user_id', '!=', $user->id)
-                ->menunggu()
-                ->with('user')
-                ->latest('tanggal')
-                ->take(5)
-                ->get(),
+            'namaTim' => $user->timDipimpin()->orderBy('kode_bagian')->pluck('nama_bagian')->implode(', '),
+            'staf' => User::whereIn('role', ['staf', 'kepala_bagian'])->whereHas('tim',fn($q)=>$q->whereIn('bagian.id',$ids))->where('id', '!=', $user->id)->get(),
+            'menungguApproval' => (clone $laporanTim)->menunggu()->count(),
+            'tugasTimSelesai' => (clone $semuaTugas)->where('status','selesai')->count(),
+            'tugasTimDikerjakan' => (clone $semuaTugas)->where('status','dikerjakan')->count(),
+            'tugasTimBelum' => (clone $semuaTugas)->where('status','belum_dikerjakan')->count(),
+            'tugasTimTerbaru' => (clone $semuaTugas)->with('penerimaTugas')->latest()->take(5)->get(),
+            'tugasSaya' => $user->tugasDiterima()->where('status','!=','selesai')->latest()->take(5)->get(),
+            'laporanMenunggu' => (clone $laporanTim)->where('user_id','!=',$user->id)
+                ->menunggu()->with('user')->latest('tanggal')->take(5)->get(),
         ]);
     }
     // public function kabag(Request $request): View
@@ -125,8 +114,8 @@ class DashboardController extends Controller
 
         // Rekap per bagian, sekalian dilengkapi jumlah laporan bulan ini
         // & yang masih menunggu approval per bagian (untuk badge di tabel)
-        $rekapPerBagian = Bagian::withCount('pegawai')
-            ->get()
+        $rekapPerBagian = Bagian::withCount(['pegawai', 'anggotaTim'])
+            ->orderBy('kode_bagian')->orderBy('nama_bagian')->get()
             ->map(function ($bagian) {
                 $bagian->total_laporan_bulan_ini = LaporanHarian::punyaBagian($bagian->id)
                     ->whereMonth('tanggal', now()->month)
@@ -138,6 +127,7 @@ class DashboardController extends Controller
             });
 
         return view('dashboard.kepala-bps', [
+            'kalender' => KalenderPekerjaan::buat($request),
             'totalLaporanBulanIni' => LaporanHarian::whereMonth('tanggal', now()->month)->count(),
             'menungguApproval' => LaporanHarian::menunggu()->count(),
             'disetujuiBulanIni' => LaporanHarian::whereMonth('tanggal', now()->month)
@@ -165,14 +155,4 @@ class DashboardController extends Controller
                 ->get(),
         ]);
     }
-    // public function kepalaBps(Request $request): View
-    // {
-    //     abort_unless($request->user()->isKepalaBps(), 403);
-
-    //     return view('dashboard.kepala-bps', [
-    //         'totalLaporanBulanIni' => LaporanHarian::whereMonth('tanggal', now()->month)->count(),
-    //         'menungguApproval' => LaporanHarian::menunggu()->count(),
-    //         'rekapPerBagian' => Bagian::withCount('pegawai')->get(),
-    //     ]);
-    // }
 }

@@ -49,7 +49,7 @@ class UserSeeder extends Seeder
         ]);
 
         // Set kepala_bagian_id di tabel bagian setelah user-nya ada
-        $statSos->update(['kepala_bagian_id' => $kabagSos->id]);
+        \App\Support\KeanggotaanTim::tetapkanKetua($statSos, $kabagSos);
 
         // ── Kepala Seksi Statistik Produksi ─────────────
         $kabagProd = User::create([
@@ -63,10 +63,10 @@ class UserSeeder extends Seeder
             'email_verified_at' => now(),
         ]);
 
-        $statProd->update(['kepala_bagian_id' => $kabagProd->id]);
+        \App\Support\KeanggotaanTim::tetapkanKetua($statProd, $kabagProd);
 
         // ── Staf di Seksi Statistik Sosial ──────────────
-        User::create([
+        $stafBudi = User::create([
             'name' => 'Budi Staf Sosial',
             'nip' => '444444444444444444',
             'email' => 'budi@bps.go.id',
@@ -77,7 +77,7 @@ class UserSeeder extends Seeder
             'email_verified_at' => now(),
         ]);
 
-        User::create([
+        $stafAni = User::create([
             'name' => 'Ani Staf Sosial',
             'nip' => '555555555555555555',
             'email' => 'ani@bps.go.id',
@@ -89,7 +89,7 @@ class UserSeeder extends Seeder
         ]);
 
         // ── Staf di Seksi Statistik Produksi ────────────
-        User::create([
+        $stafDedi = User::create([
             'name' => 'Dedi Staf Produksi',
             'nip' => '666666666666666666',
             'email' => 'dedi@bps.go.id',
@@ -99,5 +99,8 @@ class UserSeeder extends Seeder
             'atasan_id' => $kabagProd->id,
             'email_verified_at' => now(),
         ]);
+        $stafBudi->tim()->syncWithoutDetaching([$statSos->id => ['peran_tim'=>'anggota']]);
+        $stafAni->tim()->syncWithoutDetaching([$statSos->id => ['peran_tim'=>'anggota']]);
+        $stafDedi->tim()->syncWithoutDetaching([$statProd->id => ['peran_tim'=>'anggota']]);
     }
 }
