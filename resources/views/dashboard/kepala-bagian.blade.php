@@ -20,7 +20,7 @@
 @endphp
 
 <x-app-layout>
-    <div class="max-w-5xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-6xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
 
         {{-- Hero --}}
         <div class="relative overflow-hidden bg-gradient-to-br from-[#14264a] to-[#1F3864] rounded-2xl p-6 sm:p-8 mb-6 text-white animate-in">

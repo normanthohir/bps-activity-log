@@ -4,8 +4,10 @@
     $namaRoute = request()->route()?->getName() ?? '';
 
     $kelompok = \App\Support\MenuNavigasi::kelompok($user);
-    $dashboardRoute = \App\Support\MenuNavigasi::dasbor($user);
-    $dashboardAktif = in_array($namaRoute, ['dashboard', 'kabag.dashboard', 'kepala-bps.dashboard'], true);
+    // $dashboardRoute = \App\Support\MenuNavigasi::dasbor($user);
+    // $dashboardAktif = in_array($namaRoute, ['dashboard', 'kabag.dashboard', 'kepala-bps.dashboard'], true);
+    $dashboardRoute = 'dashboard';
+    $dashboardAktif = $namaRoute === 'dashboard';
     $profilAktif = $namaRoute === 'profile.edit';
 
     // Item aktif = awalan route PALING spesifik yang cocok dengan halaman sekarang.

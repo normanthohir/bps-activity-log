@@ -43,7 +43,9 @@
                     @forelse($tugas as $item)
                         <tr>
                             <td class="p-3">
-                                <div class="font-medium">{{ $item->judul }}</div>
+                                <div class="font-medium">
+                                    {!! nl2br(e(Str::wordWrap($item->judul, 40, "\n", true))) !!}
+                                </div>
                                 <div class="text-xs text-slate-500">
                                     {{ $item->induk ? '↳ Disposisi dari: ' . $item->induk->judul : 'Pekerjaan utama' }}
                                 </div>
