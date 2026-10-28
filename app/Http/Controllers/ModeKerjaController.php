@@ -20,6 +20,6 @@ class ModeKerjaController extends Controller
             abort_unless($user->isKepalaBagian(), 403, 'Anda belum terdaftar sebagai ketua tim.');
         }
         $request->session()->put('mode_kerja', $data['mode']);
-        return redirect()->route('dashboard')->with('success', 'Mode kerja aktif: '.ModeKerja::label($user).'.');
+        return redirect()->route('dashboard')->with('success', 'Mode kerja aktif: ' . ModeKerja::label($user) . '.');
     }
 }

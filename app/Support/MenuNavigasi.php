@@ -31,9 +31,9 @@ class MenuNavigasi
         //     $pekerjaan[] = self::tautan('Tugas Aktif Saya', 'kabag.tugas-aktif.index');
         //     $pekerjaan[] = self::tautan('Tugas Tim', 'kabag.tugas.index');
         // }
-        if ($kepala) {
-            $pekerjaan[] = self::tautan('Penugasan Kepala BPS', 'kepala-bps.tugas.index');
-        }
+        // if ($kepala) {
+        //     $pekerjaan[] = self::tautan('Penugasan Kepala BPS', 'kepala-bps.tugas.index');
+        // }
 
         $standar = [self::tautan('Daftar SOP', 'sop.index')];
         if ($admin || $ketua) {

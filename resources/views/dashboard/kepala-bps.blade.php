@@ -2,7 +2,7 @@
 <x-app-layout>
 
     <div class="max-w-5xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
-
+        
         {{-- Greeting card --}}
         <div
             class="relative overflow-hidden bg-gradient-to-br from-[#1F3864] to-[#2A4A82] rounded-2xl p-6 sm:p-8 mb-6 text-white animate-in">

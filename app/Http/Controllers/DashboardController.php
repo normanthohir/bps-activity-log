@@ -22,13 +22,13 @@ class DashboardController extends Controller
         $user = $request->user();
 
         if (ModeKerja::ketuaAktif($user)) {
-            return redirect()->route('kabag.dashboard');
+            return $this->kabag($request);
         }
 
         return match ($user->role) {
             'staf', 'kepala_bagian' => view('dashboard.staf', $this->dataAnggota($request)),
 
-            'kepala_bps' => redirect()->route('kepala-bps.dashboard'),
+            'kepala_bps' => $this->kepalaBps($request),
 
             'admin' => view('admin.dashboard', [
                 'kalender' => KalenderPekerjaan::buat($request),
@@ -67,7 +67,7 @@ class DashboardController extends Controller
         $akhirPekan = today()->isWeekend();
 
         $staf = User::whereIn('role', ['staf', 'kepala_bagian'])
-            ->whereHas('tim', fn ($q) => $q->whereIn('bagian.id', $ids))
+            ->whereHas('tim', fn($q) => $q->whereIn('bagian.id', $ids))
             ->where('id', '!=', $user->id)
             ->orderBy('name')->get();
 
@@ -123,7 +123,7 @@ class DashboardController extends Controller
                 return $bagian;
             });
 
-        $bulanIni = fn () => LaporanHarian::whereBetween('tanggal', [$awal, $akhir]);
+        $bulanIni = fn() => LaporanHarian::whereBetween('tanggal', [$awal, $akhir]);
 
         return view('dashboard.kepala-bps', [
             'kalender' => KalenderPekerjaan::buat($request),
@@ -149,7 +149,7 @@ class DashboardController extends Controller
         $hariIni = today()->toDateString();
 
         $hariKerja = collect(CarbonPeriod::create($awal, $hariIni))
-            ->reject(fn ($h) => $h->isWeekend())->count();
+            ->reject(fn($h) => $h->isWeekend())->count();
 
         $hariLapor = $user->laporanHarian()
             ->whereBetween('tanggal', [$awal, $hariIni])

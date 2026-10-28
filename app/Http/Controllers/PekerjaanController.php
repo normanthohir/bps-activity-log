@@ -23,7 +23,7 @@ class PekerjaanController extends Controller
         $tugas = AksesPekerjaan::lingkup($request->user())->with(['bagian','penerimaTugas','induk'])
             ->when($request->filled('cari'), fn ($q) => $q->where('judul','like','%'.$request->input('cari').'%'))
             ->when($request->filled('status'), fn ($q) => $q->where('status',$request->input('status')))
-            ->latest()->paginate(15)->withQueryString();
+            ->latest()->paginate(20)->withQueryString();
         return view('pekerjaan.index', compact('tugas'));
     }
 

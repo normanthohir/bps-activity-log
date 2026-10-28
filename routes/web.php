@@ -102,7 +102,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     |----------------------------------------------------------------------
     */
     Route::middleware('mode:ketua')->name('kabag.')->group(function () {
-        Route::get('dashboard/tim', [DashboardController::class, 'kabag'])->name('dashboard');
+        // Route::get('dashboard/tim', [DashboardController::class, 'kabag'])->name('dashboard');
 
         // Kunci parameters harus sama persis dengan nama resource (memakai tanda hubung)
         Route::resource('tugas-tim', KabagTugasController::class)
@@ -131,20 +131,20 @@ Route::middleware(['auth', 'verified'])->group(function () {
     |----------------------------------------------------------------------
     */
     Route::middleware('role:kepala_bps')->name('kepala-bps.')->group(function () {
-        Route::get('dashboard/kantor', [DashboardController::class, 'kepalaBps'])->name('dashboard');
+        // Route::get('kepala-bps/dashboard', [DashboardController::class, 'kepalaBps'])->name('dashboard');
 
-        Route::get('rekap-kantor', [RekapController::class, 'index'])->name('rekap');
-        Route::get('rekap-kantor/export-pdf', [RekapController::class, 'exportPdf'])->name('rekap.export-pdf');
-        Route::get('rekap-kantor/export-excel', [RekapController::class, 'exportExcel'])->name('rekap.export-excel');
+        Route::get('rekap', [RekapController::class, 'index'])->name('rekap');
+        Route::get('rekap/export-pdf', [RekapController::class, 'exportPdf'])->name('rekap.export-pdf');
+        Route::get('rekap/export-excel', [RekapController::class, 'exportExcel'])->name('rekap.export-excel');
 
         Route::resource('penugasan', KepalaBpsTugasController::class)
             ->only(['index', 'create', 'store', 'show', 'edit', 'update', 'destroy'])
             ->parameters(['penugasan' => 'tugas'])
             ->names('tugas');
 
-        Route::get('persetujuan-kantor', [KepalaBpsApprovalController::class, 'index'])->name('approval.index');
-        Route::get('persetujuan-kantor/{laporan}', [KepalaBpsApprovalController::class, 'show'])->name('approval.show');
-        Route::post('persetujuan-kantor/{laporan}', [KepalaBpsApprovalController::class, 'proses'])->name('approval.proses');
+        Route::get('persetujuan', [KepalaBpsApprovalController::class, 'index'])->name('approval.index');
+        Route::get('persetujuan/{laporan}', [KepalaBpsApprovalController::class, 'show'])->name('approval.show');
+        Route::post('persetujuan/{laporan}', [KepalaBpsApprovalController::class, 'proses'])->name('approval.proses');
     });
 
     /*
