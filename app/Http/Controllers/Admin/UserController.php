@@ -86,13 +86,29 @@ class UserController extends Controller
             ->with('success', "Akun dibuat. Email verifikasi dikirim ke {$user->email}. Password awal: password");
     }
 
+    // public function edit(User $user): View
+    // {
+    //     $daftarBagian = Bagian::all();
+    //     $calonAtasan = User::whereIn('role', ['kepala_bagian', 'kepala_bps'])
+    //         ->where('id', '!=', $user->id)->get();
+
+    //     return view('admin.users.edit', compact('user', 'daftarBagian', 'calonAtasan'));
+    // }
     public function edit(User $user): View
     {
         $daftarBagian = Bagian::all();
         $calonAtasan = User::whereIn('role', ['kepala_bagian', 'kepala_bps'])
             ->where('id', '!=', $user->id)->get();
 
-        return view('admin.users.edit', compact('user', 'daftarBagian', 'calonAtasan'));
+        // AMBIL DATA KETUA TIM DARI TABEL PIVOT BAGIAN_USER (Solusi Error)
+        $ketuaTimIds = \DB::table('bagian_user')
+            ->where('user_id', $user->id)
+            ->where('peran_tim', 'ketua') // Sesuaikan string 'ketua' jika nama perannya berbeda di db Anda
+            ->pluck('bagian_id')
+            ->toArray();
+
+        // Kirimkan variabel $ketuaTimIds ke View
+        return view('admin.users.edit', compact('user', 'daftarBagian', 'calonAtasan', 'ketuaTimIds'));
     }
 
     public function update(Request $request, User $user): RedirectResponse

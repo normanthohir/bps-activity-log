@@ -1,6 +1,6 @@
 {{-- resources/views/approval/index.blade.php --}}
 <x-app-layout>
-    <div class="max-w-5xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-6xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
 
         {{-- Header --}}
         <div class="mb-6">
@@ -59,7 +59,7 @@
                         class="px-4 py-2 text-sm font-medium rounded-lg bg-[#1F3864] hover:bg-[#16294a] text-white transition-colors">
                         Terapkan
                     </button>
-                    @if (request()->hasAny(['bagian', 'status', 'tanggal', 'bulan', 'tahun']))
+                    @if (request()->hasAny(['tim', 'status', 'tanggal', 'bulan', 'tahun']))
                         <a href="{{ route('kabag.approval.index') }}"
                             class="px-4 py-2 text-sm font-medium rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50 transition-colors">
                             Reset
@@ -107,12 +107,12 @@
                                         </div>
                                     </td>
                                     <td class="py-3.5 px-5 text-gray-500 whitespace-nowrap">
-                                        {{ $item->tanggal->format('d M Y') }}</td>
+                                        {{ $item->tanggal->format('d/m/Y') ?? '—' }}</td>
                                     <td class="py-3.5 px-5 text-gray-700">{{ Str::limit($item->uraian, 45) }}</td>
                                     <td class="py-3.5 px-5 text-gray-700">
                                         <x-status-badge :status="$item->status" />
                                     </td>
-                                    <td class="py-3.5 px-5">
+                                    <td class="py-3.5 px-5"> 
                                         <div class="flex items-center justify-end gap-2">
                                             <a href="{{ route('kabag.approval.show', $item) }}"
                                                 class="text-[#1F3864] hover:underline text-sm font-medium ml-2">

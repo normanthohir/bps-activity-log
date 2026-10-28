@@ -12,12 +12,13 @@ class LaporanHarianPolicy
     // Kepala BPS boleh lihat semua laporan tanpa batas bagian.
     public function view(User $user, LaporanHarian $laporan): bool
     {
+        if ($laporan->user_id === $user->id) return true;
         if ($user->isKepalaBps()) {
             return true;
         }
 
-        if ($user->isKepalaBagian()) {
-            return $laporan->user->bagian_id === $user->bagian_id;
+        if (\App\Support\ModeKerja::ketuaAktif($user)) {
+            return in_array((int) ($laporan->tugas?->bagian_id ?? $laporan->user?->bagian_id), $user->timDipimpinIds(), true);
         }
 
         return $laporan->user_id === $user->id;
@@ -45,8 +46,8 @@ class LaporanHarianPolicy
             return true;
         }
 
-        if ($user->isKepalaBagian()) {
-            return $laporan->user->bagian_id === $user->bagian_id;
+        if (\App\Support\ModeKerja::ketuaAktif($user)) {
+            return in_array((int) ($laporan->tugas?->bagian_id ?? $laporan->user?->bagian_id), $user->timDipimpinIds(), true);
         }
 
         return false;

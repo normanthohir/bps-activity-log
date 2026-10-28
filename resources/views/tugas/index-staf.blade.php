@@ -189,7 +189,7 @@
                                     <td class="py-3.5 px-5">
                                         <div class="flex items-center justify-end">
                                             <x-dropdown-action>
-                                                @if (auth()->user()->isKepalaBagian())
+                                                @if (\App\Support\ModeKerja::ketuaAktif(auth()->user()))
                                                     <a href="{{ route('kabag.tugas-aktif.show', $tugas) }}"
                                                         class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                                                         Lihat Detail
@@ -201,12 +201,12 @@
                                                     </a>
                                                 @endif
                                                 @if ($tugas->status !== 'dikerjakan')
-                                                    @if (auth()->user()->isKepalaBagian())
+                                                    @if (\App\Support\ModeKerja::ketuaAktif(auth()->user()))
                                                         <a href="{{ route('kabag.laporan.create', ['tugas' => $tugas->id]) }}"
                                                             class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                                                             Buat Laporan
                                                         </a>
-                                                    @else(auth()->user()->isStaf())
+                                                    @else
                                                         <a href="{{ route('laporan.create', ['tugas' => $tugas->id]) }}"
                                                             class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                                                             Buat Laporan

@@ -35,28 +35,14 @@ class TugasController extends Controller
             ->paginate(15)
             ->withQueryString();
 
-        $daftarBagian = Bagian::orderBy('nama_bagian')->get();
+        $daftarBagian = Bagian::orderBy('kode_bagian')->orderBy('nama_bagian')->get();
 
         return view('tugas.index-kepala-bps', compact('tugas', 'daftarBagian'));
     }
 
-    public function create(): View
+    public function create(): RedirectResponse
     {
-        $daftarBagian = Bagian::with(['pegawai' => function ($query) {
-            $query->whereIn('role', ['staf', 'kepala_bagian'])->select('id', 'name', 'role', 'bagian_id');
-        }])->get(['id', 'nama_bagian']);
-
-        $dataPegawaiPerBagian = [];
-        foreach ($daftarBagian as $bagian) {
-            $dataPegawaiPerBagian[$bagian->id] = $bagian->pegawai->map(function ($p) {
-                return [
-                    'id' => $p->id,
-                    'label' => $p->name . ' (' . ($p->role === 'kepala_bagian' ? 'Kepala Bagian' : 'Staf') . ')',
-                ];
-            })->values();
-        }
-
-        return view('tugas.create-kepala-bps', compact('daftarBagian', 'dataPegawaiPerBagian'));
+        return redirect()->route('pekerjaan.create');
     }
 
     public function store(Request $request): RedirectResponse
@@ -70,7 +56,7 @@ class TugasController extends Controller
         ]);
 
         $penerima = User::findOrFail($data['ditugaskan_ke']);
-        abort_unless($penerima->bagian_id === (int) $data['bagian_id'], 403,
+        abort_unless(\App\Support\AksesPekerjaan::tujuanValid($request->user(), $penerima, Bagian::findOrFail($data['bagian_id'])), 403,
             'Pegawai yang dipilih bukan bagian dari bagian tersebut.');
 
         Tugas::create([
@@ -124,6 +110,8 @@ class TugasController extends Controller
     {
         abort_unless($request->user()->isKepalaBps(), 403);
 
+        abort_if($tugas->sop_pelaksanaan_id !== null, 422, 'Pekerjaan yang terhubung ke pelaksanaan SOP tidak dapat dihapus dari menu tugas lama.');
+        abort_if($tugas->disposisi()->exists() || $tugas->dipakaiSebagaiInput()->exists(), 422, 'Tugas terhubung dengan disposisi atau digunakan oleh pekerjaan lain.');
         $tugas->delete();
 
         return redirect()->route('kepala-bps.tugas.index')->with('success', 'Tugas berhasil dihapus.');

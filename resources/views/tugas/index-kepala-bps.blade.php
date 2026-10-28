@@ -44,7 +44,7 @@
         <div class="animate-in flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
             <div>
                 <h1 class="text-xl font-semibold text-gray-900">Tugas yang Diberikan</h1>
-                <p class="text-sm text-gray-500 mt-0.5">Semua tugas yang Anda berikan ke staf di seluruh bagian.</p>
+                <p class="text-sm text-gray-500 mt-0.5">Semua tugas yang Anda berikan ke staf di seluruh tim.</p>
             </div>
             <x-action-button href="{{ route('kepala-bps.tugas.create') }}">
                 Beri Tugas
@@ -71,10 +71,10 @@
                 </div>
 
                 <div>
-                    <label class="text-xs text-gray-500 block mb-1">Bagian</label>
+                    <label class="text-xs text-gray-500 block mb-1">Tim</label>
                     <select name="bagian"
                         class="w-full text-sm rounded-lg border-gray-300 focus:ring-[#1F3864]/20 focus:border-[#1F3864]">
-                        <option value="">Semua bagian</option>
+                        <option value="">Semua tim</option>
                         @foreach ($daftarBagian as $b)
                             <option value="{{ $b->id }}" @selected(request('bagian') == $b->id)>{{ $b->nama_bagian }}
                             </option>
@@ -99,7 +99,7 @@
                     class="px-4 py-2 text-sm font-medium rounded-lg bg-[#1F3864] hover:bg-[#16294a] text-white transition-colors">
                     Terapkan
                 </button>
-                @if (request()->hasAny(['cari', 'bagian', 'status']))
+                @if (request()->hasAny(['cari', 'tim', 'status']))
                     <a href="{{ route('kepala-bps.tugas.index') }}"
                         class="px-4 py-2 text-sm font-medium rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50 transition-colors">
                         Reset
@@ -118,10 +118,10 @@
                             d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 0 0 2.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 0 0-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 0 0 .75-.75 2.25 2.25 0 0 0-.1-.664m-5.8 0A2.251 2.251 0 0 1 13.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m0 0H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V9.375c0-.621-.504-1.125-1.125-1.125H8.25Z" />
                     </svg>
                     <p class="text-sm font-medium text-gray-900 mt-3">
-                        {{ request()->hasAny(['cari', 'bagian', 'status']) ? 'Tidak ada tugas yang cocok' : 'Belum ada tugas' }}
+                        {{ request()->hasAny(['cari', 'tim', 'status']) ? 'Tidak ada tugas yang cocok' : 'Belum ada tugas' }}
                     </p>
                     <p class="text-sm text-gray-500 mt-1">
-                        {{ request()->hasAny(['cari', 'bagian', 'status']) ? 'Coba ubah kata kunci atau filter.' : 'Buat tugas baru untuk diberikan ke staf.' }}
+                        {{ request()->hasAny(['cari', 'tim', 'status']) ? 'Coba ubah kata kunci atau filter.' : 'Buat tugas baru untuk diberikan ke staf.' }}
                     </p>
                 </div>
             @else
@@ -133,7 +133,7 @@
                                 class="text-left text-xs text-gray-500 uppercase tracking-wide bg-gray-50 border-b border-gray-200">
                                 <th class="py-3 px-5 font-medium">Judul</th>
                                 <th class="py-3 px-5 font-medium">Ditugaskan Ke</th>
-                                <th class="py-3 px-5 font-medium">Bagian</th>
+                                <th class="py-3 px-5 font-medium">Tim</th>
                                 <th class="py-3 px-5 font-medium">Status Laporan</th>
                                 <th class="py-3 px-5 font-medium text-right">Aksi</th>
                             </tr>

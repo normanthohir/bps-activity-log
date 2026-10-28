@@ -15,7 +15,7 @@ return [
 
     'name' => env('APP_NAME', 'BPS-Log'),
 
-    'sqids_alphabet' => env('SQIDS_ALPHABET'),
+    'sqids_alphabet' => env('SQIDS_ALPHABET', 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'),
 
     /*
     |--------------------------------------------------------------------------

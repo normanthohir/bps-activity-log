@@ -15,9 +15,7 @@ class ApprovalController extends Controller
     // (kepala bagian tidak approve laporannya sendiri).
     public function index(Request $request): View
     {
-        $query = LaporanHarian::punyaBagian($request->user()->bagian_id)
-            ->where('user_id', '!=', $request->user()->id)
-            ->with('user');
+        $query = \App\Support\LingkupLaporanTim::untukKetua($request->user())->with('user');
 
         if ($request->filled('tanggal')) {
             $query->whereDate('tanggal', $request->date('tanggal'));

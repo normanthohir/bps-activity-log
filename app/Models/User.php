@@ -6,6 +6,7 @@ use App\Models\Concerns\HasSqid;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
@@ -87,17 +88,43 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->hasMany(LogApproval::class, 'approver_id');
     }
 
+    // Satu pegawai dapat menjadi anggota lebih dari satu tim.
+    public function tim(): BelongsToMany
+    {
+        return $this->belongsToMany(Bagian::class, 'bagian_user', 'user_id', 'bagian_id')->withPivot('peran_tim');
+    }
+
+    public function timDipimpin(): BelongsToMany
+    {
+        return $this->tim()->wherePivot('peran_tim', 'ketua');
+    }
+
+    public function memimpinTim(int $bagianId): bool
+    {
+        return $this->timDipimpin()->where('bagian.id', $bagianId)->exists();
+    }
+
+    public function timDipimpinIds(): array
+    {
+        return $this->timDipimpin()->pluck('bagian.id')->map(fn ($id) => (int) $id)->all();
+    }
+
+    public function anggotaTimIds(): array
+    {
+        return $this->tim()->pluck('bagian.id')->map(fn ($id) => (int) $id)->all();
+    }
+
     // ── Helper Role ─────────────────────────────────────
     // Mempermudah pengecekan role tanpa menulis string berulang di controller/blade
 
     public function isStaf(): bool
     {
-        return $this->role === 'staf';
+        return in_array($this->role, ['staf', 'kepala_bagian'], true);
     }
 
     public function isKepalaBagian(): bool
     {
-        return $this->role === 'kepala_bagian';
+        return $this->timDipimpin()->exists();
     }
 
     public function isKepalaBps(): bool

@@ -8,11 +8,12 @@ class DatabaseSeeder extends Seeder
 {
     public function run(): void
     {
-        // Urutan penting: Bagian dulu, baru User
-        // (karena User butuh bagian_id yang valid)
+        // Urutan penting: bagian -> user -> kamus kerja -> tugas & laporan
         $this->call([
             BagianSeeder::class,
             UserSeeder::class,
+            KamusKerjaSeeder::class,
+            TugasLaporanSeeder::class,
         ]);
     }
 }

@@ -40,7 +40,11 @@ class BagianController extends Controller
 
     public function create(): View
     {
-        return view('admin.bagian.create');
+        $calonKepala = \App\Models\User::whereIn('role', ['staf', 'kepala_bagian'])
+            ->orderBy('name')
+            ->get();
+
+        return view('admin.bagian.create', compact('calonKepala'));
     }
 
     public function store(Request $request): RedirectResponse

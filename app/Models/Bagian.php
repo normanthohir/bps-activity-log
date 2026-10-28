@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class Bagian extends Model
 {
@@ -32,6 +33,16 @@ class Bagian extends Model
     public function pegawai(): HasMany
     {
         return $this->hasMany(User::class, 'bagian_id');
+    }
+
+    public function anggotaTim(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class, 'bagian_user', 'bagian_id', 'user_id')->withPivot('peran_tim');
+    }
+
+    public function ketuaTim(): BelongsToMany
+    {
+        return $this->anggotaTim()->wherePivot('peran_tim', 'ketua');
     }
 
     // Semua tugas yang dibuat untuk bagian ini

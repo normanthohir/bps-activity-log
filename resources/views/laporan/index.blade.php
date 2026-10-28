@@ -1,51 +1,13 @@
 {{-- resources/views/laporan/index.blade.php --}}
 @php
-    $isKabag = auth()->user()->role === 'kepala_bagian';
+    $isKabag = \App\Support\ModeKerja::ketuaAktif(auth()->user());
     $createRoute = $isKabag ? 'kabag.laporan.create' : 'laporan.create';
     $editRoute = $isKabag ? 'kabag.laporan.edit' : 'laporan.edit';
     $showRoute = $isKabag ? 'kabag.laporan.show' : 'laporan.show';
     $indexRoute = $isKabag ? 'kabag.laporan.index' : 'laporan.index';
 @endphp
 <x-app-layout>
-    <style>
-        @keyframes fade-slide-up {
-            from {
-                opacity: 0;
-                transform: translateY(12px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .animate-in {
-            animation: fade-slide-up 0.5s ease-out both;
-        }
-
-        .delay-1 {
-            animation-delay: .05s;
-        }
-
-        @keyframes fade-in-row {
-            from {
-                opacity: 0;
-                transform: translateX(-6px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateX(0);
-            }
-        }
-
-        .animate-row {
-            animation: fade-in-row 0.4s ease-out both;
-        }
-    </style>
-
-    <div class="max-w-5xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-6xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
 
         {{-- Header --}}
         <div class="animate-in flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
@@ -54,7 +16,7 @@
                 <p class="text-sm text-gray-500 mt-0.5">Riwayat laporan aktivitas yang telah Anda buat.</p>
             </div>
             <x-action-button href="{{ route($createRoute) }}">
-                Laporan Baru
+                Buat Laporan
             </x-action-button>
         </div>
 

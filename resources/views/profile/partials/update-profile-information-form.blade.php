@@ -9,7 +9,7 @@
         @csrf
     </form>
 
-    <form method="post" action="{{ route($prefix . 'profile.update') }}" class="space-y-4"
+    <form method="post" action="{{ route('profile.update') }}" class="space-y-4"
         x-data="{ loading: false }" @submit="loading = true">
         @csrf
         @method('patch')

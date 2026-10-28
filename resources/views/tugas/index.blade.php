@@ -44,7 +44,7 @@
         <div class="animate-in flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
             <div>
                 <h1 class="text-xl font-semibold text-gray-900">Tugas Tim</h1>
-                <p class="text-sm text-gray-500 mt-0.5">Tugas yang Anda berikan ke staf di bagian Anda.</p>
+                <p class="text-sm text-gray-500 mt-0.5">Tugas yang Anda berikan ke staf di tim Anda.</p>
             </div>
             <x-action-button href="{{ route('kabag.tugas.create') }}">
                 Beri Tugas

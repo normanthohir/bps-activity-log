@@ -209,13 +209,10 @@
                             <tbody class="divide-y divide-gray-100">
                                 @foreach ($usersTerbaru as $user)
                                     <tr class="hover:bg-gray-50/70 transition-colors">
-                                        <td class="py-3 px-5">
+                                        <td class="py-2 px-5">
                                             <div class="flex items-center gap-3">
-                                                <span class="w-8 h-8 rounded-full bg-[#DCE6F1] text-[#1F3864] text-xs font-semibold flex items-center justify-center shrink-0">
-                                                    {{ strtoupper(substr($user->name, 0, 1)) }}
-                                                </span>
                                                 <div class="min-w-0">
-                                                    <p class="font-medium text-gray-900 truncate">{{ $user->name }}</p>
+                                                    <p class="font-medium text-gray-900 truncate">{{ Str::limit($user->name,30, '...') }}</p>
                                                     <p class="text-xs text-gray-500 truncate">{{ $user->email }}</p>
                                                 </div>
                                             </div>
