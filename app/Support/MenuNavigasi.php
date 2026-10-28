@@ -19,18 +19,18 @@ class MenuNavigasi
         $kepala = $user->isKepalaBps();
 
         $pekerjaan = [
-            self::tautan('Daftar Pekerjaan IPO', 'pekerjaan.index'),
+            self::tautan('Daftar Pekerjaan', 'pekerjaan.index'),
         ];
         if (AksesPekerjaan::bolehDisposisi($user)) {
-            $pekerjaan[] = self::tautan('Beri Tugas Baru', 'pekerjaan.create');
+            $pekerjaan[] = self::tautan('Pekerjaan / disposisi baru', 'pekerjaan.create');
         }
-        if ($anggota) {
-            $pekerjaan[] = self::tautan('Tugas Saya', 'staf.tugas.index');
-        }
-        if ($ketua) {
-            $pekerjaan[] = self::tautan('Tugas Aktif Saya', 'kabag.tugas-aktif.index');
-            $pekerjaan[] = self::tautan('Tugas Tim', 'kabag.tugas.index');
-        }
+        // if ($anggota) {
+        //     $pekerjaan[] = self::tautan('Tugas Saya', 'staf.tugas.index');
+        // }
+        // if ($ketua) {
+        //     $pekerjaan[] = self::tautan('Tugas Aktif Saya', 'kabag.tugas-aktif.index');
+        //     $pekerjaan[] = self::tautan('Tugas Tim', 'kabag.tugas.index');
+        // }
         if ($kepala) {
             $pekerjaan[] = self::tautan('Penugasan Kepala BPS', 'kepala-bps.tugas.index');
         }
@@ -51,16 +51,20 @@ class MenuNavigasi
             $monitoring[] = self::tautan('Laporan Harian', 'laporan.index');
         }
         if ($ketua) {
-            $monitoring[] = self::tautan('Laporan Tim', 'kabag.laporan.index');
-            $monitoring[] = self::tautan('Persetujuan Laporan', 'kabag.approval.index');
+            // $monitoring[] = self::tautan('Laporan Tim', 'kabag.laporan.index');
+            $monitoring[] = self::tautan('Laporan Tim', 'kabag.approval.index');
         }
         if ($kepala) {
             $monitoring[] = self::tautan('Rekap Kantor', 'kepala-bps.rekap');
             $monitoring[] = self::tautan('Persetujuan Laporan', 'kepala-bps.approval.index');
         }
         if ($monitoring) {
-            $kelompok[] = self::bagian('monitoring', 'Monitoring',
-                ['laporan', 'kabag.laporan', 'kabag.approval', 'kepala-bps.rekap', 'kepala-bps.approval'], $monitoring);
+            $kelompok[] = self::bagian(
+                'monitoring',
+                'Monitoring',
+                ['laporan', 'kabag.laporan', 'kabag.approval', 'kepala-bps.rekap', 'kepala-bps.approval'],
+                $monitoring
+            );
         }
 
         if ($admin) {
@@ -79,10 +83,26 @@ class MenuNavigasi
         return ModeKerja::ketuaAktif($user) ? 'kabag.dashboard' : 'dashboard';
     }
 
+    // public static function dasbor(User $user): string
+    // {
+    //     // 🟢 1. Jika dia Admin, langsung arahkan ke halaman Kelola Akun Admin agar tidak crash mencari route 'dashboard'
+    //     if ($user->isAdmin()) {
+    //         return 'dashboard';
+    //     }
+
+    //     // 2. Jika dia Kepala BPS
+    //     if ($user->isKepalaBps()) {
+    //         return 'kepala-bps.dashboard';
+    //     }
+
+    //     // 3. Jika dia Ketua Tim atau Staf biasa
+    //     return ModeKerja::ketuaAktif($user) ? 'kabag.dashboard' : 'dashboard';
+    // }
+
     public static function cocok(string $namaRoute, array $awalan): bool
     {
         foreach ($awalan as $item) {
-            if ($namaRoute === $item || str_starts_with($namaRoute, $item.'.')) return true;
+            if ($namaRoute === $item || str_starts_with($namaRoute, $item . '.')) return true;
         }
         return false;
     }

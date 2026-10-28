@@ -44,7 +44,7 @@ class ProfileController extends Controller
                 ->with('status', 'verification-link-sent');
         }
 
-        return Redirect::route($this->namaRouteProfile('edit'))
+        return Redirect::route('profile.edit')
             ->with('status', 'profile-updated');
     }
 
@@ -74,15 +74,15 @@ class ProfileController extends Controller
      * yang login, karena route profile kini tersebar per-role dengan
      * prefix berbeda (profile.edit, kabag.profile.edit, dst).
      */
-    private function namaRouteProfile(string $action): string
-    {
-        $prefix = match (auth()->user()->role) {
-            'kepala_bagian' => 'kabag.',
-            'kepala_bps' => 'kepala-bps.',
-            'admin' => 'admin.',
-            default => '', // staf, tanpa prefix
-        };
+    // private function namaRouteProfile(string $action): string
+    // {
+    //     $prefix = match (auth()->user()->role) {
+    //         'kepala_bagian' => 'kabag.',
+    //         'kepala_bps' => 'kepala-bps.',
+    //         'admin' => 'admin.',
+    //         default => '', // staf, tanpa prefix
+    //     };
 
-        return $prefix . 'profile.' . $action;
-    }
+    //     return $prefix . 'profile.' . $action;
+    // }
 }

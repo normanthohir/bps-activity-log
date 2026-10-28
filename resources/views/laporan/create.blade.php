@@ -1,6 +1,6 @@
 {{-- resources/views/laporan/create.blade.php --}}
 <x-app-layout>
-    <div class="max-w-2xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-5xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
         {{-- Header --}}
         <div class="mb-6">
             <h1 class="text-xl font-semibold text-gray-900">Laporan Aktivitas Harian</h1>
@@ -34,7 +34,7 @@
             @csrf
             <input type="hidden" name="aksi" value="draft">
 
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-2">
                 <div>
                     <label class="text-sm font-medium text-gray-700 block mb-1.5">Tanggal <span
                             class="text-red-500">*</span></label>
@@ -45,35 +45,19 @@
                     @enderror
                 </div>
                 <div>
-                    <label class="text-sm font-medium text-gray-700 block mb-1.5">Terkait Tugas</label>
+                    <label class="text-sm font-medium text-gray-700 block mb-1.5">Terkait Pekerjaan</label>
                     <select name="tugas_id"
                         class="w-full rounded-lg border-gray-300 text-sm focus:ring-[#1F3864]/20 focus:border-[#1F3864]">
-                        <option value="">Tidak terkait tugas</option>
+                        <option value="">Tidak terkait Pekerjaan</option>
                         @foreach ($tugasAktif as $tugas)
                             <option value="{{ $tugas->id }}" @selected(old('tugas_id', $tugasTerpilih ?? null) == $tugas->id)>
                                 {{ $tugas->judul }}
                             </option>
                         @endforeach
                     </select>
+                    <p class="text-xs text-gray-400 mt-1">Terkait pekerjaan akan tampil apa bila di status pekerjaan "selesai"</p>
                 </div>
             </div>
-
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
-                <div>
-                    <label class="text-sm font-medium text-gray-700 block mb-1.5">Jam Mulai</label>
-                    <input type="time" name="jam_mulai" value="{{ old('jam_mulai') }}"
-                        class="w-full rounded-lg border-gray-300 text-sm focus:ring-[#1F3864]/20 focus:border-[#1F3864]">
-                </div>
-                <div>
-                    <label class="text-sm font-medium text-gray-700 block mb-1.5">Jam Selesai</label>
-                    <input type="time" name="jam_selesai" value="{{ old('jam_selesai') }}"
-                        class="w-full rounded-lg text-sm focus:ring-[#1F3864]/20 focus:border-[#1F3864] @error('jam_selesai') border-red-500 @else border-gray-300 @enderror">
-                    @error('jam_selesai')
-                        <p class="text-xs text-red-600 mt-1">{{ $message }}</p>
-                    @enderror
-                </div>
-            </div>
-
             <div class="mb-4">
                 <label class="text-sm font-medium text-gray-700 block mb-1.5">Uraian Kegiatan <span
                         class="text-red-500">*</span></label>

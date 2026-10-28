@@ -1,4 +1,4 @@
-<x-app-layout><div class="max-w-6xl mx-auto px-4 py-8 space-y-5">
+<x-app-layout><div class="max-w-5xl mx-auto px-4 py-8 space-y-5">
 <div class="flex flex-wrap justify-between items-start gap-3"><div><h1 class="text-2xl font-bold">Standar Operasional Prosedur (SOP)</h1><p class="text-sm text-slate-500">Admin mendeklarasikan SOP kantor, Kepala BPS mendelegasikannya ke Ketua Tim. Ketua Tim dapat membuat SOP untuk tim yang dipimpinnya dan membagi pekerjaan tiap langkah.</p></div>
 @if(auth()->user()->isAdmin() || \App\Support\ModeKerja::ketuaAktif(auth()->user()))<a class="px-4 py-2 bg-[#1F3864] text-white rounded-lg text-sm" href="{{ route('sop.create') }}">+ Tambah SOP</a>@endif</div>
 @if(auth()->user()->isAdmin() || \App\Support\ModeKerja::ketuaAktif(auth()->user()))

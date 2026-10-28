@@ -2,11 +2,13 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\HasSqid;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 
 class KamusKerja extends Model
 {
+    use HasSqid;
     protected $table = 'kamus_kerja';
     protected $fillable = ['nama','input','proses','output','bagian_id','dibuat_oleh'];
 

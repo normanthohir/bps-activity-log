@@ -49,6 +49,7 @@ class LaporanController extends Controller
         $tugasAktif = $request->user()
             ->tugasDiterima()
             ->where('status', '!=', 'dikerjakan')
+            ->where('status', '!=', 'belum_dikerjakan')
             ->get();
 
         // Kalau halaman ini dibuka dari tombol "Buat laporan" di detail

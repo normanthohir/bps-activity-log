@@ -17,6 +17,7 @@
 //         //
 //     })->create();
 
+use App\Http\Middleware\AksesMode;
 use App\Http\Middleware\CheckRole;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
@@ -28,11 +29,12 @@ return Application::configure(basePath: dirname(__DIR__))
         commands: __DIR__.'/../routes/console.php',
         health: '/up',
     )
-    ->withMiddleware(function (Middleware $middleware) {
-        $middleware->alias([
-            'role' => CheckRole::class,
-        ]);
-    })
+   ->withMiddleware(function (Middleware $middleware) {
+    $middleware->alias([
+        'role' => CheckRole::class,
+        'mode' => AksesMode::class,
+    ]);
+})
     ->withExceptions(function (Exceptions $exceptions) {
         //
     })->create();

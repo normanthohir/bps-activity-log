@@ -1,11 +1,13 @@
 <?php
 namespace App\Models;
 
+use App\Models\Concerns\HasSqid;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Sop extends Model
 {
+     use HasSqid;
     protected $table = 'sop';
     protected $fillable = ['kode', 'nama', 'versi', 'keterangan', 'dibuat_oleh', 'bagian_id'];
     public function bagian() { return $this->belongsTo(Bagian::class, 'bagian_id'); }

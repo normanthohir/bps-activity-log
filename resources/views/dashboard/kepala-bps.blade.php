@@ -1,74 +1,7 @@
 {{-- resources/views/dashboard/kepala-bps.blade.php --}}
 <x-app-layout>
-    <style>
-        @keyframes fade-slide-up {
-            from {
-                opacity: 0;
-                transform: translateY(12px);
-            }
 
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .animate-in {
-            animation: fade-slide-up 0.5s ease-out both;
-        }
-
-        .delay-1 {
-            animation-delay: .05s;
-        }
-
-        .delay-2 {
-            animation-delay: .1s;
-        }
-
-        .delay-3 {
-            animation-delay: .15s;
-        }
-
-        .delay-4 {
-            animation-delay: .2s;
-        }
-
-        .delay-5 {
-            animation-delay: .25s;
-        }
-
-        .delay-6 {
-            animation-delay: .3s;
-        }
-
-        @keyframes grow-bar {
-            from {
-                width: 0%;
-            }
-        }
-
-        .animate-bar {
-            animation: grow-bar 0.8s ease-out .3s both;
-        }
-
-        @keyframes fade-in-row {
-            from {
-                opacity: 0;
-                transform: translateX(-6px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateX(0);
-            }
-        }
-
-        .animate-row {
-            animation: fade-in-row 0.4s ease-out both;
-        }
-    </style>
-
-    <div class="max-w-6xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-5xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
 
         {{-- Greeting card --}}
         <div

@@ -132,6 +132,7 @@ CREATE TABLE `laporan_harian` (
   `jam_selesai` time DEFAULT NULL,
   `uraian` text NOT NULL,
   `output` text DEFAULT NULL,
+  `alasan` text DEFAULT NULL,
   `lokasi` varchar(255) NOT NULL DEFAULT 'kantor',
   `file_lampiran` varchar(255) DEFAULT NULL,
   `status` varchar(255) NOT NULL DEFAULT 'draft',
