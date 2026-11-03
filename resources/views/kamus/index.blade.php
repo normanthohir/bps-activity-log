@@ -40,9 +40,9 @@
                     <textarea name="output" rows="2" class="w-full rounded-lg border-slate-300">{{ old('output') }}</textarea>
                 </div>
 
-                <x-loading-overlay message="Menyimpan..." />
-
-                <button class="bg-[#1F3864] text-white px-4 py-2 rounded-lg">Simpan Kamus</button>
+                <x-submit-button type="submit" onclick="submit()">
+                    Tambah Kamus
+                </x-submit-button>
             </form>
             <form method="POST" enctype="multipart/form-data" action="{{ route('kamus.import-excel') }}"
                 class="bg-white rounded-xl p-5 border space-y-3" x-data="{ loading: false }" x-on:submit="loading = true">
@@ -67,9 +67,10 @@
                 @endif
                 <input type="file" name="file_excel" accept=".xlsx" required class="block text-sm w-full">
 
-                <x-loading-overlay message="Mengimpor..." />
-
-                <button class="bg-[#1F3864] text-white px-4 py-2 rounded-lg">Import Excel</button>
+                {{-- <button class="bg-[#1F3864] text-white px-4 py-2 rounded-lg">Import Excel</button> --}}
+                <x-submit-button type="submit" onclick="submit()">
+                    Import Excel
+                </x-submit-button>
                 <p class="text-xs text-slate-500">Impor tambah-data saja. Bila ada duplikat/kesalahan, seluruh file
                     ditolak.</p>
             </form>
@@ -103,7 +104,7 @@
                                         ($k->bagian_id && auth()->user()->memimpinTim($k->bagian_id) && (int) $k->dibuat_oleh === (int) auth()->id()))
                                     <a href="{{ route('kamus.edit', $k) }}" class="text-blue-700 mr-3">Edit</a>
                                     <form class="inline" method="POST" action="{{ route('kamus.destroy', $k) }}"
-                                    x-data="{ loading: false }" x-on:submit="loading = true">
+                                        x-data="{ loading: false }" x-on:submit="loading = true">
                                         @csrf
                                         @method('DELETE')
                                         <x-loading-overlay message="Menghapus..." />

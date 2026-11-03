@@ -17,29 +17,30 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 
-{{-- sidebarOpen dipakai oleh sidebar (layouts/navigation) dan tombol hamburger di bawah --}}
-<body class="font-sans antialiased bg-gray-50" x-data="{ sidebarOpen: false }"
+{{-- State bersama: sidebarOpen (drawer mobile) dan collapsed (rail ikon di desktop).
+     Dipakai oleh layouts.navigation dan layouts.topbar. --}}
+<body class="font-sans antialiased bg-gray-50"
+    x-data="{
+        sidebarOpen: false,
+        collapsed: (() => { try { return localStorage.getItem('sidebar-collapsed') === '1' } catch (e) { return false } })(),
+        toggle() {
+            this.collapsed = !this.collapsed;
+            try { localStorage.setItem('sidebar-collapsed', this.collapsed ? '1' : '0') } catch (e) {}
+        }
+    }"
     :class="{ 'overflow-hidden lg:overflow-auto': sidebarOpen }">
 
     @include('layouts.navigation')
 
-    {{-- Area konten: bergeser sebesar lebar sidebar di layar besar --}}
-    <div class="lg:pl-64 min-h-screen flex flex-col">
+    {{-- Area konten: bergeser sebesar lebar sidebar di layar besar, ikut menyusut saat sidebar diciutkan --}}
+    <div class="flex min-h-screen flex-col transition-[padding] duration-300 ease-out motion-reduce:transition-none lg:pl-64"
+        :class="collapsed ? 'lg:!pl-[76px]' : ''">
 
-        {{-- Bar atas khusus mobile (tombol hamburger) --}}
-        <div class="lg:hidden sticky top-0 z-30 h-14 flex items-center gap-3 bg-white border-b border-gray-200 px-4">
-            <button @click="sidebarOpen = true" aria-label="Buka menu"
-                class="text-gray-600 hover:text-gray-900 p-1.5 -ml-1.5 rounded-lg hover:bg-gray-100">
-                <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
-                </svg>
-            </button>
-            <span class="font-semibold text-sm text-[#1F3864]">RAPI - BPS Kota Ambon</span>
-        </div>
+        @include('layouts.topbar')
 
         @isset($header)
-            <header class="bg-white border-b border-gray-200 shadow-sm">
-                <div class="max-w-7xl mx-auto py-5 px-4 sm:px-6 lg:px-8">
+            <header class="border-b border-gray-200 bg-white">
+                <div class="mx-auto max-w-7xl px-4 py-5 sm:px-6 lg:px-8">
                     {{ $header }}
                 </div>
             </header>
@@ -88,8 +89,7 @@
             @endif
 
             // ── Konfirmasi hapus ──────────────────────────────────
-            // Memakai event delegation: tetap bekerja untuk tombol yang muncul belakangan
-            // (misalnya hasil pencarian otomatis), bukan hanya yang ada saat halaman dibuka.
+            // Memakai event delegation: tetap bekerja untuk tombol yang muncul belakangan.
             document.addEventListener('click', function (e) {
                 const el = e.target.closest('[data-confirm]');
                 if (!el) return;
@@ -117,7 +117,7 @@
             const konten = document.getElementById('actual-content');
             let pemulih = null;
 
-            // Tautan yang hanya mengunduh berkas (halaman tidak berpindah) tidak boleh memicu shimmer.
+            // Tautan yang hanya mengunduh berkas tidak boleh memicu shimmer.
             // Untuk tautan unduhan lain, cukup beri atribut data-no-shimmer.
             const POLA_UNDUHAN = /(export|template-excel|\/berkas\/)/i;
 
@@ -136,7 +136,6 @@
             }
 
             document.addEventListener('click', function (e) {
-                // Sudah ditangani skrip lain (misalnya paginasi AJAX atau konfirmasi hapus)
                 if (e.defaultPrevented) return;
                 if (e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
 
@@ -149,7 +148,6 @@
                 try { url = new URL(link.href, window.location.href); } catch (err) { return; }
 
                 if (url.origin !== window.location.origin) return;
-                // Halaman yang sama (misalnya tautan #)
                 if (url.pathname === window.location.pathname && url.search === window.location.search) return;
                 if (POLA_UNDUHAN.test(url.pathname)) return;
 

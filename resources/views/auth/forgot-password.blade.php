@@ -24,7 +24,7 @@
             <a href="{{ route('login') }}" class="underline text-sm text-gray-600 hover:text-gray-900">
                 Kembali ke login
             </a>
-            <x-submit-button loadingText="Mengirim...">Kirim Tautan Reset</x-submit-button>
+            <x-submit-button>Kirim Tautan Reset</x-submit-button>
         </div>
     </form>
 </x-guest-layout>

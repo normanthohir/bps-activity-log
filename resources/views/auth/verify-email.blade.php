@@ -35,7 +35,7 @@
         <form method="POST" action="{{ route('verification.send') }}" class="w-full sm:w-auto"
               x-data="{ loading: false }" @submit="loading = true">
             @csrf
-            <x-submit-button class="w-full sm:w-auto" loadingText="Mengirim...">
+            <x-submit-button class="w-full sm:w-auto" >
                 Kirim ulang email verifikasi
             </x-submit-button>
         </form>

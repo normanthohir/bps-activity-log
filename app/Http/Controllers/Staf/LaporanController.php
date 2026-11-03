@@ -16,21 +16,32 @@ class LaporanController extends Controller
     // Riwayat laporan milik user yang login
     public function index(Request $request): View
     {
-        $bulan = $request->has('bulan') ? ($request->integer('bulan') ?: null) : now()->month;
-        $tahun = $request->has('tahun') ? ($request->integer('tahun') ?: null) : now()->year;
+        $query = LaporanHarian::with('tugas')
+            ->where('user_id', $request->user()->id);   // pakai query dasar Anda yang sekarang
 
-        $laporan = $request->user()
-            ->laporanHarian()
-            ->when($request->filled('status'), function ($q) use ($request) {
-                $q->where('status', $request->string('status'));
-            })
-            ->when($bulan, fn($q) => $q->whereMonth('tanggal', $bulan))
-            ->when($tahun, fn($q) => $q->whereYear('tanggal', $tahun))
-            ->latest('created_at')
-            ->paginate(15)
-            ->withQueryString();
+        // Cari: uraian atau judul pekerjaan
+        if ($request->filled('cari')) {
+            $cari = $request->input('cari');
+            $query->where(function ($q) use ($cari) {
+                $q->where('uraian', 'like', "%{$cari}%")
+                    ->orWhereHas('tugas', fn($t) => $t->where('judul', 'like', "%{$cari}%"));
+            });
+        }
 
-        return view('laporan.index', compact('laporan', 'bulan', 'tahun'));
+        // Periode "YYYY-MM" dari input type="month"
+        if ($request->filled('periode') && preg_match('/^\d{4}-\d{2}$/', $request->input('periode'))) {
+            [$tahun, $bulan] = explode('-', $request->input('periode'));
+            $query->whereYear('tanggal', (int) $tahun)
+                ->whereMonth('tanggal', (int) $bulan);
+        }
+
+        if ($request->filled('status')) {
+            $query->where('status', $request->input('status'));
+        }
+
+        $laporan = $query->latest('tanggal')->paginate(20)->withQueryString();
+
+        return view('laporan.index', compact('laporan'));
     }
 
     public function show(LaporanHarian $laporan): View
@@ -44,17 +55,19 @@ class LaporanController extends Controller
 
     public function create(Request $request): View
     {
-        // Hanya tampilkan tugas milik sendiri yang belum dikerjakaan,
-        // untuk pilihan dropdown "terkait tugas"
+        // Pekerjaan yang sudah punya laporan dari pengguna ini
+        $sudahDilaporkan = LaporanHarian::where('user_id', $request->user()->id)
+            ->whereNotNull('tugas_id')
+            ->select('tugas_id');
+
+        // Hanya pekerjaan milik sendiri yang sudah selesai dan belum pernah dilaporkan
         $tugasAktif = $request->user()
             ->tugasDiterima()
-            ->where('status', '!=', 'dikerjakan')
-            ->where('status', '!=', 'belum_dikerjakan')
+            ->whereNotIn('status', ['dikerjakan', 'belum_dikerjakan'])
+            ->whereNotIn('tugas.id', $sudahDilaporkan)
             ->get();
 
-        // Kalau halaman ini dibuka dari tombol "Buat laporan" di detail
-        // tugas (?tugas=5), dropdown tugas otomatis ter-pilih duluan
-        $tugasTerpilih = $request->integer('tugas');
+        $tugasTerpilih = $tugasAktif->firstWhere('id', $request->integer('tugas'));
 
         return view('laporan.create', compact('tugasAktif', 'tugasTerpilih'));
     }
@@ -69,16 +82,21 @@ class LaporanController extends Controller
             'output' => ['required', 'in:selesai,gagal,tertunda'],
             'alasan' => ['nullable', 'string'],
             'lokasi' => ['required', 'in:kantor,lapangan,dinas_luar'],
-            'tugas_id' => ['nullable', Rule::exists('tugas','id')->where('ditugaskan_ke', auth()->id())],
+            'tugas_id' => ['nullable', Rule::exists('tugas', 'id')->where('ditugaskan_ke', auth()->id())],
             'file_lampiran' => ['nullable', 'url'],
             // tombol submit menentukan status: draft atau langsung diajukan
             'aksi' => ['required', 'in:draft,ajukan'],
         ]);
 
         if (!empty($data['tugas_id'])) {
-            $tugas = Tugas::findOrFail($data['tugas_id']);
-            if ($tugas->input_tugas_id && $tugas->inputDariTugas?->status !== 'selesai') {
-                throw ValidationException::withMessages(['tugas_id'=>'Input dari pekerjaan sebelumnya belum selesai.']);
+            $sudahAda = LaporanHarian::where('user_id', $request->user()->id)
+                ->where('tugas_id', $data['tugas_id'])
+                ->exists();
+
+            if ($sudahAda) {
+                throw ValidationException::withMessages([
+                    'tugas_id' => 'Pekerjaan ini sudah pernah dilaporkan.',
+                ]);
             }
         }
         $data['user_id'] = $request->user()->id;
@@ -104,7 +122,19 @@ class LaporanController extends Controller
     {
         $this->authorize('update', $laporan);
 
-        $tugasAktif = auth()->user()->tugasDiterima()->where('status', '!=', 'selesai')->get();
+        // Laporan lain milik pengguna (selain yang sedang diedit)
+        $sudahDilaporkan = LaporanHarian::where('user_id', auth()->id())
+            ->whereNotNull('tugas_id')
+            ->where('id', '!=', $laporan->id)
+            ->select('tugas_id');
+
+        $tugasAktif = auth()->user()->tugasDiterima()
+            ->where(function ($q) use ($laporan, $sudahDilaporkan) {
+                $q->where('tugas.id', $laporan->tugas_id)          // pekerjaan laporan ini sendiri
+                    ->orWhere(fn($s) => $s->where('status', 'selesai')
+                        ->whereNotIn('tugas.id', $sudahDilaporkan));
+            })
+            ->get();
 
         return view('laporan.edit', compact('laporan', 'tugasAktif'));
     }
@@ -114,14 +144,21 @@ class LaporanController extends Controller
         $this->authorize('update', $laporan);
 
         $data = $request->validate([
-            'tanggal' => ['required', 'date'],
+            'tanggal' => ['required', 'date', function ($atribut, $nilai, $gagal) use ($laporan) {
+                $asli = $laporan->tanggal->toDateString();
+                $nilaiTanggal = \Carbon\Carbon::parse($nilai)->toDateString();
+
+                if ($nilaiTanggal !== $asli && $nilaiTanggal < today()->toDateString()) {
+                    $gagal('Tanggal tidak boleh sebelum hari ini.');
+                }
+            }],
             'jam_mulai' => ['nullable', 'date_format:H:i,H:i:s'],
             'jam_selesai' => ['nullable', 'date_format:H:i,H:i:s', 'after:jam_mulai'],
             'uraian' => ['required', 'string'],
             'output' => ['required', 'in:selesai,gagal,tertunda'],
             'alasan' => ['required_if:output,gagal,tertunda', 'nullable', 'string', 'max:1000'],
             'lokasi' => ['required', 'in:kantor,lapangan,dinas_luar'],
-            'tugas_id' => ['nullable', Rule::exists('tugas','id')->where('ditugaskan_ke', auth()->id())],
+            'tugas_id' => ['nullable', Rule::exists('tugas', 'id')->where('ditugaskan_ke', auth()->id())],
             'file_lampiran' => ['nullable', 'url'],
             'aksi' => ['required', 'in:draft,ajukan'],
         ], [

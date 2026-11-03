@@ -48,7 +48,7 @@
         </div>
 
         <div class="flex items-center justify-end mt-5">
-            <x-submit-button loadingText="Menyimpan...">Reset Password</x-submit-button>
+            <x-submit-button>Reset Password</x-submit-button>
         </div>
     </form>
 </x-guest-layout>

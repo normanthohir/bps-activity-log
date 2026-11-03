@@ -24,16 +24,7 @@ class MenuNavigasi
         if (AksesPekerjaan::bolehDisposisi($user)) {
             $pekerjaan[] = self::tautan('Pekerjaan / disposisi baru', 'pekerjaan.create');
         }
-        // if ($anggota) {
-        //     $pekerjaan[] = self::tautan('Tugas Saya', 'staf.tugas.index');
-        // }
-        // if ($ketua) {
-        //     $pekerjaan[] = self::tautan('Tugas Aktif Saya', 'kabag.tugas-aktif.index');
-        //     $pekerjaan[] = self::tautan('Tugas Tim', 'kabag.tugas.index');
-        // }
-        // if ($kepala) {
-        //     $pekerjaan[] = self::tautan('Penugasan Kepala BPS', 'kepala-bps.tugas.index');
-        // }
+
 
         $standar = [self::tautan('Daftar SOP', 'sop.index')];
         if ($admin || $ketua) {
@@ -48,15 +39,14 @@ class MenuNavigasi
 
         $monitoring = [];
         if ($anggota) {
-            $monitoring[] = self::tautan('Laporan Harian', 'laporan.index');
+            $monitoring[] = self::tautan('Laporan Harian', 'laporan.index', 'laporan');
         }
         if ($ketua) {
-            // $monitoring[] = self::tautan('Laporan Tim', 'kabag.laporan.index');
-            $monitoring[] = self::tautan('Laporan Tim', 'kabag.approval.index');
+            $monitoring[] = self::tautan('Persetujuan Laporan Tim', 'kabag.approval.index', 'persetujuan');
         }
         if ($kepala) {
-            $monitoring[] = self::tautan('Rekap Kantor', 'kepala-bps.rekap');
-            $monitoring[] = self::tautan('Persetujuan Laporan', 'kepala-bps.approval.index');
+            $monitoring[] = self::tautan('Persetujuan Laporan', 'kepala-bps.approval.index', 'persetujuan');
+            $monitoring[] = self::tautan('Rekap Kantor', 'kepala-bps.rekap', 'monitoring');
         }
         if ($monitoring) {
             $kelompok[] = self::bagian(
@@ -77,27 +67,12 @@ class MenuNavigasi
         return $kelompok;
     }
 
+
     public static function dasbor(User $user): string
     {
         if ($user->isKepalaBps()) return 'kepala-bps.dashboard';
         return ModeKerja::ketuaAktif($user) ? 'kabag.dashboard' : 'dashboard';
     }
-
-    // public static function dasbor(User $user): string
-    // {
-    //     // 🟢 1. Jika dia Admin, langsung arahkan ke halaman Kelola Akun Admin agar tidak crash mencari route 'dashboard'
-    //     if ($user->isAdmin()) {
-    //         return 'dashboard';
-    //     }
-
-    //     // 2. Jika dia Kepala BPS
-    //     if ($user->isKepalaBps()) {
-    //         return 'kepala-bps.dashboard';
-    //     }
-
-    //     // 3. Jika dia Ketua Tim atau Staf biasa
-    //     return ModeKerja::ketuaAktif($user) ? 'kabag.dashboard' : 'dashboard';
-    // }
 
     public static function cocok(string $namaRoute, array $awalan): bool
     {
@@ -108,9 +83,10 @@ class MenuNavigasi
     }
 
     /** @return array{label:string,route:string} */
-    private static function tautan(string $label, string $route): array
+    /** Item: label, route, dan ikon opsional (kunci ikon di navigation.blade.php). */
+    private static function tautan(string $label, string $route, ?string $ikon = null): array
     {
-        return compact('label', 'route');
+        return array_filter(compact('label', 'route', 'ikon'), fn($v) => $v !== null);
     }
 
     /** @return array{key:string,label:string,active:array<int,string>,items:array<int,array{label:string,route:string}>} */

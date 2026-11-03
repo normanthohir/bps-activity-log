@@ -1,8 +1,10 @@
 <?php
+
 namespace App\Http\Controllers;
 
 use App\Models\Bagian;
 use App\Models\KamusKerja;
+use App\Models\LaporanHarian;
 use App\Models\Sop;
 use App\Models\SopLangkah;
 use App\Models\SopPelaksanaan;
@@ -10,6 +12,7 @@ use App\Support\ModeKerja;
 use App\Models\Tugas;
 use App\Models\User;
 use App\Support\AksesPekerjaan;
+use App\Support\PengingatLaporan;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
@@ -20,11 +23,36 @@ class PekerjaanController extends Controller
 {
     public function index(Request $request)
     {
-        $tugas = AksesPekerjaan::lingkup($request->user())->with(['bagian','penerimaTugas','induk'])
-            ->when($request->filled('cari'), fn ($q) => $q->where('judul','like','%'.$request->input('cari').'%'))
-            ->when($request->filled('status'), fn ($q) => $q->where('status',$request->input('status')))
-            ->latest()->paginate(20)->withQueryString();
-        return view('pekerjaan.index', compact('tugas'));
+        $hanyaTerlambat = $request->boolean('terlambat');
+
+        $lingkup = AksesPekerjaan::lingkup($request->user());
+
+        // Hitung terlambat (untuk badge di tombol), mengikuti lingkup role & tidak terpengaruh filter lain
+        $jumlahTerlambat = (clone $lingkup)
+            ->where('status', '!=', 'selesai')
+            ->whereNotNull('tenggat')
+            ->whereDate('tenggat', '<', today())
+            ->count();
+
+        $tugas = $lingkup
+            ->with(['bagian', 'penerimaTugas', 'induk'])
+            ->when($request->filled('cari'), fn($q) => $q->where('judul', 'like', '%' . $request->input('cari') . '%'))
+            ->when($request->filled('status'), fn($q) => $q->where('status', $request->input('status')))
+            ->when(
+                $hanyaTerlambat,
+                fn($q) => $q
+                    ->where('status', '!=', 'selesai')
+                    ->whereNotNull('tenggat')
+                    ->whereDate('tenggat', '<', today())
+                    ->orderBy('tenggat')            // paling lama terlambat di atas
+            )
+            ->when(!$hanyaTerlambat, fn($q) => $q->latest())
+            ->paginate(20)
+            ->withQueryString();
+
+        $pengingatLaporan = PengingatLaporan::untuk($request->user());
+
+        return view('pekerjaan.index', compact('tugas', 'pengingatLaporan', 'hanyaTerlambat', 'jumlahTerlambat'));
     }
 
     private function referensi(Request $request): array
@@ -32,34 +60,38 @@ class PekerjaanController extends Controller
         $user = $request->user();
         $bagian = AksesPekerjaan::timYangBolehDitugaskan($user);
         // Tambahkan ketua sendiri sebagai kandidat; validasi di server tetap membatasi tim yang dipimpin.
-        $penerima = User::whereIn('role',['staf','kepala_bagian'])->with(['tim:id'])->orderBy('name')->get()
-            ->each(fn ($p) => $p->allowed_tim_ids = $p->tim->pluck('id')
-                ->unique()->map(fn ($id) => (string) $id)->values()->all());
+        $penerima = User::whereIn('role', ['staf', 'kepala_bagian'])->with(['tim:id'])->orderBy('name')->get()
+            ->each(fn($p) => $p->allowed_tim_ids = $p->tim->pluck('id')
+                ->unique()->map(fn($id) => (string) $id)->values()->all());
         if (\App\Support\ModeKerja::ketuaAktif($user) && !$penerima->contains('id', $user->id)) {
             $user->load('tim:id');
-            $user->allowed_tim_ids = $user->tim->pluck('id')->map(fn ($id) => (string) $id)->all();
+            $user->allowed_tim_ids = $user->tim->pluck('id')->map(fn($id) => (string) $id)->all();
             $penerima->push($user);
         }
-        $sumber = AksesPekerjaan::lingkup($user)->orderByDesc('id')->limit(350)->get(['id','judul','output_rencana','output_realisasi','status']);
+        $sumber = AksesPekerjaan::lingkup($user)->orderByDesc('id')->limit(350)->get(['id', 'judul', 'output_rencana', 'output_realisasi', 'status']);
         $daftarKamus = KamusKerja::tersediaUntuk($user)->orderBy('nama')
-            ->get(['id','nama','input','proses','output','bagian_id']);
-        return compact('bagian','penerima','sumber','daftarKamus');
+            ->get(['id', 'nama', 'input', 'proses', 'output', 'bagian_id']);
+        return compact('bagian', 'penerima', 'sumber', 'daftarKamus');
     }
 
     public function create(Request $request)
     {
-        abort_unless(AksesPekerjaan::bolehDisposisi($request->user()),403);
+        abort_unless(AksesPekerjaan::bolehDisposisi($request->user()), 403);
         if ($request->filled('pelaksanaan')) {
-            $request->validate(['pelaksanaan' => 'required|integer|exists:sop_pelaksanaan,id',
-                'langkah' => 'required|integer|exists:sop_langkah,id']);
-            return app(SopDelegasiController::class)->buatTugas($request,
+            $request->validate([
+                'pelaksanaan' => 'required|integer|exists:sop_pelaksanaan,id',
+                'langkah' => 'required|integer|exists:sop_langkah,id'
+            ]);
+            return app(SopDelegasiController::class)->buatTugas(
+                $request,
                 SopPelaksanaan::findOrFail($request->integer('pelaksanaan')),
-                SopLangkah::findOrFail($request->integer('langkah')));
+                SopLangkah::findOrFail($request->integer('langkah'))
+            );
         }
         $induk = $request->filled('induk') ? AksesPekerjaan::lingkup($request->user())->findOrFail($request->input('induk')) : null;
-        abort_unless(AksesPekerjaan::bolehDisposisi($request->user(),$induk),403);
-        abort_if($induk?->adalahIndukDelegasiSop(),403,'Gunakan halaman Disposisi Langkah SOP.');
-        return view('pekerjaan.create', [...$this->referensi($request), 'induk'=>$induk]);
+        abort_unless(AksesPekerjaan::bolehDisposisi($request->user(), $induk), 403);
+        abort_if($induk?->adalahIndukDelegasiSop(), 403, 'Gunakan halaman Disposisi Langkah SOP.');
+        return view('pekerjaan.create', [...$this->referensi($request), 'induk' => $induk]);
     }
 
     public function store(Request $request)
@@ -72,8 +104,8 @@ class PekerjaanController extends Controller
         }
         $data = $request->validate([
             'judul' => 'required|string|max:255',
-            'sumber_judul' => ['sometimes', Rule::in(['manual','kamus'])],
-            'kamus_kerja_id' => ['nullable','required_if:sumber_judul,kamus','integer','exists:kamus_kerja,id'],
+            'sumber_judul' => ['sometimes', Rule::in(['manual', 'kamus'])],
+            'kamus_kerja_id' => ['nullable', 'required_if:sumber_judul,kamus', 'integer', 'exists:kamus_kerja,id'],
             'bagian_id' => 'required|integer|exists:bagian,id',
             'penerima_ids' => 'required|array|min:1|max:100',
             'penerima_ids.*' => 'required|integer|distinct|exists:users,id',
@@ -81,18 +113,24 @@ class PekerjaanController extends Controller
             'tanggal_mulai' => 'nullable|date',
             'tenggat' => 'nullable|date|after_or_equal:tanggal_mulai',
             'induk_tugas_id' => 'nullable|integer|exists:tugas,id',
-            'jenis_input' => ['required', Rule::in(['manual','surat','output_tugas'])],
-            'uraian_input' => 'nullable|string', 'nomor_surat' => 'nullable|string|max:255',
-            'asal_surat' => 'nullable|string|max:255', 'tanggal_surat' => 'nullable|date',
+            'jenis_input' => ['required', Rule::in(['manual', 'surat', 'output_tugas'])],
+            'uraian_input' => 'nullable|string',
+            'nomor_surat' => 'nullable|string|max:255',
+            'asal_surat' => 'nullable|string|max:255',
+            'tanggal_surat' => 'nullable|date',
             'input_tugas_id' => 'nullable|integer|exists:tugas,id',
-            'output_rencana' => 'nullable|string', 'output_realisasi' => 'nullable|string',
+            'output_rencana' => 'nullable|string',
+            'output_realisasi' => 'nullable|string',
             'file_input' => 'nullable|file|max:10240|mimes:pdf,doc,docx,xls,xlsx,txt,csv,jpg,jpeg,png,zip',
             'file_output' => 'nullable|file|max:10240|mimes:pdf,doc,docx,xls,xlsx,txt,csv,jpg,jpeg,png,zip',
         ]);
         $bagian = Bagian::findOrFail($data['bagian_id']);
-        abort_unless($user->isKepalaBps() || $user->isAdmin() ||
-            (ModeKerja::ketuaAktif($user) && $user->memimpinTim($bagian->id)), 403,
-            'Anda tidak dapat memberi tugas pada tim ini.');
+        abort_unless(
+            $user->isKepalaBps() || $user->isAdmin() ||
+                (ModeKerja::ketuaAktif($user) && $user->memimpinTim($bagian->id)),
+            403,
+            'Anda tidak dapat memberi tugas pada tim ini.'
+        );
         if (($data['sumber_judul'] ?? 'manual') === 'kamus') {
             $kamus = KamusKerja::tersediaUntuk($user)->findOrFail($data['kamus_kerja_id']);
             if ($kamus->bagian_id && (int) $kamus->bagian_id !== (int) $bagian->id) {
@@ -108,12 +146,12 @@ class PekerjaanController extends Controller
             $penerima = $calon->get($id);
             if (!$penerima || !AksesPekerjaan::tujuanValid($user, $penerima, $bagian)) {
                 throw ValidationException::withMessages(['penerima_ids' =>
-                    'Ada pelaksana yang bukan anggota tim tujuan atau Anda tidak berhak menugaskannya.']);
+                'Ada pelaksana yang bukan anggota tim tujuan atau Anda tidak berhak menugaskannya.']);
             }
         }
         if (!empty($data['induk_tugas_id'])) {
             $induk = AksesPekerjaan::lingkup($user)->findOrFail($data['induk_tugas_id']);
-            abort_unless(AksesPekerjaan::bolehDisposisi($user, $induk),403);
+            abort_unless(AksesPekerjaan::bolehDisposisi($user, $induk), 403);
             if ($induk->adalahIndukDelegasiSop()) {
                 throw ValidationException::withMessages(['induk_tugas_id' => 'Gunakan menu Delegasi Langkah SOP untuk pekerjaan induk SOP.']);
             }
@@ -127,8 +165,10 @@ class PekerjaanController extends Controller
         } else {
             $data['input_tugas_id'] = null;
         }
-        if ($data['jenis_input'] === 'surat' && empty($data['uraian_input'])
-            && empty($data['nomor_surat']) && !$request->hasFile('file_input')) {
+        if (
+            $data['jenis_input'] === 'surat' && empty($data['uraian_input'])
+            && empty($data['nomor_surat']) && !$request->hasFile('file_input')
+        ) {
             throw ValidationException::withMessages(['uraian_input' => 'Isi keterangan, nomor surat, atau unggah berkas.']);
         }
         // Kolom deskripsi pada database lama masih NOT NULL. Saat proses kosong, gunakan judul.
@@ -138,7 +178,7 @@ class PekerjaanController extends Controller
         unset($data['penerima_ids']);
         $berkas = [];
         try {
-            foreach (['file_input','file_output'] as $field) {
+            foreach (['file_input', 'file_output'] as $field) {
                 if ($request->hasFile($field)) {
                     $data[$field] = $request->file($field)->store('pekerjaan', 'local');
                     $berkas[] = $data[$field];
@@ -158,15 +198,26 @@ class PekerjaanController extends Controller
             throw $e;
         }
         return redirect()->route('pekerjaan.show', $pertama)
-            ->with('success', 'Pekerjaan berhasil dibuat untuk '.count($ids).' pelaksana, masing-masing memiliki progres sendiri.');
+            ->with('success', 'Pekerjaan berhasil dibuat untuk ' . count($ids) . ' pelaksana, masing-masing memiliki progres sendiri.');
     }
 
     public function show(Request $request, Tugas $tugas)
     {
-        abort_unless(AksesPekerjaan::dapatLihat($request->user(),$tugas),403);
-        $tugas->load(['pemberiTugas','penerimaTugas','bagian','induk','inputDariTugas',
-            'disposisi.penerimaTugas','disposisi.bagian','dipakaiSebagaiInput','sopLangkah.sop','sopPelaksanaan','kamusKerja',
-            'laporanHarian' => fn ($q) => $q->latest()]);
+        abort_unless(AksesPekerjaan::dapatLihat($request->user(), $tugas), 403);
+        $tugas->load([
+            'pemberiTugas',
+            'penerimaTugas',
+            'bagian',
+            'induk',
+            'inputDariTugas',
+            'disposisi.penerimaTugas',
+            'disposisi.bagian',
+            'dipakaiSebagaiInput',
+            'sopLangkah.sop',
+            'sopPelaksanaan',
+            'kamusKerja',
+            'laporanHarian' => fn($q) => $q->latest()
+        ]);
         $sumberOutput = $tugas->semuaSumberOutput();
         $pemakaiOutput = $tugas->dipakaiSebagaiInput;
         if ($tugas->sop_pelaksanaan_id && $tugas->sop_langkah_id) {
@@ -184,22 +235,22 @@ class PekerjaanController extends Controller
     public function update(Request $request, Tugas $tugas)
     {
         $user = $request->user();
-        abort_unless(AksesPekerjaan::dapatLihat($user,$tugas) &&
-            ($tugas->ditugaskan_ke === $user->id || $user->isKepalaBps() || $user->isAdmin()),403);
+        abort_unless(AksesPekerjaan::dapatLihat($user, $tugas) &&
+            ($tugas->ditugaskan_ke === $user->id || $user->isKepalaBps() || $user->isAdmin()), 403);
         $data = $request->validate([
-            'status'=>['required',Rule::in(['belum_dikerjakan','dikerjakan','selesai'])],
-            'output_realisasi'=>'nullable|string',
-            'file_output'=>'nullable|file|max:10240|mimes:pdf,doc,docx,xls,xlsx,txt,csv,jpg,jpeg,png,zip',
+            'status' => ['required', Rule::in(['belum_dikerjakan', 'dikerjakan', 'selesai'])],
+            'output_realisasi' => 'nullable|string',
+            'file_output' => 'nullable|file|max:10240|mimes:pdf,doc,docx,xls,xlsx,txt,csv,jpg,jpeg,png,zip',
         ]);
         if ($data['status'] !== 'belum_dikerjakan' && $tugas->jenis_input === 'output_tugas') {
             $sumber = $tugas->semuaSumberOutput();
-            if ($sumber->isEmpty() || $sumber->contains(fn ($pekerjaan) => $pekerjaan->status !== 'selesai')) {
-                throw ValidationException::withMessages(['status'=>
-                    'Seluruh pekerjaan pada langkah sumber input harus selesai sebelum pekerjaan ini dimulai atau diselesaikan.']);
+            if ($sumber->isEmpty() || $sumber->contains(fn($pekerjaan) => $pekerjaan->status !== 'selesai')) {
+                throw ValidationException::withMessages(['status' =>
+                'Seluruh pekerjaan pada langkah sumber input harus selesai sebelum pekerjaan ini dimulai atau diselesaikan.']);
             }
         }
         if ($data['status'] === 'selesai' && !$request->filled('output_realisasi') && !$request->hasFile('file_output') && !$tugas->file_output) {
-            throw ValidationException::withMessages(['output_realisasi'=>'Isi realisasi output atau unggah output sebelum selesai.']);
+            throw ValidationException::withMessages(['output_realisasi' => 'Isi realisasi output atau unggah output sebelum selesai.']);
         }
         if ($data['status'] === 'selesai' && $tugas->adalahIndukDelegasiSop()) {
             $pelaksanaan = $tugas->sopPelaksanaan;
@@ -207,17 +258,17 @@ class PekerjaanController extends Controller
             $jumlahDisposisi = $pelaksanaan->tugas()->whereNotNull('sop_langkah_id')
                 ->distinct()->count('sop_langkah_id');
             if ($jumlahDisposisi < $jumlahLangkah) {
-                throw ValidationException::withMessages(['status'=>'Belum semua langkah SOP mempunyai pelaksana.']);
+                throw ValidationException::withMessages(['status' => 'Belum semua langkah SOP mempunyai pelaksana.']);
             }
         }
-        if ($data['status'] === 'selesai' && $tugas->disposisi()->where('status','!=','selesai')->exists()) {
-            throw ValidationException::withMessages(['status'=>'Masih ada disposisi bawahan yang belum selesai.']);
+        if ($data['status'] === 'selesai' && $tugas->disposisi()->where('status', '!=', 'selesai')->exists()) {
+            throw ValidationException::withMessages(['status' => 'Masih ada disposisi bawahan yang belum selesai.']);
         }
         if ($request->hasFile('file_output')) {
-            $data['file_output'] = $request->file('file_output')->store('pekerjaan','local');
+            $data['file_output'] = $request->file('file_output')->store('pekerjaan', 'local');
         }
         $tugas->update($data);
-        return back()->with('success','Progres dan output pekerjaan tersimpan.');
+        return back()->with('success', 'Progres dan output pekerjaan tersimpan.');
     }
 
     /** Revisi rincian tugas setelah penugasan, tanpa merusak hubungan IPO/SOP dan audit progres. */
@@ -229,8 +280,11 @@ class PekerjaanController extends Controller
                 && (int) $tugas->dibuat_oleh === (int) $user->id)
             || (int) $tugas->ditugaskan_ke === (int) $user->id;
         abort_unless($boleh && AksesPekerjaan::dapatLihat($user, $tugas), 403);
-        abort_if($tugas->status === 'selesai', 409,
-            'Pekerjaan selesai tidak bisa diedit langsung. Hubungi penanggung jawab untuk revisi status.');
+        abort_if(
+            $tugas->status === 'selesai',
+            409,
+            'Pekerjaan selesai tidak bisa diedit langsung. Hubungi penanggung jawab untuk revisi status.'
+        );
     }
 
     public function editRincian(Request $request, Tugas $tugas)
@@ -259,7 +313,7 @@ class PekerjaanController extends Controller
 
     public function unduh(Request $request, Tugas $tugas, string $jenis)
     {
-        abort_unless(in_array($jenis,['input','output'],true),404);
+        abort_unless(in_array($jenis, ['input', 'output'], true), 404);
         // Penerima pekerjaan turunan juga berhak membuka berkas output sumber inputnya.
         $boleh = AksesPekerjaan::dapatLihat($request->user(), $tugas);
         if (!$boleh && $jenis === 'output') {
@@ -279,9 +333,9 @@ class PekerjaanController extends Controller
                 }
             }
         }
-        abort_unless($boleh,403);
+        abort_unless($boleh, 403);
         $path = $jenis === 'input' ? $tugas->file_input : $tugas->file_output;
-        abort_unless($path && Storage::disk('local')->exists($path),404);
+        abort_unless($path && Storage::disk('local')->exists($path), 404);
         return Storage::disk('local')->download($path);
     }
 }

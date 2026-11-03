@@ -6,12 +6,10 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ExcelImportController;
 use App\Http\Controllers\KamusExcelController;
 use App\Http\Controllers\KamusKerjaController;
-use App\Http\Controllers\KepalaBagian\ApprovalController as KabagApprovalController;
 use App\Http\Controllers\KepalaBagian\TugasAktifController;
 use App\Http\Controllers\KepalaBagian\TugasController as KabagTugasController;
-use App\Http\Controllers\KepalaBPS\ApprovalController as KepalaBpsApprovalController;
 use App\Http\Controllers\KepalaBPS\RekapController;
-use App\Http\Controllers\KepalaBPS\TugasController as KepalaBpsTugasController;
+use App\Http\Controllers\ApprovalController;
 use App\Http\Controllers\ModeKerjaController;
 use App\Http\Controllers\PekerjaanController;
 use App\Http\Controllers\ProfileController;
@@ -120,9 +118,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
             ->parameters(['laporan-tim' => 'laporan'])
             ->names('laporan');
         Route::get('laporan-tim/{laporan}/revisi', [LaporanController::class, 'edit'])->name('laporan.edit');
-        Route::get('persetujuan-tim', [KabagApprovalController::class, 'index'])->name('approval.index');
-        Route::get('persetujuan-tim/{laporan}', [KabagApprovalController::class, 'show'])->name('approval.show');
-        Route::post('persetujuan-tim/{laporan}', [KabagApprovalController::class, 'proses'])->name('approval.proses');
+        Route::get('persetujuan-tim', [ApprovalController::class, 'index'])->name('approval.index');
+        Route::get('persetujuan-tim/{laporan}', [ApprovalController::class, 'show'])->name('approval.show');
+        Route::post('persetujuan-tim/{laporan}', [ApprovalController::class, 'proses'])->name('approval.proses');
     });
 
     /*
@@ -133,18 +131,21 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::middleware('role:kepala_bps')->name('kepala-bps.')->group(function () {
         // Route::get('kepala-bps/dashboard', [DashboardController::class, 'kepalaBps'])->name('dashboard');
 
-        Route::get('rekap', [RekapController::class, 'index'])->name('rekap');
-        Route::get('rekap/export-pdf', [RekapController::class, 'exportPdf'])->name('rekap.export-pdf');
-        Route::get('rekap/export-excel', [RekapController::class, 'exportExcel'])->name('rekap.export-excel');
+        Route::get('rekap-kantor/laporan', [RekapController::class, 'index'])->name('rekap');
+        Route::get('rekap-kantor/laporan/export-pdf', [RekapController::class, 'exportPdf'])->name('rekap.export-pdf');
+        Route::get('rekap-kantor/laporan/export-excel', [RekapController::class, 'exportExcel'])->name('rekap.export-excel');
 
-        Route::resource('penugasan', KepalaBpsTugasController::class)
-            ->only(['index', 'create', 'store', 'show', 'edit', 'update', 'destroy'])
-            ->parameters(['penugasan' => 'tugas'])
-            ->names('tugas');
+        Route::get('rekap-kantor/pekerjaan', [RekapController::class, 'pekerjaan'])->name('rekap.pekerjaan');
+        Route::get('rekap-kantor/pekerjaan/export-pdf', [RekapController::class, 'pekerjaanPdf'])->name('rekap.pekerjaan.export-pdf');
+        Route::get('rekap-kantor/pekerjaan/export-excel', [RekapController::class, 'pekerjaanExcel'])->name('rekap.pekerjaan.export-excel');
 
-        Route::get('persetujuan', [KepalaBpsApprovalController::class, 'index'])->name('approval.index');
-        Route::get('persetujuan/{laporan}', [KepalaBpsApprovalController::class, 'show'])->name('approval.show');
-        Route::post('persetujuan/{laporan}', [KepalaBpsApprovalController::class, 'proses'])->name('approval.proses');
+        // Route::resource('penugasan', KepalaBpsTugasController::class)
+        //     ->only(['index', 'create', 'store', 'show', 'edit', 'update', 'destroy'])
+        //     ->parameters(['penugasan' => 'tugas'])
+        //     ->names('tugas');
+        Route::get('persetujuan-kantor', [ApprovalController::class, 'index'])->name('approval.index');
+        Route::get('persetujuan-kantor/{laporan}', [ApprovalController::class, 'show'])->name('approval.show');
+        Route::post('persetujuan-kantor/{laporan}', [ApprovalController::class, 'proses'])->name('approval.proses');
     });
 
     /*

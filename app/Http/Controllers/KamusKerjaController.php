@@ -87,7 +87,8 @@ class KamusKerjaController extends Controller
         ]);
         $this->periksaDuplikat($data['nama'], $kamus->bagian_id, $kamus->id);
         $kamus->update($data);
-        return redirect()->route('kamus.index')->with('success', 'Kamus Kerja diperbarui.');
+        // return redirect()->route('kamus.index')->with('success', 'Kamus Kerja diperbarui.');
+        return back()->with('success', 'Kamus Kerja diperbarui.');
     }
 
     public function destroy(Request $request, KamusKerja $kamus)
