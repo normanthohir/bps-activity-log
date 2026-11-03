@@ -18,7 +18,9 @@
         </div>
 
         <div class="flex justify-end mt-4">
-            <x-submit-button loadingText="Memeriksa...">Konfirmasi</x-submit-button>
+            <x-submit-button type="submit">
+                Konfirmasi
+            </x-submit-button>
         </div>
     </form>
 </x-guest-layout>

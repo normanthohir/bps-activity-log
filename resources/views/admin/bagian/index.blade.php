@@ -1,182 +1,132 @@
 {{-- resources/views/admin/bagian/index.blade.php --}}
 @php
-    $adaFilter = request()->filled('search') || request()->filled('status');
+    $adaFilter = collect(['search', 'status'])->contains(fn($k) => request()->filled($k));
+
+    $ikon = [
+        'tim' => 'M3.75 21h16.5M4.5 3h15M5.25 3v18m13.5-18v18M9 6.75h1.5m-1.5 3h1.5m-1.5 3h1.5m3-6H15m-1.5 3H15m-1.5 3H15M9 21v-3.375c0-.621.504-1.125 1.125-1.125h3.75c.621 0 1.125.504 1.125 1.125V21',
+        'pegawai' => 'M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z',
+        'peringatan' => 'M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z',
+    ];
+
+    $kartu = [
+        ['label' => 'Total tim', 'nilai' => $ringkasan['total'] ?? 0, 'warna' => 'indigo', 'ikon' => $ikon['tim'], 'url' => route('admin.bagian.index')],
+        ['label' => 'Total pegawai', 'nilai' => $ringkasan['pegawai'] ?? 0, 'warna' => 'blue', 'ikon' => $ikon['pegawai']],
+        ['label' => 'Belum ada ketua', 'nilai' => $ringkasan['belum_kepala'] ?? 0, 'warna' => 'amber', 'ikon' => $ikon['peringatan'], 'soroti' => true, 'url' => route('admin.bagian.index', ['status' => 'belum'])],
+    ];
+
+    $filter = [
+        ['name' => 'status', 'semua' => 'Semua tim', 'opsi' => ['ada' => 'Sudah ada ketua', 'belum' => 'Belum ada ketua']],
+    ];
 @endphp
 
 <x-app-layout>
-    <div class="max-w-5xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
-        {{-- Header --}}
-        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
-            <div>
-                <h1 class="text-2xl font-semibold text-gray-900">Kelola Tim/Seksi</h1>
-                <p class="text-sm text-gray-500 mt-1">Struktur unit kerja dan penanggung jawab tiap tim.</p>
-            </div>
-            <a href="{{ route('admin.bagian.create') }}"
-                class="inline-flex items-center gap-1.5 bg-[#1F3864] hover:bg-[#16294a] text-white text-sm font-medium px-4 py-2.5 rounded-lg transition-colors">
-                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-                </svg>
-                Tambah Tim
-            </a>
-        </div>
+    <div class="mx-auto max-w-5xl px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
 
-        {{-- Ringkasan --}}
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-6">
-            <div class="bg-white rounded-xl border border-gray-200 p-4">
-                <p class="text-xs text-gray-500">Total tim</p>
-                <p class="text-2xl font-semibold text-gray-900 mt-1">{{ $ringkasan['total'] }}</p>
-            </div>
-            <div class="bg-white rounded-xl border border-gray-200 p-4">
-                <p class="text-xs text-gray-500">Total pegawai</p>
-                <p class="text-2xl font-semibold text-gray-900 mt-1">{{ $ringkasan['pegawai'] }}</p>
-            </div>
-            <div class="bg-white rounded-xl border border-gray-200 p-4">
-                <p class="text-xs text-gray-500">Belum ada ketua tim</p>
-                <p
-                    class="text-2xl font-semibold {{ $ringkasan['belum_kepala'] ? 'text-amber-600' : 'text-gray-900' }} mt-1">
-                    {{ $ringkasan['belum_kepala'] }}
-                </p>
-            </div>
-        </div>
+        @include('admin.partials.header-halaman', [
+            'judul' => 'Kelola Tim/Seksi',
+            'deskripsi' => 'Struktur unit kerja dan penanggung jawab tiap tim.',
+            'tombol' => 'Tambah Tim',
+            'href' => route('admin.bagian.create'),
+        ])
 
-        {{-- Pencarian dan filter --}}
-        <form method="GET" action="{{ route('admin.bagian.index') }}"
-            class="bg-white rounded-xl border border-gray-200 p-3 mb-4 flex flex-col lg:flex-row gap-3 max-w-full">
+        @include('admin.partials.kartu-ringkasan', ['kartu' => $kartu])
 
-            <div class="relative flex-grow min-w-">
-                <svg class="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" fill="none"
-                    viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                    <path stroke-linecap="round" stroke-linejoin="round"
-                        d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
-                </svg>
-                <input type="text" name="search" value="{{ request('search') }}" autocomplete="off"
-                    placeholder="Cari nama atau kode tim..."
-                    oninput="clearTimeout(window.searchTimer); window.searchTimer = setTimeout(() => this.form.submit(), 500)"
-                    @if (request()->filled('search')) autofocus onfocus="this.setSelectionRange(this.value.length, this.value.length)" @endif
-                    class="w-full pl-9 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1F3864]/20 focus:border-[#1F3864]">
-            </div>
+        @include('admin.partials.bar-filter', [
+            'aksi' => route('admin.bagian.index'),
+            'cari' => 'Cari nama atau kode tim...',
+            'filter' => $filter,
+            'adaFilter' => $adaFilter,
+        ])
 
-            <div class="flex items-center gap-6 shrink-0">
-                <select name="status" onchange="this.form.submit()"
-                    class="text-sm border border-gray-300 rounded-lg py-2 pl-3 pr-8 focus:outline-none focus:ring-2 focus:ring-[#1F3864]/20 focus:border-[#1F3864] w-full lg:w-auto">
-                    <option value="">Semua tim</option>
-                    <option value="ada" @selected(request('status') === 'ada')>Sudah ada ketua</option>
-                    <option value="belum" @selected(request('status') === 'belum')>Belum ada ketua</option>
-                </select>
-
-                @if ($adaFilter)
-                    <a href="{{ route('admin.bagian.index') }}"
-                        class="text-sm text-gray-500 hover:text-gray-800 px-2 whitespace-nowrap">
-                        Reset
-                    </a>
-                @endif
-            </div>
-        </form>
-
-        {{-- Hasil --}}
-        <div class="bg-white rounded-xl border border-gray-200 overflow-hidden">
+        <div class="animate-in overflow-hidden rounded-2xl border border-gray-200 bg-white" style="animation-delay: .28s">
             @if ($bagian->isEmpty())
-                <div class="text-center py-16 px-4">
-                    <svg class="w-10 h-10 mx-auto text-gray-300" fill="none" viewBox="0 0 24 24"
-                        stroke="currentColor" stroke-width="1.5">
-                        <path stroke-linecap="round" stroke-linejoin="round"
-                            d="M3.75 21h16.5M4.5 3h15M5.25 3v18m13.5-18v18M9 6.75h1.5m-1.5 3h1.5m-1.5 3h1.5m3-6H15m-1.5 3H15m-1.5 3H15M9 21v-3.375c0-.621.504-1.125 1.125-1.125h3.75c.621 0 1.125.504 1.125 1.125V21" />
-                    </svg>
+                <div class="px-4 py-16 text-center">
+                    <span class="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-gray-50 text-gray-300">
+                        <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="{{ $ikon['tim'] }}" /></svg>
+                    </span>
+                    <p class="mt-3 text-sm font-medium text-gray-900">{{ $adaFilter ? 'Tidak ada tim yang cocok' : 'Belum ada tim' }}</p>
+                    <p class="mt-1 text-sm text-gray-500">
+                        {{ $adaFilter ? 'Coba ubah kata kunci atau filter yang dipakai.' : 'Tambahkan tim/seksi pertama untuk mulai mengatur struktur organisasi.' }}
+                    </p>
                     @if ($adaFilter)
-                        <p class="text-sm font-medium text-gray-900 mt-3">Tidak ada tim yang cocok</p>
-                        <p class="text-sm text-gray-500 mt-1">Coba ubah kata kunci atau filter yang dipakai.</p>
+                        <a href="{{ route('admin.bagian.index') }}" class="mt-4 inline-block text-sm font-medium text-[#1F3864] hover:underline">Reset filter</a>
                     @else
-                        <p class="text-sm font-medium text-gray-900 mt-3">Belum ada tim</p>
-                        <p class="text-sm text-gray-500 mt-1">Tambahkan tim/seksi pertama untuk mulai mengatur
-                            struktur organisasi.</p>
-                        <a href="{{ route('admin.bagian.create') }}"
-                            class="inline-flex items-center gap-1.5 mt-4 bg-[#1F3864] hover:bg-[#16294a] text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors">
-                            + Tambah Tim
-                        </a>
+                        <a href="{{ route('admin.bagian.create') }}" class="mt-4 inline-block text-sm font-medium text-[#1F3864] hover:underline">+ Tambah Tim</a>
                     @endif
                 </div>
             @else
-                <div class="overflow-x-auto">
-                    <table class="w-full text-sm">
-                        <thead>
-                            <tr
-                                class="text-left text-xs text-gray-500 uppercase tracking-wide bg-gray-50 border-b border-gray-200">
-                                <th class="py-3 px-5 font-medium">Nama Tim</th>
-                                <th class="py-3 px-5 font-medium">Kode</th>
-                                <th class="py-3 px-5 font-medium">Ketua Tim</th>
-                                <th class="py-3 px-5 font-medium text-center">Pegawai</th>
-                                <th class="py-3 px-5 font-medium text-right">Aksi</th>
-                            </tr>
-                        </thead>
-                        <tbody class="divide-y divide-gray-100">
-                            @foreach ($bagian as $item)
-                                <tr class="hover:bg-gray-50/70 transition-colors">
-                                    <td class="py-3.5 px-5 font-medium text-gray-900">{{ $item->nama_bagian }}</td>
-
-                                    <td class="py-3.5 px-5">
-                                        <span
-                                            class="inline-flex items-center font-mono text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded-md">
-                                            {{ $item->kode_bagian }}
-                                        </span>
-                                    </td>
-
-                                    <td class="py-3.5 px-5">
-                                        @if ($item->kepalaBagian)
-                                            <div class="flex items-center gap-3">
-                                                <span
-                                                    class="w-9 h-9 rounded-full bg-[#DCE6F1] text-[#1F3864] text-sm font-semibold flex items-center justify-center shrink-0">
-                                                    {{ strtoupper(substr($item->kepalaBagian->name, 0, 1)) }}
-                                                </span>
-                                                <div class="min-w-0">
-                                                    <p class="font-medium text-gray-900 truncate">
-                                                        {{ $item->kepalaBagian->name }}</p>
-                                                    <p class="text-xs text-gray-500 truncate">
-                                                        {{ $item->kepalaBagian->email }}</p>
-                                                </div>
-                                            </div>
-                                        @else
-                                            <span
-                                                class="inline-flex items-center gap-1 text-[11px] font-medium px-2 py-0.5 rounded-full bg-amber-50 text-amber-700">
-                                                <span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
-                                                Belum ditentukan
-                                            </span>
-                                        @endif
-                                    </td>
-
-                                    <td class="py-3.5 px-5 text-center text-gray-700">{{ $item->pegawai_count }}</td>
-
-                                    <td class="py-3.5 px-5">
-                                        <div class="flex items-center justify-end gap-2 relative">
-                                            <x-dropdown-action>
-                                                <a href="{{ route('admin.bagian.edit', $item) }}"
-                                                    class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors">
-                                                    Edit
-                                                </a>
-                                                <form method="POST"
-                                                    action="{{ route('admin.bagian.destroy', $item) }}">
-                                                    @csrf @method('DELETE')
-                                                    <button type="submit"
-                                                        data-confirm="Hapus tim {{ $item->nama_bagian }}? Tindakan ini tidak bisa dibatalkan."
-                                                        class="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors">
-                                                        Hapus
-                                                    </button>
-                                                </form>
-                                            </x-dropdown-action>
-                                        </div>
-                                    </td>
-                                </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
+                <div class="flex items-center justify-between border-b border-gray-100 bg-gray-50/70 px-4 py-2 text-xs text-gray-500">
+                    <span><span class="font-semibold tabular-nums text-gray-700">{{ $bagian->total() }}</span> tim</span>
+                    <span class="hidden items-center gap-4 text-[11px] font-semibold uppercase tracking-wide text-gray-400 md:flex">
+                        <span class="w-60">Ketua tim</span><span class="w-24">Pegawai</span><span class="w-10"></span>
+                    </span>
                 </div>
 
+                <ul class="divide-y divide-gray-100">
+                    @foreach ($bagian as $i => $item)
+                        <li class="animate-in group flex flex-wrap items-center gap-x-4 gap-y-2.5 px-4 py-3.5 transition-colors hover:bg-blue-50/40 md:flex-nowrap motion-reduce:transition-none"
+                            style="animation-delay: {{ 0.32 + min($i, 10) * 0.035 }}s">
+
+                            {{-- Tim --}}
+                            <div class="order-1 flex min-w-0 flex-1 items-center gap-3 md:order-none">
+                                <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#DCE6F1] text-[#1F3864] transition-transform duration-200 group-hover:scale-105 motion-reduce:transition-none">
+                                    <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6"><path stroke-linecap="round" stroke-linejoin="round" d="{{ $ikon['tim'] }}" /></svg>
+                                </span>
+                                <div class="min-w-0">
+                                    <p class="truncate text-sm font-semibold text-gray-900">{{ $item->nama_bagian }}</p>
+                                    <span class="mt-0.5 inline-flex rounded-md bg-gray-100 px-1.5 py-0.5 font-mono text-[11px] text-gray-600">{{ $item->kode_bagian }}</span>
+                                </div>
+                            </div>
+
+                            {{-- Ketua dan jumlah pegawai --}}
+                            <div class="order-3 flex w-full flex-wrap items-center gap-x-4 gap-y-2 md:order-none md:contents">
+                                <div class="min-w-0 md:w-60">
+                                    @if ($item->kepalaBagian)
+                                        <div class="flex items-center gap-2.5">
+                                            <span class="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-emerald-50 text-[11px] font-semibold text-emerald-700 ring-1 ring-inset ring-emerald-600/20">
+                                                {{ strtoupper(substr($item->kepalaBagian->name, 0, 1)) }}
+                                            </span>
+                                            <div class="min-w-0">
+                                                <p class="truncate text-sm font-medium text-gray-800">{{ $item->kepalaBagian->name }}</p>
+                                                <p class="truncate text-xs text-gray-500">{{ $item->kepalaBagian->email }}</p>
+                                            </div>
+                                        </div>
+                                    @else
+                                        <span class="inline-flex items-center gap-1.5 rounded-full bg-amber-50 px-2.5 py-1 text-[11px] font-medium text-amber-700 ring-1 ring-inset ring-amber-600/20">
+                                            <span class="h-1.5 w-1.5 rounded-full bg-amber-500"></span>Belum ditentukan
+                                        </span>
+                                    @endif
+                                </div>
+
+                                <span class="inline-flex w-fit items-center gap-1.5 rounded-full bg-gray-100 px-2.5 py-1 text-xs font-medium tabular-nums text-gray-700 md:w-24 md:justify-center">
+                                    <svg class="h-3.5 w-3.5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="{{ $ikon['pegawai'] }}" /></svg>
+                                    {{ $item->pegawai_count }}
+                                </span>
+                            </div>
+
+                            {{-- Aksi --}}
+                            <div class="order-2 flex shrink-0 justify-end md:order-none md:w-10">
+                                <x-dropdown-action>
+                                    <a href="{{ route('admin.bagian.edit', $item) }}"
+                                        class="block px-4 py-2 text-sm text-gray-700 transition-colors hover:bg-gray-100">Edit</a>
+                                    <form method="POST" action="{{ route('admin.bagian.destroy', $item) }}">
+                                        @csrf @method('DELETE')
+                                        <button type="submit"
+                                            data-confirm="Hapus tim {{ $item->nama_bagian }}? Tindakan ini tidak bisa dibatalkan."
+                                            class="w-full px-4 py-2 text-left text-sm text-red-600 transition-colors hover:bg-red-50">
+                                            Hapus
+                                        </button>
+                                    </form>
+                                </x-dropdown-action>
+                            </div>
+                        </li>
+                    @endforeach
+                </ul>
+
                 @if ($bagian->hasPages())
-                    <div class="border-t border-gray-100 px-5 py-3">
-                        {{ $bagian->links() }}
-                    </div>
+                    <div class="border-t border-gray-100 px-4 py-3">{{ $bagian->links() }}</div>
                 @endif
             @endif
         </div>
-
     </div>
 </x-app-layout>

@@ -3,9 +3,11 @@
 namespace App\Http\Controllers\KepalaBPS;
 
 use App\Exports\RekapKinerjaExcel;
+use App\Exports\RekapPekerjaanExcel;
 use App\Http\Controllers\Controller;
 use App\Models\Bagian;
 use App\Services\RekapKinerjaService;
+use App\Services\RekapPekerjaanService;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -51,9 +53,36 @@ class RekapController extends Controller
 
         return [$bulan, $tahun, $bagianId];
     }
-
-    private function namaFile(int $bulan, int $tahun, string $ekstensi): string
+    public function pekerjaan(Request $request, RekapPekerjaanService $service): View
     {
-        return sprintf('rekap-kinerja-%d-%02d.%s', $tahun, $bulan, $ekstensi);
+        [$bulan, $tahun, $bagianId] = $this->parameter($request);
+
+        $rekap = $service->hitung($bulan, $tahun, $bagianId);
+        $daftarBagian = Bagian::orderBy('nama_bagian')->get(['id', 'nama_bagian']);
+
+        return view('rekap.pekerjaan', compact('rekap', 'daftarBagian', 'bulan', 'tahun', 'bagianId'));
+    }
+
+    public function pekerjaanPdf(Request $request, RekapPekerjaanService $service): Response
+    {
+        [$bulan, $tahun, $bagianId] = $this->parameter($request);
+        $rekap = $service->hitung($bulan, $tahun, $bagianId);
+
+        return Pdf::loadView('rekap.pekerjaan-pdf', ['rekap' => $rekap])
+            ->setPaper('a4', 'landscape')
+            ->download($this->namaFile($bulan, $tahun, 'pdf', 'rekap-pekerjaan'));
+    }
+
+    public function pekerjaanExcel(Request $request, RekapPekerjaanService $service): StreamedResponse
+    {
+        [$bulan, $tahun, $bagianId] = $this->parameter($request);
+        $rekap = $service->hitung($bulan, $tahun, $bagianId);
+
+        return (new RekapPekerjaanExcel())->unduh($rekap, $this->namaFile($bulan, $tahun, 'xlsx', 'rekap-pekerjaan'));
+    }
+
+    private function namaFile(int $bulan, int $tahun, string $ekstensi, string $awalan = 'rekap-kinerja'): string
+    {
+        return sprintf('%s-%d-%02d.%s', $awalan, $tahun, $bulan, $ekstensi);
     }
 }

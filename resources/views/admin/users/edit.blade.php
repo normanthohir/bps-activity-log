@@ -1,138 +1,48 @@
-{{-- resources/views/admin/users/edit.blade.php --}}
 <x-app-layout>
-    <div class="max-w-xxl mx-auto py-8 px-4 sm:px-6 lg:px-8">
-
-        {{-- Header --}}
-        <div class="mb-6">
-            <h1 class="text-xl font-semibold text-gray-900">Edit Akun: {{ $user->name }}</h1>
-            <p class="text-sm text-gray-500 mt-0.5">Perbarui informasi akun pegawai.</p>
-        </div>
-
-        {{-- Form card --}}
-        <div class="bg-white rounded-xl border border-gray-200 overflow-hidden"
-             x-data="{
-                 errors: {},
-                 name: '{{ old('name', $user->name) }}',
-                 nip: '{{ old('nip', $user->nip) }}',
-                 email: '{{ old('email', $user->email) }}',
-                 role: '{{ old('role', in_array($user->role, ['admin','kepala_bps']) ? $user->role : 'staf') }}',
-                 validate() {
-                     this.errors = {};
-                     if (!this.name.trim()) this.errors.name = 'Nama wajib diisi.';
-                     if (this.name.length > 255) this.errors.name = 'Nama maksimal 255 karakter.';
-                     if (!this.nip.trim()) this.errors.nip = 'NIP wajib diisi.';
-                     if (this.nip.length > 20) this.errors.nip = 'NIP maksimal 20 karakter.';
-                     if (!this.email.trim()) this.errors.email = 'Email wajib diisi.';
-                     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(this.email)) this.errors.email = 'Format email tidak valid.';
-                     return Object.keys(this.errors).length === 0;
-                 },
-                 submit() {
-                     if (this.validate()) {
-                         this.$refs.form.submit();
-                     }
-                 }
-             }">
-            <form method="POST" action="{{ route('admin.users.update', $user) }}" class="p-6" x-ref="form" @submit.prevent="submit" novalidate>
-                @csrf
-                @method('PUT')
-
-                <div class="mb-4">
-                    <label class="text-sm font-medium text-gray-700 block mb-1.5">Nama Lengkap <span class="text-red-500">*</span></label>
-                    <input type="text" name="name" x-model="name"
-                           class="w-full rounded-lg text-sm focus:ring-[#1F3864]/20 focus:border-[#1F3864]"
-                           :class="errors.name ? 'border-red-500' : 'border-gray-300'">
-                    <template x-if="errors.name">
-                        <p class="text-xs text-red-600 mt-1" x-text="errors.name"></p>
-                    </template>
-                </div>
-
-                <div class="mb-4">
-                    <label class="text-sm font-medium text-gray-700 block mb-1.5">NIP <span class="text-red-500">*</span></label>
-                    <input type="text" name="nip" x-model="nip"
-                           class="w-full rounded-lg text-sm focus:ring-[#1F3864]/20 focus:border-[#1F3864]"
-                           :class="errors.nip ? 'border-red-500' : 'border-gray-300'">
-                    <template x-if="errors.nip">
-                        <p class="text-xs text-red-600 mt-1" x-text="errors.nip"></p>
-                    </template>
-                </div>
-
-                <div class="mb-4">
-                    <label class="text-sm font-medium text-gray-700 block mb-1.5">Email <span class="text-red-500">*</span></label>
-                    <input type="email" name="email" x-model="email"
-                           class="w-full rounded-lg text-sm focus:ring-[#1F3864]/20 focus:border-[#1F3864]"
-                           :class="errors.email ? 'border-red-500' : 'border-gray-300'">
-                    <template x-if="errors.email">
-                        <p class="text-xs text-red-600 mt-1" x-text="errors.email"></p>
-                    </template>
-                </div>
-
-                {{-- Hak akses khusus --}}
-                <details class="mb-4 rounded-lg border border-slate-200 px-4 py-3 bg-slate-50">
-                    <summary class="cursor-pointer text-sm font-medium text-slate-700">Hak sistem khusus (opsional)</summary>
-                    <p class="text-xs text-slate-500 mt-2 mb-2">Akun pegawai biasa tidak perlu memilih jenis akun. Hak sebagai anggota atau ketua tim mengikuti centang keanggotaan di bawah dan dapat dipilih setelah login.</p>
-                    <label class="text-sm font-medium text-gray-700 block mb-1.5">Akses sistem</label>
-                    <select name="role" x-model="role" class="w-full rounded-lg border-gray-300 text-sm">
-                        <option value="staf">Pegawai biasa (standar)</option>
-                        <option value="kepala_bps">Kepala BPS Kota</option>
-                        <option value="admin">Admin sistem</option>
-                    </select>
-                    @error('role') <p class="text-xs text-red-600 mt-1">{{ $message }}</p> @enderror
-                </details>
-
-                {{-- Anggota Tim --}}
-                <div class="mb-5 rounded-lg border border-indigo-100 bg-indigo-50 p-4">
-                    <label class="block text-sm font-semibold text-gray-800 mb-2">Sebagai anggota tim (bisa banyak)</label>
-                    <p class="text-xs text-gray-600 mb-3">Centang semua tim tempat pegawai menjadi anggota. Tim yang dipimpin tetap dapat dicentang juga.</p>
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                        @foreach($daftarBagian as $tim)
-                            <label class="flex items-center gap-2 text-sm">
-                                <input type="checkbox" name="bagian_ids[]" value="{{ $tim->id }}"
-                                @checked(in_array($tim->id, old('bagian_ids', $user->tim->pluck('id')->all()))) class="rounded border-slate-300">
-                                {{ $tim->nama_bagian }}
-                            </label>
-                        @endforeach
+    <div class="max-w-3xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
+        @include('admin.users.partials.form-akun', [
+            'akun' => $user,
+            'action' => route('admin.users.update', $user),
+            'judul' => 'Edit Akun: ' . $user->name,
+            'deskripsi' => 'Perbarui informasi akun pegawai.',
+            'tombol' => 'Simpan Perubahan',
+        ])
+        @if ($user->id !== auth()->id())
+            <div class="animate-in delay-2 mt-5 overflow-hidden rounded-2xl border border-amber-200 bg-white">
+                <div class="flex flex-col gap-4 p-5 sm:flex-row sm:items-center sm:justify-between sm:p-6">
+                    <div class="flex items-start gap-3">
+                        <span
+                            class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-amber-50 text-amber-600">
+                            <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.7">
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                    d="M16.5 10.5V6.75a4.5 4.5 0 1 0-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H6.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25Z" />
+                            </svg>
+                        </span>
+                        <div>
+                            <h2 class="text-sm font-semibold text-gray-900">Reset password</h2>
+                            <p class="mt-0.5 text-xs text-gray-500">
+                                Mengembalikan password {{ $user->name }} ke default (<strong>password</strong>).
+                                Berlaku untuk semua jenis akun. Beri tahu pegawai agar segera mengubahnya.
+                            </p>
+                        </div>
                     </div>
-                </div>
 
-                {{-- Ketua Tim --}}
-                <div class="mb-5 rounded-lg border border-emerald-100 bg-emerald-50 p-4">
-                    <label class="block text-sm font-semibold text-gray-800 mb-2">Sebagai Ketua Tim (bisa banyak)</label>
-                    <p class="text-xs text-gray-600 mb-3">Peran ini khusus untuk tim yang dicentang. Pegawai yang sama tetap bisa menjadi anggota biasa pada tim lain.</p>
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                        @foreach($daftarBagian as $tim)
-                            <label class="flex items-center gap-2 text-sm">
-                                <input type="checkbox" name="ketua_tim_ids[]" value="{{ $tim->id }}"
-                                @checked(in_array($tim->id, old('ketua_tim_ids', $ketuaTimIds))) class="rounded border-slate-300">
-                                {{ $tim->nama_bagian }}
-                            </label>
-                        @endforeach
-                    </div>
+                    <form method="POST" action="{{ route('admin.users.reset-password', $user) }}" class="shrink-0">
+                        @csrf
+                        <button type="button"
+                            data-confirm="Password {{ $user->name }} akan dikembalikan ke default (password)."
+                            data-confirm-ok="Ya, reset"
+                            class="inline-flex w-full items-center justify-center gap-2 rounded-lg border border-amber-300 bg-amber-50 px-4 py-2.5 text-sm font-semibold text-amber-800 transition hover:-translate-y-0.5 hover:bg-amber-100 active:scale-95 motion-reduce:transition-none sm:w-auto">
+                            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+                                stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                    d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99" />
+                            </svg>
+                            Reset ke default
+                        </button>
+                    </form>
                 </div>
-
-                {{-- Atasan Langsung --}}
-                <div class="mb-6">
-                    <label class="text-sm font-medium text-gray-700 block mb-1.5">Atasan Langsung</label>
-                    <select name="atasan_id" class="w-full rounded-lg border-gray-300 text-sm focus:ring-[#1F3864]/20 focus:border-[#1F3864]">
-                        <option value="">- Tidak ada -</option>
-                        @foreach ($calonAtasan as $atasan)
-                            <option value="{{ $atasan->id }}" @selected(old('atasan_id', $user->atasan_id) == $atasan->id)>
-                                {{ $atasan->name }} ({{ ucwords(str_replace('_',' ',$atasan->role)) }})
-                            </option>
-                        @endforeach
-                    </select>
-                    @error('atasan_id') <p class="text-xs text-red-600 mt-1">{{ $message }}</p> @enderror
-                </div>
-
-                {{-- Tombol Aksi --}}
-                <div class="flex items-center justify-end gap-3 pt-4 border-t border-gray-100">
-                    <a href="{{ route('admin.users.index') }}" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50">
-                        Batal
-                    </a>
-                    <button type="submit" class="px-4 py-2 text-sm font-medium text-white bg-[#1F3864] rounded-lg hover:bg-[#1F3864]/90">
-                        Simpan Perubahan
-                    </button>
-                </div>
-            </form>
-        </div>
+            </div>
+        @endif
     </div>
 </x-app-layout>

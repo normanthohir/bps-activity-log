@@ -94,11 +94,13 @@
                     </div>
                 </section>
             </template>
-            <x-loading-overlay message="Menyimpan..." />
             <div class="flex flex-wrap justify-between gap-3">
-                <button type="button" class="border border-blue-700 text-blue-700 rounded-lg px-4 py-2 text-sm"
+                <x-submit-button type="submit" onclick="submit()" @click="rows.push({input:'',proses:'',output:'',sumber_input:'sebelumnya',durasi_hari:1})">
+                    Tambah langkah
+                </x-submit-button>
+                {{-- <button type="button" class="border border-blue-700 text-blue-700 rounded-lg px-4 py-2 text-sm"
                     @click="rows.push({input:'',proses:'',output:'',sumber_input:'sebelumnya',durasi_hari:1})">+ Tambah
-                    langkah</button>
+                    langkah</button> --}}
                 <div class="flex gap-2"><a href="{{ route('sop.index') }}"
                         class="px-4 py-2 border rounded-lg">Batal</a>
                     <button class="bg-[#1F3864] text-white rounded-lg px-5 py-2">Simpan SOP</button>

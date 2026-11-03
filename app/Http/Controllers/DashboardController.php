@@ -9,6 +9,7 @@ use App\Models\User;
 use App\Support\KalenderPekerjaan;
 use App\Support\LingkupLaporanTim;
 use App\Support\ModeKerja;
+use App\Support\PengingatLaporan;
 use Carbon\CarbonPeriod;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -24,6 +25,7 @@ class DashboardController extends Controller
         if (ModeKerja::ketuaAktif($user)) {
             return $this->kabag($request);
         }
+
 
         return match ($user->role) {
             'staf', 'kepala_bagian' => view('dashboard.staf', $this->dataAnggota($request)),
@@ -147,6 +149,8 @@ class DashboardController extends Controller
         $awal = now()->startOfMonth()->toDateString();
         $akhir = now()->endOfMonth()->toDateString();
         $hariIni = today()->toDateString();
+        $pengingatLaporan = PengingatLaporan::untuk($user);
+        $pekerjaanTerlambat = PengingatLaporan::terlambat($user);
 
         $hariKerja = collect(CarbonPeriod::create($awal, $hariIni))
             ->reject(fn($h) => $h->isWeekend())->count();
@@ -164,6 +168,8 @@ class DashboardController extends Controller
                 ->where('status', '!=', 'draft')->exists(),
             'hariLapor' => $hariLapor,
             'hariKerja' => $hariKerja,
+            'pengingatLaporan' => $pengingatLaporan,
+            'pekerjaanTerlambat' => $pekerjaanTerlambat,
 
             'tugasAktif' => $user->tugasDiterima()->where('status', '!=', 'selesai')->count(),
             'menungguApproval' => $user->laporanHarian()->where('status', 'menunggu')->count(),

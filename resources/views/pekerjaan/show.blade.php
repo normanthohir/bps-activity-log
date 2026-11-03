@@ -137,7 +137,8 @@
         @endif
         @if ($tugas->ditugaskan_ke === auth()->id() || auth()->user()->isKepalaBps() || auth()->user()->isAdmin())
             <form action="{{ route('pekerjaan.update', $tugas) }}" enctype="multipart/form-data" method="POST"
-                class="bg-white p-5 border rounded-xl space-y-3">@csrf @method('PATCH')<h2 class="font-bold">Perbarui
+                x-data="{ loading: false }" @submit="loading = true" class="bg-white p-5 border rounded-xl space-y-3">@csrf
+                @method('PATCH')<h2 class="font-bold">Perbarui
                     progres & hasil pekerjaan</h2>
                 <div><label class="block text-sm mb-1">Status</label><select class="rounded-lg border-slate-300 w-full"
                         name="status">
@@ -154,7 +155,11 @@
                         name="file_output"></div>
                 <p class="text-xs text-slate-500">Pekerjaan dari output lain harus menunggu sumber selesai; penyelesaian
                     induk menunggu semua disposisi selesai.</p>
-                <button class="bg-[#1F3864] text-white px-4 py-2 text-sm rounded-lg">Simpan progres</button>
+
+                <x-submit-button type="submit" onclick="submit()" >
+                    Simpan progres
+                </x-submit-button>
+              
             </form>
         @endif
         <section class="bg-white border p-5 rounded-xl">
