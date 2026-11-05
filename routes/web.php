@@ -139,10 +139,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('rekap-kantor/pekerjaan/export-pdf', [RekapController::class, 'pekerjaanPdf'])->name('rekap.pekerjaan.export-pdf');
         Route::get('rekap-kantor/pekerjaan/export-excel', [RekapController::class, 'pekerjaanExcel'])->name('rekap.pekerjaan.export-excel');
 
-        // Route::resource('penugasan', KepalaBpsTugasController::class)
-        //     ->only(['index', 'create', 'store', 'show', 'edit', 'update', 'destroy'])
-        //     ->parameters(['penugasan' => 'tugas'])
-        //     ->names('tugas');
         Route::get('persetujuan-kantor', [ApprovalController::class, 'index'])->name('approval.index');
         Route::get('persetujuan-kantor/{laporan}', [ApprovalController::class, 'show'])->name('approval.show');
         Route::post('persetujuan-kantor/{laporan}', [ApprovalController::class, 'proses'])->name('approval.proses');
