@@ -500,7 +500,7 @@
                                         ],
                                     };
                                 @endphp
-                                <a href="{{ route('kabag.tugas.show', $tugas) }}"
+                                <a href="{{ route('pekerjaan.show', $tugas) }}"
                                     class="fx group flex items-center justify-between gap-3 px-5 py-3.5 hover:bg-blue-50/40 transition-colors"
                                     style="--d:{{ 0.75 + $i * 0.05 }}s">
                                     <div class="min-w-0">

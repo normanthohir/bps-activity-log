@@ -83,15 +83,15 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('laporan/{laporan}/revisi', [LaporanController::class, 'edit'])->name('laporan.edit');
         Route::resource('laporan', LaporanController::class)
             ->only(['index', 'store', 'show', 'update', 'destroy']);
-        Route::get('tugas-saya', [StafTugasController::class, 'index'])->name('staf.tugas.index');
-        Route::get('tugas-saya/{tugas}', [StafTugasController::class, 'show'])->name('staf.tugas.show');
-        Route::patch('tugas-saya/{tugas}', [StafTugasController::class, 'update'])->name('staf.tugas.update');
+        // Route::get('tugas-saya', [StafTugasController::class, 'index'])->name('staf.tugas.index');
+        // Route::get('tugas-saya/{tugas}', [StafTugasController::class, 'show'])->name('staf.tugas.show');
+        // Route::patch('tugas-saya/{tugas}', [StafTugasController::class, 'update'])->name('staf.tugas.update');
 
         // Peninggalan versi lama (tugas.index / tugas.show).
         // Hapus kalau pencarian  grep -rn "route('tugas\." app resources  tidak menemukan apa pun.
-        Route::resource('tugas', StafTugasController::class)
-            ->only(['index', 'show'])
-            ->parameters(['tugas' => 'tugas']);
+        // Route::resource('tugas', StafTugasController::class)
+        //     ->only(['index', 'show'])
+        //     ->parameters(['tugas' => 'tugas']);
     });
 
     /*
@@ -103,15 +103,15 @@ Route::middleware(['auth', 'verified'])->group(function () {
         // Route::get('dashboard/tim', [DashboardController::class, 'kabag'])->name('dashboard');
 
         // Kunci parameters harus sama persis dengan nama resource (memakai tanda hubung)
-        Route::resource('tugas-tim', KabagTugasController::class)
-            ->only(['index', 'create', 'store', 'show', 'edit', 'update', 'destroy'])
-            ->parameters(['tugas-tim' => 'tugas'])
-            ->names('tugas');
+        // Route::resource('tugas-tim', KabagTugasController::class)
+        //     ->only(['index', 'create', 'store', 'show', 'edit', 'update', 'destroy'])
+        //     ->parameters(['tugas-tim' => 'tugas'])
+        //     ->names('tugas');
 
-        Route::resource('tugas-aktif', TugasAktifController::class)
-            ->only(['index', 'show'])
-            ->parameters(['tugas-aktif' => 'tugas'])
-            ->names('tugas-aktif');
+        // Route::resource('tugas-aktif', TugasAktifController::class)
+        //     ->only(['index', 'show'])
+        //     ->parameters(['tugas-aktif' => 'tugas'])
+        //     ->names('tugas-aktif');
 
         Route::resource('laporan-tim', LaporanController::class)
             ->only(['index', 'create', 'store', 'show', 'update', 'destroy'])

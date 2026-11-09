@@ -17,8 +17,16 @@ class ModeKerja
             return false;
         }
 
+        $request = request();
         // Jangan pernah memakai input request/cookie sebagai penentu hak akses.
-        return request()->hasSession() && request()->session()->get('mode_kerja') === self::KETUA;
+        // return request()->hasSession() && request()->session()->get('mode_kerja') === self::KETUA;
+        // Web: tetap pakai session
+        if ($request->hasSession()) {
+            return $request->session()->get('mode_kerja') === self::KETUA;
+        }
+
+        // API (token Sanctum): pakai header dari aplikasi
+        return $request->header('X-Mode-Kerja') === self::KETUA;
     }
 
     public static function anggotaAktif(User $user): bool

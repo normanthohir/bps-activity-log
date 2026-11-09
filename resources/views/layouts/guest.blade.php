@@ -90,7 +90,7 @@
                         <img src="{{ asset('images/bps.svg') }}" alt="Logo BPS" class="h-12 w-12 brightness-0 invert">
                     </span>
                     <h1 class="text-lg font-semibold tracking-tight text-white">RAPI - BPS Kota Ambon</h1>
-                    <p class="mt-1 text-sm text-white/60">Daily Activity Reporting System</p>
+                    <p class="mt-1 text-sm text-white/60">Sistem Pelaporan Aktivitas Harian</p>
                     <span
                         class="absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-white/30 to-transparent"></span>
                 </div>
