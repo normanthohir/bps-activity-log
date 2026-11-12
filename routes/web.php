@@ -16,7 +16,6 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\SopController;
 use App\Http\Controllers\SopDelegasiController;
 use App\Http\Controllers\Staf\LaporanController;
-use App\Http\Controllers\Staf\TugasController as StafTugasController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', fn() => redirect()->route('login'));

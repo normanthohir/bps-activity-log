@@ -4,6 +4,7 @@ use App\Http\Controllers\API\AuthController;
 use App\Http\Controllers\API\DashboardApiController;
 use App\Http\Controllers\API\KalenderApiController;
 use App\Http\Controllers\API\MenuApiController;
+use App\Http\Controllers\API\NotifikasiApiController;
 use App\Http\Controllers\API\PekerjaanApiController;
 use Illuminate\Support\Facades\Route;
 
@@ -42,6 +43,7 @@ Route::middleware(['auth:sanctum', 'verified'])->name('api.')->group(function ()
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
     Route::get('/menu', [MenuApiController::class, 'index'])->name('menu');
+    Route::get('/notifikasi', [NotifikasiApiController::class, 'index']);
 
     Route::get('/kalender', [KalenderApiController::class, 'index'])->name('kalender');
     // Dashboard: jenis otomatis (anggota | ketua | kepala_bps | admin)
