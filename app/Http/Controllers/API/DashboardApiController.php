@@ -90,6 +90,7 @@ class DashboardApiController extends Controller
             ->distinct()->count('tanggal');
 
         return [
+            'bagian' => $user->bagian,
             'kalender' => KalenderPekerjaan::buat($request),
             'tim_dipimpin' => $user->timDipimpin()
                 ->orderBy('kode_bagian')->orderBy('nama_bagian')

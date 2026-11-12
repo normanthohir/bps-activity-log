@@ -322,39 +322,6 @@
             </p>
         </div>
 
-        {{-- Perlu tindakan --}}
-        @if ($menungguApproval > 0 || $tugasTerlambat > 0)
-            <div class="fx mb-5 rounded-2xl border border-amber-200 bg-gradient-to-r from-amber-50 to-orange-50 p-4"
-                style="--d:.1s">
-                <div class="flex items-center gap-2 mb-2">
-                    <span class="w-7 h-7 rounded-lg bg-amber-400 text-white flex items-center justify-center ping">
-                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                            <path stroke-linecap="round" stroke-linejoin="round"
-                                d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
-                        </svg>
-                    </span>
-                    <p class="text-sm font-semibold text-amber-900">Perlu tindakan Anda</p>
-                </div>
-                <ul class="space-y-1.5 text-sm">
-                    @if ($menungguApproval > 0)
-                        <li class="group flex flex-wrap items-center justify-between gap-2">
-                            <span class="text-amber-900"><b>{{ $menungguApproval }}</b> laporan tim menunggu
-                                persetujuan.</span>
-                            <a href="{{ route('kabag.approval.index', ['status' => 'menunggu']) }}"
-                                class="text-xs font-semibold text-amber-800 hover:underline">Proses sekarang →</a>
-                        </li>
-                    @endif
-                    @if ($tugasTerlambat > 0)
-                        <li class="group flex flex-wrap items-center justify-between gap-2">
-                            <span class="text-amber-900"><b>{{ $tugasTerlambat }}</b> pekerjaan tim sudah melewati
-                                tenggat.</span>
-                            <a href="{{ route('pekerjaan.index', ['terlambat' => 1]) }}"
-                                class="text-xs font-semibold text-amber-800 hover:underline">Lihat pekerjaan →</a>
-                        </li>
-                    @endif
-                </ul>
-            </div>
-        @endif
 
         {{-- Statistik --}}
         <div class="fx flex items-center justify-between mb-3" style="--d:.15s">
