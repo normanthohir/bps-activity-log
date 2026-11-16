@@ -21,7 +21,9 @@ class NotifLonceng
             $user->isAdmin() => self::admin(),
             $user->isKepalaBps() => self::kepalaBps(),
             $user->role === 'kepala_bagian' && ModeKerja::ketuaAktif($user) => self::ketuaUntuk($user),
-            default => $anggota ? self::anggota($anggota) : null,
+            in_array($user->role, ['staf', 'kepala_bagian'], true)
+            => $anggota ? self::anggota($anggota) : self::anggotaUntuk($user),
+            default => null,
         };
     }
 
@@ -186,6 +188,27 @@ class NotifLonceng
             'groups' => $groups,
         ];
     }
+
+    /** Anggota & Kepala Tim (mode anggota): hitung sendiri, tanpa view composer. */
+public static function anggotaUntuk($user): array
+{
+    $dikembalikan = $user->laporanHarian()
+        ->where('status', 'dikembalikan')
+        ->with('logApproval')
+        ->latest('tanggal')
+        ->get();
+
+    $terlambat = collect(PengingatLaporan::terlambat($user));
+    $belum = collect(PengingatLaporan::untuk($user));
+
+    return self::anggota([
+        'total' => $dikembalikan->count() + $terlambat->count() + $belum->count(),
+        'mendesak' => $dikembalikan->count() + $terlambat->count(),
+        'dikembalikan' => $dikembalikan,
+        'terlambat' => $terlambat,
+        'belum' => $belum,
+    ]);
+}
 
     /** Admin — kerangka, isi sesuai kebutuhan. */
     public static function admin(): ?array

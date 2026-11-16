@@ -13,6 +13,12 @@ class Tugas extends Model
     use HasFactory, HasSqid;
 
     protected $table = 'tugas';
+    // Sertakan sqid di setiap JSON (daftar, detail, induk, disposisi, sumber output)
+    protected $appends = ['sqid'];
+    public function getSqidAttribute(): string
+    {
+        return $this->getRouteKey();
+    }
 
     protected $fillable = [
         'dibuat_oleh',
@@ -22,10 +28,21 @@ class Tugas extends Model
         'deskripsi',
         'tenggat',
         'status',
-        'induk_tugas_id', 'input_tugas_id', 'sop_pelaksanaan_id', 'sop_langkah_id', 'kamus_kerja_id',
-        'tanggal_mulai', 'jenis_input', 'uraian_input', 'nomor_surat',
-        'asal_surat', 'tanggal_surat', 'file_input', 'output_rencana',
-        'output_realisasi', 'file_output',
+        'induk_tugas_id',
+        'input_tugas_id',
+        'sop_pelaksanaan_id',
+        'sop_langkah_id',
+        'kamus_kerja_id',
+        'tanggal_mulai',
+        'jenis_input',
+        'uraian_input',
+        'nomor_surat',
+        'asal_surat',
+        'tanggal_surat',
+        'file_input',
+        'output_rencana',
+        'output_realisasi',
+        'file_output',
     ];
 
     protected function casts(): array
@@ -70,13 +87,34 @@ class Tugas extends Model
         return $this->inputDariTugas ? collect([$this->inputDariTugas]) : collect();
     }
 
-    public function induk() { return $this->belongsTo(self::class, 'induk_tugas_id'); }
-    public function disposisi() { return $this->hasMany(self::class, 'induk_tugas_id'); }
-    public function inputDariTugas() { return $this->belongsTo(self::class, 'input_tugas_id'); }
-    public function dipakaiSebagaiInput() { return $this->hasMany(self::class, 'input_tugas_id'); }
-    public function kamusKerja() { return $this->belongsTo(KamusKerja::class, 'kamus_kerja_id'); }
-    public function sopLangkah() { return $this->belongsTo(SopLangkah::class, 'sop_langkah_id'); }
-    public function sopPelaksanaan() { return $this->belongsTo(SopPelaksanaan::class, 'sop_pelaksanaan_id'); }
+    public function induk()
+    {
+        return $this->belongsTo(self::class, 'induk_tugas_id');
+    }
+    public function disposisi()
+    {
+        return $this->hasMany(self::class, 'induk_tugas_id');
+    }
+    public function inputDariTugas()
+    {
+        return $this->belongsTo(self::class, 'input_tugas_id');
+    }
+    public function dipakaiSebagaiInput()
+    {
+        return $this->hasMany(self::class, 'input_tugas_id');
+    }
+    public function kamusKerja()
+    {
+        return $this->belongsTo(KamusKerja::class, 'kamus_kerja_id');
+    }
+    public function sopLangkah()
+    {
+        return $this->belongsTo(SopLangkah::class, 'sop_langkah_id');
+    }
+    public function sopPelaksanaan()
+    {
+        return $this->belongsTo(SopPelaksanaan::class, 'sop_pelaksanaan_id');
+    }
 
     // ── Relasi ──────────────────────────────────────────
 

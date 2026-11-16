@@ -78,6 +78,7 @@ class KamusKerjaController extends Controller
         return view('kamus.edit', ['kamus' => $kamus, 'timPilihan' => $this->timPilihan($request)]);
     }
 
+
     public function update(Request $request, KamusKerja $kamus)
     {
         $this->bolehUbah($request, $kamus);
