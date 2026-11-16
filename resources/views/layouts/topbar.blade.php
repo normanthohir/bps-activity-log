@@ -14,7 +14,7 @@
 
     // Data lonceng disusun per peran. $notifAnggota dikirim oleh view composer;
     // mode ketua dihitung sendiri di NotifLonceng.
-    $notif = \App\Support\NotifLonceng::untuk($user, $notifAnggota ?? null);
+   $notif = \App\Support\NotifLonceng::untuk($user);
 @endphp
 
 <header class="sticky top-0 z-30 border-b border-gray-200/80 bg-white/80 backdrop-blur-md">

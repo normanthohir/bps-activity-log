@@ -2,10 +2,12 @@
 
 use App\Http\Controllers\API\AuthController;
 use App\Http\Controllers\API\DashboardApiController;
+use App\Http\Controllers\API\KamusKerjaApiController;
 use App\Http\Controllers\API\KalenderApiController;
 use App\Http\Controllers\API\MenuApiController;
 use App\Http\Controllers\API\NotifikasiApiController;
 use App\Http\Controllers\API\PekerjaanApiController;
+use App\Http\Controllers\Api\ProfilApiController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -22,8 +24,8 @@ use Illuminate\Support\Facades\Route;
 |  - Mode Ketua/Anggota dibaca dari header "X-Mode-Kerja" (bukan session).
 |  - Semua respons JSON. Kirim header "Accept: application/json".
 |
-| FASE 1 (aktif)         : auth, menu, mode, dashboard, pekerjaan
-| FASE 2-5 (dikomentari) : aktifkan blok-nya setelah controller dibuat.
+| FASE 1 (aktif)         : auth, menu, dashboard, pekerjaan
+| FASE 2 (sebagian aktif) : profil dan kamus kerja; mode/SOP menyusul
 |--------------------------------------------------------------------------
 */
 
@@ -65,7 +67,7 @@ Route::middleware(['auth:sanctum', 'verified'])->name('api.')->group(function ()
     /*
     |======================================================================
     | FASE 2 — Mode kerja, profil, kamus kerja, SOP
-    | Buat controller lalu hapus tanda komentar.
+    | Profil dan kamus kerja aktif; endpoint lain menyusul.
     |======================================================================
     */
 
@@ -75,18 +77,17 @@ Route::middleware(['auth:sanctum', 'verified'])->name('api.')->group(function ()
     // Route::post('/mode-kerja', [ModeKerjaApiController::class, 'ganti'])->name('mode-kerja.ganti');
 
     // // Profil
-    // Route::get('/profil', [ProfilApiController::class, 'show'])->name('profile.show');
-    // Route::patch('/profil', [ProfilApiController::class, 'update'])->name('profile.update');
-    // Route::put('/profil/password', [ProfilApiController::class, 'password'])->name('profile.password');
+    Route::get('/profil', [ProfilApiController::class, 'show'])->name('profile.show');
+    Route::patch('/profil', [ProfilApiController::class, 'update'])->name('profile.update');
+    Route::put('/profil/password', [ProfilApiController::class, 'password'])->name('profile.password');
 
-    // // Kamus Kerja (rute statis di atas {kamus})
-    // Route::get('/kamus-kerja', [KamusKerjaApiController::class, 'index'])->name('kamus.index');
-    // Route::post('/kamus-kerja', [KamusKerjaApiController::class, 'store'])->name('kamus.store');
-    // Route::get('/kamus-kerja/template-excel', [KamusExcelApiController::class, 'template'])->name('kamus.template-excel');
-    // Route::post('/kamus-kerja/import-excel', [KamusExcelApiController::class, 'import'])->name('kamus.import-excel');
-    // Route::get('/kamus-kerja/{kamus}', [KamusKerjaApiController::class, 'show'])->name('kamus.show');
-    // Route::patch('/kamus-kerja/{kamus}', [KamusKerjaApiController::class, 'update'])->name('kamus.update');
-    // Route::delete('/kamus-kerja/{kamus}', [KamusKerjaApiController::class, 'destroy'])->name('kamus.destroy');
+    // Kamus Kerja: menyesuaikan akses dan operasi KamusKerjaController.
+    Route::get('/kamus/referensi', [KamusKerjaApiController::class, 'create']);   // statis, di atas {kamus}
+    Route::get('/kamus', [KamusKerjaApiController::class, 'index']);
+    Route::post('/kamus', [KamusKerjaApiController::class, 'store']);
+    Route::get('/kamus/{kamus}', [KamusKerjaApiController::class, 'show']);
+    Route::patch('/kamus/{kamus}', [KamusKerjaApiController::class, 'update']);
+    Route::delete('/kamus/{kamus}', [KamusKerjaApiController::class, 'destroy']);
 
     // // SOP (rute statis dan yang lebih panjang di atas {sop})
     // Route::get('/sop', [SopApiController::class, 'index'])->name('sop.index');

@@ -15,13 +15,7 @@ class NotifikasiApiController extends Controller
     {
         $user = $request->user();
 
-        // $notifAnggota hanya dibutuhkan peran anggota / kepala tim (mode anggota)
-        $anggota = null;
-        if (! $user->isAdmin() && ! $user->isKepalaBps() && ! ModeKerja::ketuaAktif($user)) {
-            $anggota = NotifLonceng::untuk($user); // ← lihat langkah 3
-        }
-
-        $notif = NotifLonceng::untuk($user, $anggota);
+        $notif = NotifLonceng::untuk($request->user());
 
         if ($notif) {
             $notif['groups'] = collect($notif['groups'])->map(function ($g) {

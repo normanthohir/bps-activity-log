@@ -10,7 +10,13 @@ class KamusKerja extends Model
 {
     use HasSqid;
     protected $table = 'kamus_kerja';
+    
     protected $fillable = ['nama','input','proses','output','bagian_id','dibuat_oleh'];
+
+    public function getSqidAttribute(): string
+    {
+        return $this->getRouteKey();
+    }
 
     public function bagian() { return $this->belongsTo(Bagian::class, 'bagian_id'); }
     public function pembuat() { return $this->belongsTo(User::class, 'dibuat_oleh'); }
