@@ -2,12 +2,13 @@
 @php
     $user = auth()->user();
     $isStaf = $user->role === 'staf';
+    $modeAnggota = \App\Support\ModeKerja::anggotaAktif($user);
 
     // Route mengikuti role, supaya tombol tidak mengarah ke halaman yang dilarang
     $routeKembali = $isStaf ? 'staf.tugas.index' : 'kabag.tugas-aktif.index';
-    $routeBuat = $isStaf ? 'laporan.create' : 'kabag.laporan.create';
-    $routeEdit = $isStaf ? 'laporan.edit' : 'kabag.laporan.edit';
-    $routeLihat = $isStaf ? 'laporan.show' : 'kabag.laporan.show';
+    $routeBuat = 'laporan.create';
+    $routeEdit = 'laporan.edit';
+    $routeLihat = 'laporan.show';
 
     $belumDikerjakan = $tugas->status === 'belum_dikerjakan';
 
@@ -60,7 +61,7 @@
                 </div>
             </div>
 
-            @if ($belumDikerjakan)
+            @if ($belumDikerjakan && $modeAnggota)
                 <a href="{{ route($routeBuat, ['tugas' => $tugas->id]) }}"
                     class="inline-flex items-center gap-1.5 bg-[#1F3864] hover:bg-[#16294a] text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors self-start shrink-0">
                     <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -112,82 +113,84 @@
             @endif
         </div>
 
-        {{-- Riwayat laporan --}}
-        <div class="animate-in delay-3 bg-white rounded-xl border border-gray-200 overflow-hidden">
-            <div class="px-5 py-4 border-b border-gray-100">
-                <p class="text-xs font-semibold uppercase tracking-wide text-gray-400">Riwayat laporan saya</p>
-            </div>
-
-            @if ($tugas->laporanHarian->isEmpty())
-                <div class="text-center py-12 px-4">
-                    <svg class="w-10 h-10 mx-auto text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
-                        <path stroke-linecap="round" stroke-linejoin="round"
-                            d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z" />
-                    </svg>
-                    <p class="text-sm font-medium text-gray-900 mt-3">Belum ada laporan</p>
-                    <p class="text-sm text-gray-500 mt-1">Mulai buat laporan untuk tugas ini.</p>
+        @if ($modeAnggota)
+            {{-- Riwayat laporan --}}
+            <div class="animate-in delay-3 bg-white rounded-xl border border-gray-200 overflow-hidden">
+                <div class="px-5 py-4 border-b border-gray-100">
+                    <p class="text-xs font-semibold uppercase tracking-wide text-gray-400">Riwayat laporan saya</p>
                 </div>
-            @else
-                <div class="divide-y divide-gray-100">
-                    @foreach ($tugas->laporanHarian as $laporan)
-                        @php
-                            $outputGaya = match ($laporan->output) {
-                                'selesai' => 'bg-green-50 text-green-700',
-                                'gagal' => 'bg-red-50 text-red-700',
-                                'tertunda' => 'bg-amber-50 text-amber-700',
-                                default => 'bg-gray-100 text-gray-600',
-                            };
-                            $logTerakhir = $laporan->logApproval->last();
-                        @endphp
 
-                        <div class="px-5 py-4">
-                            <div class="flex flex-wrap justify-between items-center gap-2 mb-1.5">
-                                <p class="text-sm font-medium text-gray-900">{{ $laporan->tanggal->format('d M Y') }}</p>
-                                <x-status-badge :status="$laporan->status" />
-                            </div>
+                @if ($tugas->laporanHarian->isEmpty())
+                    <div class="text-center py-12 px-4">
+                        <svg class="w-10 h-10 mx-auto text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z" />
+                        </svg>
+                        <p class="text-sm font-medium text-gray-900 mt-3">Belum ada laporan</p>
+                        <p class="text-sm text-gray-500 mt-1">Mulai buat laporan untuk tugas ini.</p>
+                    </div>
+                @else
+                    <div class="divide-y divide-gray-100">
+                        @foreach ($tugas->laporanHarian as $laporan)
+                            @php
+                                $outputGaya = match ($laporan->output) {
+                                    'selesai' => 'bg-green-50 text-green-700',
+                                    'gagal' => 'bg-red-50 text-red-700',
+                                    'tertunda' => 'bg-amber-50 text-amber-700',
+                                    default => 'bg-gray-100 text-gray-600',
+                                };
+                                $logTerakhir = $laporan->logApproval->last();
+                            @endphp
 
-                            <p class="text-sm text-gray-600 leading-relaxed">{{ $laporan->uraian }}</p>
-
-                            {{-- Output + alasan --}}
-                            @if ($laporan->output)
-                                <div class="mt-2 flex flex-wrap items-start gap-x-2 gap-y-1">
-                                    <span class="inline-flex text-xs font-medium px-2 py-0.5 rounded-md {{ $outputGaya }}">
-                                        {{ ucfirst($laporan->output) }}
-                                    </span>
-                                    @if ($laporan->alasan)
-                                        <p class="text-xs text-gray-500 flex-1 min-w-[12rem]">Alasan: {{ $laporan->alasan }}</p>
-                                    @endif
+                            <div class="px-5 py-4">
+                                <div class="flex flex-wrap justify-between items-center gap-2 mb-1.5">
+                                    <p class="text-sm font-medium text-gray-900">{{ $laporan->tanggal->format('d M Y') }}</p>
+                                    <x-status-badge :status="$laporan->status" />
                                 </div>
-                            @endif
 
-                            {{-- Catatan penolakan + tombol revisi --}}
-                            @if ($laporan->status === 'dikembalikan')
-                                <div class="mt-2 bg-red-50 text-red-700 text-xs px-3 py-2 rounded-lg">
-                                    <span class="font-medium">Dikembalikan:</span>
-                                    {{ $logTerakhir?->catatan ?? '-' }}
-                                </div>
-                            @endif
+                                <p class="text-sm text-gray-600 leading-relaxed">{{ $laporan->uraian }}</p>
 
-                            <div class="flex flex-wrap items-center gap-x-4 gap-y-1 mt-2">
-                                <a href="{{ route($routeLihat, $laporan) }}"
-                                    class="inline-flex items-center gap-1 text-xs font-medium text-[#1F3864] hover:underline">
-                                    Lihat detail
-                                    <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-                                        <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
-                                    </svg>
-                                </a>
+                                {{-- Output + alasan --}}
+                                @if ($laporan->output)
+                                    <div class="mt-2 flex flex-wrap items-start gap-x-2 gap-y-1">
+                                        <span class="inline-flex text-xs font-medium px-2 py-0.5 rounded-md {{ $outputGaya }}">
+                                            {{ ucfirst($laporan->output) }}
+                                        </span>
+                                        @if ($laporan->alasan)
+                                            <p class="text-xs text-gray-500 flex-1 min-w-[12rem]">Alasan: {{ $laporan->alasan }}</p>
+                                        @endif
+                                    </div>
+                                @endif
 
-                                @can('update', $laporan)
-                                    <a href="{{ route($routeEdit, $laporan) }}"
-                                        class="text-xs font-medium {{ $laporan->status === 'dikembalikan' ? 'text-red-600' : 'text-gray-600' }} hover:underline">
-                                        {{ $laporan->status === 'dikembalikan' ? 'Revisi laporan ini' : 'Edit draft' }}
+                                {{-- Catatan penolakan + tombol revisi --}}
+                                @if ($laporan->status === 'dikembalikan')
+                                    <div class="mt-2 bg-red-50 text-red-700 text-xs px-3 py-2 rounded-lg">
+                                        <span class="font-medium">Dikembalikan:</span>
+                                        {{ $logTerakhir?->catatan ?? '-' }}
+                                    </div>
+                                @endif
+
+                                <div class="flex flex-wrap items-center gap-x-4 gap-y-1 mt-2">
+                                    <a href="{{ route($routeLihat, $laporan) }}"
+                                        class="inline-flex items-center gap-1 text-xs font-medium text-[#1F3864] hover:underline">
+                                        Lihat detail
+                                        <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+                                        </svg>
                                     </a>
-                                @endcan
+
+                                    @can('update', $laporan)
+                                        <a href="{{ route($routeEdit, $laporan) }}"
+                                            class="text-xs font-medium {{ $laporan->status === 'dikembalikan' ? 'text-red-600' : 'text-gray-600' }} hover:underline">
+                                            {{ $laporan->status === 'dikembalikan' ? 'Revisi laporan ini' : 'Edit draft' }}
+                                        </a>
+                                    @endcan
+                                </div>
                             </div>
-                        </div>
-                    @endforeach
-                </div>
-            @endif
-        </div>
+                        @endforeach
+                    </div>
+                @endif
+            </div>
+        @endif
     </div>
 </x-app-layout>

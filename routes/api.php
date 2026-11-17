@@ -1,9 +1,11 @@
 <?php
 
 use App\Http\Controllers\API\AuthController;
+use App\Http\Controllers\API\ApprovalApiController;
 use App\Http\Controllers\API\DashboardApiController;
 use App\Http\Controllers\API\KamusKerjaApiController;
 use App\Http\Controllers\API\KalenderApiController;
+use App\Http\Controllers\API\LaporanApiController;
 use App\Http\Controllers\API\MenuApiController;
 use App\Http\Controllers\API\NotifikasiApiController;
 use App\Http\Controllers\API\PekerjaanApiController;
@@ -25,7 +27,7 @@ use Illuminate\Support\Facades\Route;
 |  - Semua respons JSON. Kirim header "Accept: application/json".
 |
 | FASE 1 (aktif)         : auth, menu, dashboard, pekerjaan
-| FASE 2 (sebagian aktif) : profil dan kamus kerja; mode/SOP menyusul
+| FASE 2 (aktif)         : profil, kamus kerja, laporan, dan persetujuan
 |--------------------------------------------------------------------------
 */
 
@@ -67,7 +69,7 @@ Route::middleware(['auth:sanctum', 'verified'])->name('api.')->group(function ()
     /*
     |======================================================================
     | FASE 2 — Mode kerja, profil, kamus kerja, SOP
-    | Profil dan kamus kerja aktif; endpoint lain menyusul.
+    | Profil dan Kamus Kerja tersedia bersama laporan dan persetujuan.
     |======================================================================
     */
 
@@ -111,55 +113,44 @@ Route::middleware(['auth:sanctum', 'verified'])->name('api.')->group(function ()
     | Middleware "mode:anggota" harus membalas 403 JSON (bukan redirect).
     |======================================================================
     */
-    // Route::middleware('mode:anggota')->group(function () {
-    //     Route::get('/laporan/referensi', [LaporanApiController::class, 'create'])->name('laporan.create');     // data form
-    //     Route::get('/laporan', [LaporanApiController::class, 'index'])->name('laporan.index');
-    //     Route::post('/laporan', [LaporanApiController::class, 'store'])->name('laporan.store');
-    //     Route::get('/laporan/{laporan}/revisi', [LaporanApiController::class, 'edit'])->name('laporan.edit');   // data form
-    //     Route::get('/laporan/{laporan}', [LaporanApiController::class, 'show'])->name('laporan.show');
-    //     Route::patch('/laporan/{laporan}', [LaporanApiController::class, 'update'])->name('laporan.update');
-    //     Route::delete('/laporan/{laporan}', [LaporanApiController::class, 'destroy'])->name('laporan.destroy');
-    // });
-    //
+    Route::middleware('mode:anggota')->group(function () {
+        Route::get('/laporan/referensi', [LaporanApiController::class, 'create'])->name('laporan.create');
+        Route::get('/laporan', [LaporanApiController::class, 'index'])->name('laporan.index');
+        Route::post('/laporan', [LaporanApiController::class, 'store'])->name('laporan.store');
+        Route::get('/laporan/{laporan}/revisi', [LaporanApiController::class, 'edit'])->name('laporan.edit');
+        Route::get('/laporan/{laporan}', [LaporanApiController::class, 'show'])->name('laporan.show');
+        Route::patch('/laporan/{laporan}', [LaporanApiController::class, 'update'])->name('laporan.update');
+        Route::delete('/laporan/{laporan}', [LaporanApiController::class, 'destroy'])->name('laporan.destroy');
+    });
     // Catatan: "tugas-saya" (staf.tugas.*) di web tidak dibuat ulang. Fungsinya sudah
     // dicakup /pekerjaan karena AksesPekerjaan::lingkup() membatasi staf ke tugasnya.
 
     /*
     |======================================================================
-    | FASE 4 — Mode KETUA TIM (nama route berawalan "kabag.")
+    | Persetujuan laporan — Ketua Tim dan Kepala BPS
     |======================================================================
     */
-    // Route::middleware('mode:ketua')->name('kabag.')->group(function () {
-    //     Route::get('/laporan-tim/referensi', [LaporanApiController::class, 'create'])->name('laporan.create');
-    //     Route::get('/laporan-tim', [LaporanApiController::class, 'index'])->name('laporan.index');
-    //     Route::post('/laporan-tim', [LaporanApiController::class, 'store'])->name('laporan.store');
-    //     Route::get('/laporan-tim/{laporan}/revisi', [LaporanApiController::class, 'edit'])->name('laporan.edit');
-    //     Route::get('/laporan-tim/{laporan}', [LaporanApiController::class, 'show'])->name('laporan.show');
-    //     Route::patch('/laporan-tim/{laporan}', [LaporanApiController::class, 'update'])->name('laporan.update');
-    //     Route::delete('/laporan-tim/{laporan}', [LaporanApiController::class, 'destroy'])->name('laporan.destroy');
-    //
-    //     Route::get('/persetujuan-tim', [ApprovalApiController::class, 'index'])->name('approval.index');
-    //     Route::get('/persetujuan-tim/{laporan}', [ApprovalApiController::class, 'show'])->name('approval.show');
-    //     Route::post('/persetujuan-tim/{laporan}', [ApprovalApiController::class, 'proses'])->name('approval.proses');
-    // });
+    Route::middleware('mode:ketua')->name('kabag.')->group(function () {
+        Route::get('/persetujuan-tim', [ApprovalApiController::class, 'index'])->name('approval.index');
+        Route::get('/persetujuan-tim/{laporan}', [ApprovalApiController::class, 'show'])->name('approval.show');
+        Route::post('/persetujuan-tim/{laporan}', [ApprovalApiController::class, 'proses'])->name('approval.proses');
+    });
 
-    /*
-    |======================================================================
-    | FASE 4 — KEPALA BPS
-    |======================================================================
-    */
+    // Kepala BPS dapat menyetujui laporan dari semua tim.
+    Route::middleware('role:kepala_bps')->name('kepala-bps.')->group(function () {
+        Route::get('/persetujuan-kantor', [ApprovalApiController::class, 'index'])->name('approval.index');
+        Route::get('/persetujuan-kantor/{laporan}', [ApprovalApiController::class, 'show'])->name('approval.show');
+        Route::post('/persetujuan-kantor/{laporan}', [ApprovalApiController::class, 'proses'])->name('approval.proses');
+    });
+
+    // Rekap kantor masih belum tersedia di API.
     // Route::middleware('role:kepala_bps')->name('kepala-bps.')->group(function () {
     //     Route::get('/rekap-kantor/laporan', [RekapApiController::class, 'index'])->name('rekap');
     //     Route::get('/rekap-kantor/laporan/export-pdf', [RekapApiController::class, 'exportPdf'])->name('rekap.export-pdf');
     //     Route::get('/rekap-kantor/laporan/export-excel', [RekapApiController::class, 'exportExcel'])->name('rekap.export-excel');
-    //
     //     Route::get('/rekap-kantor/pekerjaan', [RekapApiController::class, 'pekerjaan'])->name('rekap.pekerjaan');
     //     Route::get('/rekap-kantor/pekerjaan/export-pdf', [RekapApiController::class, 'pekerjaanPdf'])->name('rekap.pekerjaan.export-pdf');
     //     Route::get('/rekap-kantor/pekerjaan/export-excel', [RekapApiController::class, 'pekerjaanExcel'])->name('rekap.pekerjaan.export-excel');
-    //
-    //     Route::get('/persetujuan-kantor', [ApprovalApiController::class, 'index'])->name('approval.index');
-    //     Route::get('/persetujuan-kantor/{laporan}', [ApprovalApiController::class, 'show'])->name('approval.show');
-    //     Route::post('/persetujuan-kantor/{laporan}', [ApprovalApiController::class, 'proses'])->name('approval.proses');
     // });
 
     /*

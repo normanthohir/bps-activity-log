@@ -1,7 +1,6 @@
 s@php
-    $isKabag = \App\Support\ModeKerja::ketuaAktif(auth()->user());
-    $routeIndex = $isKabag ? 'kabag.laporan.index' : 'laporan.index';
-    $routeEdit = $isKabag ? 'kabag.laporan.edit' : 'laporan.edit';
+    $routeIndex = 'laporan.index';
+    $routeEdit = 'laporan.edit';
 
     // Boleh diubah selama masih draft atau dikembalikan (sesuai LaporanHarianPolicy)
     $bisaDiubah = in_array($laporan->status, ['draft', 'dikembalikan']);

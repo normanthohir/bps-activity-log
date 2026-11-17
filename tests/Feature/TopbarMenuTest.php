@@ -65,6 +65,19 @@ class TopbarMenuTest extends TestCase
             ->assertSee('data-nav-link="staf.tugas.index"', false);
     }
 
+    public function test_laporan_hanya_tersedia_di_mode_anggota_dan_mode_ketua_hanya_mendapat_persetujuan(): void
+    {
+        $this->assertTrue(\Illuminate\Support\Facades\Route::has('laporan.index'));
+        $this->assertFalse(\Illuminate\Support\Facades\Route::has('kabag.laporan.index'));
+        $this->assertTrue(\Illuminate\Support\Facades\Route::has('kabag.approval.index'));
+        $this->assertTrue(\Illuminate\Support\Facades\Route::has('kepala-bps.approval.index'));
+
+        $this->assertTrue(\Illuminate\Support\Facades\Route::has('api.laporan.index'));
+        $this->assertFalse(\Illuminate\Support\Facades\Route::has('api.kabag.laporan.index'));
+        $this->assertTrue(\Illuminate\Support\Facades\Route::has('api.kabag.approval.index'));
+        $this->assertTrue(\Illuminate\Support\Facades\Route::has('api.kepala-bps.approval.index'));
+    }
+
     public function test_kepala_bps_melihat_monitoring_dan_penugasan_kepala(): void
     {
         $kepala = User::factory()->create(['role' => 'kepala_bps']);

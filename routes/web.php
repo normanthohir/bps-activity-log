@@ -6,8 +6,6 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ExcelImportController;
 use App\Http\Controllers\KamusExcelController;
 use App\Http\Controllers\KamusKerjaController;
-use App\Http\Controllers\KepalaBagian\TugasAktifController;
-use App\Http\Controllers\KepalaBagian\TugasController as KabagTugasController;
 use App\Http\Controllers\KepalaBPS\RekapController;
 use App\Http\Controllers\ApprovalController;
 use App\Http\Controllers\ModeKerjaController;
@@ -82,15 +80,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('laporan/{laporan}/revisi', [LaporanController::class, 'edit'])->name('laporan.edit');
         Route::resource('laporan', LaporanController::class)
             ->only(['index', 'store', 'show', 'update', 'destroy']);
-        // Route::get('tugas-saya', [StafTugasController::class, 'index'])->name('staf.tugas.index');
-        // Route::get('tugas-saya/{tugas}', [StafTugasController::class, 'show'])->name('staf.tugas.show');
-        // Route::patch('tugas-saya/{tugas}', [StafTugasController::class, 'update'])->name('staf.tugas.update');
-
-        // Peninggalan versi lama (tugas.index / tugas.show).
-        // Hapus kalau pencarian  grep -rn "route('tugas\." app resources  tidak menemukan apa pun.
-        // Route::resource('tugas', StafTugasController::class)
-        //     ->only(['index', 'show'])
-        //     ->parameters(['tugas' => 'tugas']);
+  
     });
 
     /*
@@ -99,24 +89,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
     |----------------------------------------------------------------------
     */
     Route::middleware('mode:ketua')->name('kabag.')->group(function () {
-        // Route::get('dashboard/tim', [DashboardController::class, 'kabag'])->name('dashboard');
-
-        // Kunci parameters harus sama persis dengan nama resource (memakai tanda hubung)
-        // Route::resource('tugas-tim', KabagTugasController::class)
-        //     ->only(['index', 'create', 'store', 'show', 'edit', 'update', 'destroy'])
-        //     ->parameters(['tugas-tim' => 'tugas'])
-        //     ->names('tugas');
-
-        // Route::resource('tugas-aktif', TugasAktifController::class)
-        //     ->only(['index', 'show'])
-        //     ->parameters(['tugas-aktif' => 'tugas'])
-        //     ->names('tugas-aktif');
-
-        Route::resource('laporan-tim', LaporanController::class)
-            ->only(['index', 'create', 'store', 'show', 'update', 'destroy'])
-            ->parameters(['laporan-tim' => 'laporan'])
-            ->names('laporan');
-        Route::get('laporan-tim/{laporan}/revisi', [LaporanController::class, 'edit'])->name('laporan.edit');
         Route::get('persetujuan-tim', [ApprovalController::class, 'index'])->name('approval.index');
         Route::get('persetujuan-tim/{laporan}', [ApprovalController::class, 'show'])->name('approval.show');
         Route::post('persetujuan-tim/{laporan}', [ApprovalController::class, 'proses'])->name('approval.proses');

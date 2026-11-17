@@ -275,9 +275,10 @@ class PekerjaanApiController extends Controller
 
     public function show(Request $request, Tugas $tugas): JsonResponse
     {
-        abort_unless(AksesPekerjaan::dapatLihat($request->user(), $tugas), 403);
+        $user = $request->user();
+        abort_unless(AksesPekerjaan::dapatLihat($user, $tugas), 403);
 
-        $tugas->load([
+        $relasi = [
             'pemberiTugas',
             'penerimaTugas',
             'bagian',
@@ -289,8 +290,13 @@ class PekerjaanApiController extends Controller
             'sopLangkah.sop',
             'sopPelaksanaan',
             'kamusKerja',
-            'laporanHarian' => fn ($query) => $query->latest(),
-        ]);
+        ];
+        if (ModeKerja::anggotaAktif($user)) {
+            $relasi['laporanHarian'] = fn ($query) => $query
+                ->where('user_id', $user->id)
+                ->latest();
+        }
+        $tugas->load($relasi);
 
         $sumberOutput = $tugas->semuaSumberOutput();
         $pemakaiOutput = $tugas->dipakaiSebagaiInput;

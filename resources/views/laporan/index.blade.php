@@ -1,10 +1,9 @@
 {{-- resources/views/laporan/index.blade.php --}}
 @php
-    $isKabag = \App\Support\ModeKerja::ketuaAktif(auth()->user());
-    $createRoute = $isKabag ? 'kabag.laporan.create' : 'laporan.create';
-    $editRoute = $isKabag ? 'kabag.laporan.edit' : 'laporan.edit';
-    $showRoute = $isKabag ? 'kabag.laporan.show' : 'laporan.show';
-    $indexRoute = $isKabag ? 'kabag.laporan.index' : 'laporan.index';
+    $createRoute = 'laporan.create';
+    $editRoute = 'laporan.edit';
+    $showRoute = 'laporan.show';
+    $indexRoute = 'laporan.index';
 
     $filterAktif =
         request()->hasAny(['cari', 'status', 'periode']) &&

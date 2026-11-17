@@ -14,6 +14,8 @@ class LaporanHarian extends Model
 
     protected $table = 'laporan_harian';
 
+    protected $appends = ['sqid'];
+
     protected $fillable = [
         'user_id',
         'tugas_id',
@@ -29,6 +31,11 @@ class LaporanHarian extends Model
         'disetujui_oleh',
         'disetujui_pada',
     ];
+
+    public function getSqidAttribute(): string
+    {
+        return $this->getRouteKey();
+    }
 
     protected function casts(): array
     {

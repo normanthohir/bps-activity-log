@@ -200,18 +200,11 @@
                                                         Lihat Detail
                                                     </a>
                                                 @endif
-                                                @if ($tugas->status !== 'dikerjakan')
-                                                    @if (\App\Support\ModeKerja::ketuaAktif(auth()->user()))
-                                                        <a href="{{ route('kabag.laporan.create', ['tugas' => $tugas->id]) }}"
-                                                            class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                                                            Buat Laporan
-                                                        </a>
-                                                    @else
-                                                        <a href="{{ route('laporan.create', ['tugas' => $tugas->id]) }}"
-                                                            class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                                                            Buat Laporan
-                                                        </a>
-                                                    @endif
+                                                @if ($tugas->status !== 'dikerjakan' && \App\Support\ModeKerja::anggotaAktif(auth()->user()))
+                                                    <a href="{{ route('laporan.create', ['tugas' => $tugas->id]) }}"
+                                                        class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                                        Buat Laporan
+                                                    </a>
                                                 @endif
                                             </x-dropdown-action>
                                         </div>

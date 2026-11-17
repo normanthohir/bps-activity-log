@@ -52,7 +52,7 @@ class MenuNavigasi
             $kelompok[] = self::bagian(
                 'monitoring',
                 'Monitoring',
-                ['laporan', 'kabag.laporan', 'kabag.approval', 'kepala-bps.rekap', 'kepala-bps.approval'],
+                ['laporan', 'kabag.approval', 'kepala-bps.rekap', 'kepala-bps.approval'],
                 $monitoring
             );
         }
